@@ -1,0 +1,16 @@
+plugins {
+    id 'kotlin'
+}
+
+dependencies {
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = jvm_version
+    kotlinOptions.freeCompilerArgs += ['-Xopt-in=kotlin.time.ExperimentalTime']
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = jvm_version
+    kotlinOptions.freeCompilerArgs += ['-Xopt-in=kotlin.time.ExperimentalTime']
+}

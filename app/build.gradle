@@ -1,0 +1,64 @@
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+android {
+    flavorDimensions "default"
+    compileSdkVersion compile_sdk_version
+
+    defaultConfig {
+        applicationId "com.hva.appname"
+        minSdkVersion min_sdk_version
+        targetSdkVersion compile_sdk_version
+        versionCode version_code
+        versionName version_name
+
+        renderscriptTargetApi 22
+        renderscriptSupportModeEnabled true
+    }
+
+    compileOptions {
+        sourceCompatibility jvm_version
+        targetCompatibility jvm_version
+    }
+
+    kotlinOptions {
+        jvmTarget = jvm_version
+    }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            debuggable true
+        }
+
+        release {
+            minifyEnabled true
+            debuggable false
+
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    // Project modules
+    implementation project(':presentation')
+    implementation project(':domain')
+    implementation project(':data')
+
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation "com.google.android.material:material:1.5.0"
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+}
