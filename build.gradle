@@ -9,6 +9,9 @@ buildscript {
 
         kotlin_version = '1.6.10'
         jvm_version = JavaVersion.VERSION_11
+
+        // Koin
+        koin_version = "3.1.5"
     }
 
     repositories {
