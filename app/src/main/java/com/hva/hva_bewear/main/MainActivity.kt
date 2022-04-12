@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
@@ -21,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
 import com.hva.hva_bewear.domain.weather.model.Weather
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
@@ -80,21 +78,22 @@ class MainActivity : ComponentActivity() {
                         .align(Alignment.CenterHorizontally)
                         .padding(16.dp, 16.dp, 16.dp, 8.dp),
                 )
-                AdviceText(advice = advice)
+
+                advice?.let {
+                    AdviceText(advice = advice)
+                }
             }
         }
     }
 
     @Composable
-    fun AdviceText(advice:ClothingAdvice?){
-        if (advice != null) {
-            Text(
-                text = advice.textAdvice,
-                modifier = Modifier
-                    .padding(horizontal = 48.dp, vertical = 16.dp),
-                textAlign = TextAlign.Center,
-            )
-        }
+    fun AdviceText(advice:ClothingAdvice){
+        Text(
+            text = advice.textAdvice,
+            modifier = Modifier
+                .padding(horizontal = 48.dp, vertical = 16.dp),
+            textAlign = TextAlign.Center,
+        )
     }
 
     @Preview(showBackground = true)
