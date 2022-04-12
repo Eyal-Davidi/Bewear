@@ -17,6 +17,8 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,7 +70,7 @@ class MainActivity : ComponentActivity() {
         Card(
             shape = RoundedCornerShape(10.dp),
             modifier = Modifier.padding(10.dp),
-            elevation = 10.dp,
+            backgroundColor = Color.LightGray,
         ) {
             Column {
                 Text(
@@ -89,7 +91,8 @@ class MainActivity : ComponentActivity() {
             Text(
                 text = advice.textAdvice,
                 modifier = Modifier
-                    .padding(16.dp),
+                    .padding(horizontal = 48.dp, vertical = 16.dp),
+                textAlign = TextAlign.Center,
             )
         }
     }
