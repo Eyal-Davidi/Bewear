@@ -4,14 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.hva.hva_bewear.domain.weather.model.Weather
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
@@ -30,18 +29,22 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Text")
+                    MainScreen()
                 }
             }
         }
     }
 
     @Composable
-    fun Greeting(name: String) {
+    fun MainScreen() {
+        val weather by viewModel.weather.observeAsState()
+        DisplayWeatherData(weather)
+    }
+
+    @Composable
+    fun DisplayWeatherData(weather:Weather?) {
         Text(
-            text = "Hello $name!",
-            modifier = Modifier.padding(bottom = 8.dp),
-            style = MaterialTheme.typography.h5
+            text = weather.toString()
         )
     }
 
@@ -49,15 +52,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun DefaultPreview() {
         M2Mobi_HvATheme {
-            Greeting("Android")
+            MainScreen()
         }
     }
-
-    private fun observeViewModel() {
-        viewModel.weather.observe(this, ::handleWeather)
-        viewModel.advice.observe(this, ::handleAdvice)
-    }
-
-    private fun handleWeather(weather: Weather) {}
-    private fun handleAdvice(advice: ClothingAdvice){}
 }
