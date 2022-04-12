@@ -34,8 +34,8 @@ class MainViewModel(private val getWeather: GetWeather, private val getClothingA
     }
 
     private fun fetchAdvice(){
-        viewModelScope.launchOnIO {
-            generateTextAdvice(getClothingAdvice()).let { _advice::postValue }
+        viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
+            generateTextAdvice(getClothingAdvice()).let(_advice::postValue)
         }
     }
 
