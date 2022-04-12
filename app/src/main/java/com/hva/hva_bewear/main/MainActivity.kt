@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .scale(2f)
                         .align(Alignment.CenterHorizontally)
-                        .padding(16.dp),
+                        .padding(16.dp, 16.dp, 16.dp, 8.dp),
                 )
                 AdviceText(advice = advice)
             }
