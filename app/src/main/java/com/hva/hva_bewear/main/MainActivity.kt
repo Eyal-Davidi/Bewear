@@ -58,6 +58,6 @@ class MainActivity : ComponentActivity() {
         viewModel.advice.observe(this, ::handleAdvice)
     }
 
-    private fun handleText(weather: Weather) {}
+    private fun handleWeather(weather: Weather) {}
     private fun handleAdvice(advice: ClothingAdvice){}
 }
