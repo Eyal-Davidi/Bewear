@@ -24,6 +24,7 @@ android {
 }
 
 dependencies {
+    //dev
     ext.lifecycle_ktx_version = "2.4.1"
     implementation project(':domain')
 
