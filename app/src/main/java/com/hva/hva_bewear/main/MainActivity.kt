@@ -1,6 +1,5 @@
 package com.hva.hva_bewear.main
 
-import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,7 +17,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -28,7 +27,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
-import androidx.compose.ui.res.painterResource
 import com.hva.hva_bewear.R
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -43,6 +41,7 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModel()
     private val locationPicker: LocationPicker = LocationPicker()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -65,7 +64,6 @@ class MainActivity : ComponentActivity() {
         val locations = locationPicker.setOfLocations()
         if (weather != null && advice != null) Column {
             TopBar(locations)
-            TemperatureDisplay(weather!!)
             Row {
                 TemperatureDisplay(weather!!)
                 WindDisplay(weather!!)
@@ -73,12 +71,13 @@ class MainActivity : ComponentActivity() {
             AdviceDescription(advice)
         } else GifImage(
             imageID = R.drawable.ic_action_loading,
+            modifier = Modifier.scale(0.5f)
         )
     }
 
     @Composable
     fun TemperatureDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(horizontal = 16.dp, vertical = 160.dp)) {
+        Column(Modifier.padding(start = 16.dp, top = 100.dp)) {
             Row {
                 Image(
                     painter = painterResource(id = R.drawable.ic_action_thermometer),
@@ -93,42 +92,34 @@ class MainActivity : ComponentActivity() {
                     textAlign = TextAlign.Center,
                 )
             }
-
             Text(
                 text = weather.feelsLikeTemperatureDisplay,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
             )
-
         }
     }
 
     @Composable
     fun WindDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(80.dp, 0.dp))
+        Column(Modifier.padding(start = 115.dp, top = 80.dp))
         {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data (weather.iconUrl)
+                    .data(weather.iconUrl)
                     .build(),
-                placeholder = painterResource(R.drawable.ic_launcher_foreground),
-                contentDescription = "text",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.size(128.dp)
+                contentDescription = null,
+                modifier = Modifier.size(100.dp)
             )
-
             Row {
                 Image(
-                    //i con provided by api
-                    //painter = painterResource(id = R.drawable.ic_action_cloudy),
                     painter = painterResource(id = R.drawable.ic_baseline_navigation_24),
                     contentDescription = "Wind navigation image",
                     modifier = Modifier
-                        .size(60.dp, 80.dp)
-                    //.padding(1.dp, 20.dp)
+                        .size(40.dp)
+                        .rotate(weather.windDegrees.toFloat())
                 )
-
                 Text(
                     text = weather.windDisplay,
                     fontSize = 22.sp,
@@ -141,36 +132,41 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun TopBar(locations: ArrayList<String>) {
-
         var expanded by remember { mutableStateOf(false) }
-
         var selectedIndex by remember { mutableStateOf(0) }
         Card(
-
             modifier = Modifier
                 .padding(5.dp, 5.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .clickable(onClick = { expanded = true }),
+                .clickable(onClick = { expanded = true })
+                .fillMaxWidth(),
             backgroundColor = Color.LightGray,
         ) {
-            Row() {
-
-
-                Image(
-                    painter = painterResource(R.drawable.logo),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(30.dp)
-                )
-                Text(
-                    locations[selectedIndex],
-                    textAlign = TextAlign.Center,
-                    fontSize = 18.sp,
-                    modifier = Modifier
-                        .width(340.dp)
-
-                )
-
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.logo),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(30.dp)
+                    )
+                    Text(
+                        locations[selectedIndex],
+                        fontSize = 18.sp,
+                    )
+                    Image(
+                        painter = if (expanded)
+                            painterResource(R.drawable.expand_less)
+                        else
+                            painterResource(R.drawable.expand_more),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(30.dp)
+                    )
+                }
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
@@ -196,24 +192,11 @@ class MainActivity : ComponentActivity() {
                                 text = s,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
-                                    .fillMaxWidth()
+                                    .wrapContentWidth()
                             )
                         }
                     }
                 }
-
-                Image(
-                    painter =
-                    if (expanded) {
-                        painterResource(R.drawable.expand_less)
-                    } else {
-                        painterResource(R.drawable.expand_more)
-                    },
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(30.dp)
-
-                )
             }
         }
     }
@@ -222,7 +205,7 @@ class MainActivity : ComponentActivity() {
     fun AdviceDescription(advice: ClothingAdvice?) {
         Card(
             shape = RoundedCornerShape(10.dp),
-            modifier = Modifier.padding(10.dp),
+            modifier = Modifier.padding(10.dp, top = 300.dp, 10.dp),
             backgroundColor = Color.LightGray,
         ) {
             Column {
@@ -233,14 +216,12 @@ class MainActivity : ComponentActivity() {
                         .align(Alignment.CenterHorizontally)
                         .padding(16.dp, 16.dp, 16.dp, 8.dp),
                 )
-
                 advice?.let {
                     AdviceText(advice = advice)
                 }
             }
         }
     }
-
 
     @Composable
     fun AdviceText(advice: ClothingAdvice) {
@@ -256,7 +237,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun DefaultPreview() {
         M2Mobi_HvATheme {
-            MainScreen()
+            TopBar(locations = locationPicker.setOfLocations())
         }
     }
 }

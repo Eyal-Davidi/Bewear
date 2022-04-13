@@ -4,5 +4,6 @@ data class WeatherUIModel(
     val temperatureDisplay: String,
     val feelsLikeTemperatureDisplay: String,
     val windDisplay: String,
-    val iconUrl: String
+    val iconUrl: String,
+    val windDegrees: Int,
 )

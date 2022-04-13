@@ -3,7 +3,7 @@ package com.hva.hva_bewear.domain.weather
 import com.hva.hva_bewear.domain.weather.model.Locations
 
 class LocationPicker() {
-    var location: Locations = Locations.NORGE
+    var location: Locations = Locations.AMSTERDAM
 
 
     fun setOfLocations(): ArrayList<String>{
