@@ -25,19 +25,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
-import com.hva.hva_bewear.domain.weather.model.Weather
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import coil.ImageLoader
 import coil.compose.rememberImagePainter
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.size.OriginalSize
 import com.hva.hva_bewear.R
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
@@ -67,49 +63,41 @@ class MainActivity : ComponentActivity() {
     fun MainScreen() {
         val weather by viewModel.weather.observeAsState()
         val advice by viewModel.advice.observeAsState()
-        Column {
+
+        if (weather != null && advice != null) Column {
+
+            TemperatureDisplay(weather!!)
             AdviceDescription(advice)
-            
-            if(weather != null) TemperatureDisplay(weather!!)
-            else GifImage(
-                imageID = R.drawable.ic_action_loading,
-            )
-
-//        weather?.let {
-//            TemperatureDisplay(weather = it)
-//        }?: GifImage(imageID = R.drawable.ic_action_loading)
-
         }
+        else GifImage(
+            imageID = R.drawable.ic_action_loading,
+        )
 
     }
 
     @Composable
     fun TemperatureDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(50.dp, 80.dp)) {
-        Text(
-            text = weather.temperatureDisplay,
-            fontSize = 32.sp,
-            fontWeight = FontWeight.SemiBold,
-            textAlign = TextAlign.Center,
-        )
-    }
+        Column(Modifier.padding(horizontal = 16.dp, vertical = 160.dp)) {
+            Row {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_action_thermometer),
+                    contentDescription = "Temperature image",
+                    modifier = Modifier
+                        .size(45.dp)
+                )
+                Text(
+                    text = weather.temperatureDisplay,
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
+                )
+            }
 
-        Column(Modifier.padding(30.dp, 120.dp)) {
             Text(
                 text = weather.feelsLikeTemperatureDisplay,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
-            )
-        }
-
-        Column(Modifier.padding(22.dp, 88.dp)) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_action_thermometer),
-                contentDescription = "Temperature image",
-                modifier = Modifier
-                    .width(30.dp)
-                    .height(30.dp)
             )
         }
     }
@@ -118,7 +106,7 @@ class MainActivity : ComponentActivity() {
     fun GifImage(
         modifier: Modifier = Modifier,
         imageID: Int
-    ){
+    ) {
         val context = LocalContext.current
         val imageLoader = ImageLoader.Builder(context)
             .componentRegistry {
@@ -129,6 +117,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
             .build()
+
         Image(
             painter = rememberImagePainter(
                 imageLoader = imageLoader,
@@ -143,7 +132,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun AdviceDescription(advice: ClothingAdvice?){
+    fun AdviceDescription(advice: ClothingAdvice?) {
         Card(
             shape = RoundedCornerShape(10.dp),
             modifier = Modifier.padding(10.dp),
@@ -166,7 +155,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun AdviceText(advice:ClothingAdvice){
+    fun AdviceText(advice: ClothingAdvice) {
         Text(
             text = advice.textAdvice,
             modifier = Modifier
