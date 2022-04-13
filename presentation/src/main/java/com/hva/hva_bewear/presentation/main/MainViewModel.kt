@@ -9,12 +9,14 @@ import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
 import com.hva.hva_bewear.domain.weather.GetWeather
 import com.hva.hva_bewear.domain.weather.model.Weather
 import com.hva.hva_bewear.presentation.generic.launchOnIO
+import com.hva.hva_bewear.presentation.main.WeatherUIMapper.uiModel
+import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
 import kotlinx.coroutines.*
 
 class MainViewModel(private val getWeather: GetWeather, private val getClothingAdvice: GetClothingAdvice) : ViewModel() {
 
-    private val _weather = MutableLiveData<Weather>()
-    val weather: LiveData<Weather> by lazy {
+    private val _weather = MutableLiveData<WeatherUIModel>()
+    val weather: LiveData<WeatherUIModel> by lazy {
         fetchWeather()
         _weather
     }
@@ -29,7 +31,7 @@ class MainViewModel(private val getWeather: GetWeather, private val getClothingA
 
     private fun fetchWeather() {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
-            getWeather().let(_weather::postValue)
+            getWeather().uiModel().let(_weather::postValue)
         }
     }
 
