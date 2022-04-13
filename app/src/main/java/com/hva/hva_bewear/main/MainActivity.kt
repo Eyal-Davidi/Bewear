@@ -1,6 +1,5 @@
 package com.hva.hva_bewear.main
 
-import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,14 +24,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import coil.ImageLoader
-import coil.compose.rememberImagePainter
-import coil.decode.GifDecoder
-import coil.decode.ImageDecoderDecoder
-import coil.size.OriginalSize
 import com.hva.hva_bewear.R
 import androidx.compose.ui.unit.sp
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
@@ -65,14 +58,11 @@ class MainActivity : ComponentActivity() {
         val advice by viewModel.advice.observeAsState()
 
         if (weather != null && advice != null) Column {
-
             TemperatureDisplay(weather!!)
             AdviceDescription(advice)
-        }
-        else GifImage(
+        } else GifImage(
             imageID = R.drawable.ic_action_loading,
         )
-
     }
 
     @Composable
@@ -100,35 +90,6 @@ class MainActivity : ComponentActivity() {
                 textAlign = TextAlign.Center,
             )
         }
-    }
-
-    @Composable
-    fun GifImage(
-        modifier: Modifier = Modifier,
-        imageID: Int
-    ) {
-        val context = LocalContext.current
-        val imageLoader = ImageLoader.Builder(context)
-            .componentRegistry {
-                if (SDK_INT >= 28) {
-                    add(ImageDecoderDecoder(context))
-                } else {
-                    add(GifDecoder())
-                }
-            }
-            .build()
-
-        Image(
-            painter = rememberImagePainter(
-                imageLoader = imageLoader,
-                data = imageID,
-                builder = {
-                    size(OriginalSize)
-                }
-            ),
-            contentDescription = null,
-            modifier = modifier
-        )
     }
 
     @Composable
