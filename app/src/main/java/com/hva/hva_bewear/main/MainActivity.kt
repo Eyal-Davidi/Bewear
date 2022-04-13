@@ -33,18 +33,17 @@ import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.size.OriginalSize
 import com.hva.hva_bewear.R
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.ImagePainter.State.Empty.painter
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
 import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import com.hva.hva_bewear.presentation.main.LocationPicker
 
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModel()
-
+private val locationPicker : LocationPicker = LocationPicker()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -64,9 +63,9 @@ class MainActivity : ComponentActivity() {
     fun MainScreen() {
         val weather by viewModel.weather.observeAsState()
         val advice by viewModel.advice.observeAsState()
-
+        val locations = locationPicker.setLocation()
         if (weather != null && advice != null) Column {
-
+            TopBar(locations)
             TemperatureDisplay(weather!!)
             AdviceDescription(advice)
         }
@@ -131,78 +130,81 @@ class MainActivity : ComponentActivity() {
             modifier = modifier
         )
     }
-    @Composable
-    private fun TopBar() {
-        var expanded by remember { mutableStateOf(false) }
-        val locations = listOf("Amsterdam", "Rotterdam", "Hoorn")
-        var selectedIndex by remember { mutableStateOf(0) }
-        Box(
-            modifier = Modifier
-                .padding(5.dp,5.dp)
-                .fillMaxSize()
-                .wrapContentSize(Alignment.TopCenter)
-                .clip(RoundedCornerShape(10.dp))
-                .background(
-                    Color.Gray
-                )
-        ) {
-            Text(
-                locations[selectedIndex],
-                textAlign = TextAlign.Center,
-                fontSize = 18.sp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = { expanded = true })
-            )
 
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        Color.Gray
-                    )
-            ) {
-                locations.forEachIndexed { index, s ->
-                    DropdownMenuItem(
-                        onClick = {
-                            if (index != selectedIndex) {
-                                selectedIndex = index
-                                expanded = false
-                            }
-                        },
-                        modifier = Modifier.border(width = 1.dp, color = Color.Black)
-                    ) {
-                        Text(
-                            text = s,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
+    @Composable
+    private fun TopBar(locations :ArrayList<String>) {
+
+        var expanded by remember { mutableStateOf(false) }
+
+        var selectedIndex by remember { mutableStateOf(0) }
+        Card(
+
+            modifier = Modifier
+                .padding(5.dp, 5.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .clickable(onClick = { expanded = true }),
+            backgroundColor = Color.LightGray,
+        ) {
+            Row() {
+
+
+                Image(
+                    painter = painterResource(R.drawable.logo),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(30.dp)
+                )
+                Text(
+                    locations[selectedIndex],
+                    textAlign = TextAlign.Center,
+                    fontSize = 18.sp,
+                    modifier = Modifier
+                        .width(340.dp)
+
+                )
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            Color.Gray
                         )
+                ) {
+                    locations.forEachIndexed { index, s ->
+                        DropdownMenuItem(
+                            onClick = {
+                                if (index != selectedIndex) {
+                                    selectedIndex = index
+                                    expanded = false
+                                }
+                            },
+                            modifier = Modifier.border(width = 1.dp, color = Color.Black)
+                        ) {
+                            Text(
+                                text = s,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            )
+                        }
                     }
                 }
+
+                Image(
+                    painter =
+                    if (expanded) {
+                        painterResource(R.drawable.expand_less)
+                    } else {
+                        painterResource(R.drawable.expand_more)
+                    },
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(30.dp)
+
+                )
             }
-            Image(
-                    painter = painterResource(R.drawable.logo),
-            contentDescription = null,
-            modifier = Modifier
-                .size(20.dp)
-            )
-
-            Image(
-
-                painter =
-                if(expanded){
-                    painterResource(R.drawable.expand_less)
-                } else{
-                    painterResource(R.drawable.expand_more)
-                },
-                contentDescription = null,
-                modifier = Modifier
-                    .size(15.dp,20.dp)
-                    .align(Alignment.TopEnd)
-            )
         }
     }
 
@@ -244,7 +246,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun DefaultPreview() {
         M2Mobi_HvATheme {
-            MainScreen()
+            TopBar(locationPicker.setLocation())
         }
     }
 }
