@@ -5,15 +5,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -121,7 +125,81 @@ class MainActivity : ComponentActivity() {
             modifier = modifier
         )
     }
+    @Composable
+    private fun TopBar() {
+        var expanded by remember { mutableStateOf(false) }
+        val locations = listOf("Amsterdam", "Rotterdam", "Hoorn")
+        var selectedIndex by remember { mutableStateOf(0) }
+        Box(
+            modifier = Modifier
+                .padding(5.dp,5.dp)
+                .fillMaxSize()
+                .wrapContentSize(Alignment.TopCenter)
+                .clip(RoundedCornerShape(10.dp))
+                .background(
+                    Color.Gray
+                )
+        ) {
+            Text(
+                locations[selectedIndex],
+                textAlign = TextAlign.Center,
+                fontSize = 18.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = { expanded = true })
+            )
 
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Color.Gray
+                    )
+            ) {
+                locations.forEachIndexed { index, s ->
+                    DropdownMenuItem(
+                        onClick = {
+                            if (index != selectedIndex) {
+                                selectedIndex = index
+                                expanded = false
+                            }
+                        },
+                        modifier = Modifier.border(width = 1.dp, color = Color.Black)
+                    ) {
+                        Text(
+                            text = s,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+                }
+            }
+
+            Image(
+                painter = painterResource(R.drawable.logo),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(20.dp)
+            )
+
+            Image(
+
+                painter =
+                if(expanded){
+                    painterResource(R.drawable.expand_less)
+                } else{
+                    painterResource(R.drawable.expand_more)
+                },
+                contentDescription = null,
+                modifier = Modifier
+                    .size(15.dp,20.dp)
+                    .align(Alignment.TopEnd)
+            )
+        }
+    }
     @Preview(showBackground = true)
     @Composable
     fun DefaultPreview() {
