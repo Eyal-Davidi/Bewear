@@ -31,6 +31,7 @@ import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
 import androidx.compose.ui.res.painterResource
 import com.hva.hva_bewear.R
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
