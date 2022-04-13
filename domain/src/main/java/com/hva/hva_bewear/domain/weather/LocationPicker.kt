@@ -1,17 +1,23 @@
 package com.hva.hva_bewear.domain.weather
 
 import com.hva.hva_bewear.domain.weather.model.Locations
-import com.hva.hva_bewear.domain.weather.data.LocationPickerInterface
 
-class LocationPicker(val locationpicker: LocationPickerInterface ) {
+class LocationPicker() {
+    var location: Locations = Locations.NORGE
 
 
-
-    fun setLocation(): ArrayList<String> {
-        var set = arrayListOf<String>()
-        enumValues<Locations>().forEach { set.add(it.cityName) }
+    fun setOfLocations(): ArrayList<String>{
+        val set = arrayListOf<String>()
+        set.add(location.cityName)
+        enumValues<Locations>().forEach { if(it.cityName!=location.cityName){set.add(it.cityName)} }
         return set
     }
 
+    fun calLocation(): ArrayList<Double> {
+        return arrayListOf(location.lat,location.lon)
+    }
 
+    fun setLocation(locale: String) {
+        location = Locations.CityName(locale)
+    }
 }

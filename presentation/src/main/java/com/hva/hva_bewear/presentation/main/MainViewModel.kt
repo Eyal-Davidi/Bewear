@@ -93,4 +93,8 @@ class MainViewModel(private val getWeather: GetWeather, private val getClothingA
 
         return advice
     }
+
+
+
+
 }

@@ -1,17 +1,17 @@
 package com.hva.hva_bewear.presentation.main
 
 
-import com.hva.hva_bewear.presentation.main.LocationPicker
-import com.hva.hva_bewear.domain.weather.model.Locations
+import com.hva.hva_bewear.domain.weather.LocationPicker
 
 
 class LocationPicker() {
-    private val locpick: LocationPicker = LocationPicker()
-    operator fun invoke(): Locations {
-        return locpick.invoke()
+    private val locationpick: LocationPicker =com.hva.hva_bewear.domain.weather.LocationPicker()
+
+
+    fun setOfLocations() : ArrayList<String>{
+        return locationpick.setOfLocations()
     }
-    fun setLocation() : ArrayList<String>{
-        return locpick.setLocation()
+    fun setLocation(location: String){
+        locationpick.setLocation(location)
     }
-    
 }

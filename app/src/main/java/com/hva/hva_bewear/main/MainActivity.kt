@@ -43,7 +43,7 @@ import com.hva.hva_bewear.presentation.main.LocationPicker
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModel()
-private val locationPicker : LocationPicker = LocationPicker()
+    private val locationPicker: LocationPicker = LocationPicker()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -63,7 +63,7 @@ private val locationPicker : LocationPicker = LocationPicker()
     fun MainScreen() {
         val weather by viewModel.weather.observeAsState()
         val advice by viewModel.advice.observeAsState()
-        val locations = locationPicker.setLocation()
+        val locations = locationPicker.setOfLocations()
         if (weather != null && advice != null) Column {
             TopBar(locations)
             TemperatureDisplay(weather!!)
@@ -132,7 +132,7 @@ private val locationPicker : LocationPicker = LocationPicker()
     }
 
     @Composable
-    private fun TopBar(locations :ArrayList<String>) {
+    private fun TopBar(locations: ArrayList<String>) {
 
         var expanded by remember { mutableStateOf(false) }
 
@@ -178,6 +178,8 @@ private val locationPicker : LocationPicker = LocationPicker()
                                 if (index != selectedIndex) {
                                     selectedIndex = index
                                     expanded = false
+                                    locationPicker.setLocation(s)
+
                                 }
                             },
                             modifier = Modifier.border(width = 1.dp, color = Color.Black)
@@ -246,7 +248,7 @@ private val locationPicker : LocationPicker = LocationPicker()
     @Composable
     fun DefaultPreview() {
         M2Mobi_HvATheme {
-            TopBar(locationPicker.setLocation())
+            TopBar(locationPicker.setOfLocations())
         }
     }
 }
