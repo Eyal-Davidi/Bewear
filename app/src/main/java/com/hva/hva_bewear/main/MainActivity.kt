@@ -1,23 +1,23 @@
 package com.hva.hva_bewear.main
 
+import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -37,11 +37,12 @@ import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
 import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import com.hva.hva_bewear.presentation.main.LocationPicker
 
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModel()
-
+    private val locationPicker: LocationPicker = LocationPicker()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -61,8 +62,10 @@ class MainActivity : ComponentActivity() {
     fun MainScreen() {
         val weather by viewModel.weather.observeAsState()
         val advice by viewModel.advice.observeAsState()
-
+        val locations = locationPicker.setOfLocations()
         if (weather != null && advice != null) Column {
+            TopBar(locations)
+            TemperatureDisplay(weather!!)
             Row {
                 TemperatureDisplay(weather!!)
                 WindDisplay(weather!!)
@@ -131,6 +134,85 @@ class MainActivity : ComponentActivity() {
                     fontSize = 22.sp,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun TopBar(locations: ArrayList<String>) {
+
+        var expanded by remember { mutableStateOf(false) }
+
+        var selectedIndex by remember { mutableStateOf(0) }
+        Card(
+
+            modifier = Modifier
+                .padding(5.dp, 5.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .clickable(onClick = { expanded = true }),
+            backgroundColor = Color.LightGray,
+        ) {
+            Row() {
+
+
+                Image(
+                    painter = painterResource(R.drawable.logo),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(30.dp)
+                )
+                Text(
+                    locations[selectedIndex],
+                    textAlign = TextAlign.Center,
+                    fontSize = 18.sp,
+                    modifier = Modifier
+                        .width(340.dp)
+
+                )
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            Color.Gray
+                        )
+                ) {
+                    locations.forEachIndexed { index, s ->
+                        DropdownMenuItem(
+                            onClick = {
+                                if (index != selectedIndex) {
+                                    selectedIndex = index
+                                    expanded = false
+                                    locationPicker.setLocation(s)
+
+                                }
+                            },
+                            modifier = Modifier.border(width = 1.dp, color = Color.Black)
+                        ) {
+                            Text(
+                                text = s,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+
+                Image(
+                    painter =
+                    if (expanded) {
+                        painterResource(R.drawable.expand_less)
+                    } else {
+                        painterResource(R.drawable.expand_more)
+                    },
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(30.dp)
+
                 )
             }
         }
