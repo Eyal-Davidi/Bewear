@@ -16,7 +16,8 @@ object WeatherUIMapper {
             feelsLikeTemperatureDisplay = "Feels like: \n${parseTemperature(feelsLike.day)}",
             windDisplay = "${setWindDirection(windDegree)} ${calculateBeaufortScale(windSpeed)}",
             iconUrl = "https://openweathermap.org/img/wn/${weather[0].icon}@4x.png",
-            windDegrees = windDegree,
+            // Because we want the arrow to point towards the direction the wind is blowing we add 180° to it
+            windDegrees = windDegree + 180,
         )
     }
 
