@@ -24,7 +24,7 @@ class MainViewModel(private val getWeather: GetWeather, private val getClothingA
 
     private val _advice = MutableLiveData<AdviceUIModel>()
     val advice: LiveData<AdviceUIModel> by lazy {
-        fetchTextAdvice()
+        fetchAdvice()
         _advice
     }
 
