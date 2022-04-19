@@ -59,9 +59,10 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun MainScreen() {
+        val locations = locationPicker.setOfLocations()
         val weather by viewModel.weather.observeAsState()
         val advice by viewModel.advice.observeAsState()
-        val locations = locationPicker.setOfLocations()
+
         if (weather != null && advice != null) Column {
             TopBar(locations)
             Row {
@@ -183,7 +184,8 @@ class MainActivity : ComponentActivity() {
                                     selectedIndex = index
                                     expanded = false
                                     locationPicker.setLocation(s)
-
+                                    viewModel.fetchWeather()
+                                    viewModel.fetchAdvice()
                                 }
                             },
                             modifier = Modifier.border(width = 1.dp, color = Color.Black)
