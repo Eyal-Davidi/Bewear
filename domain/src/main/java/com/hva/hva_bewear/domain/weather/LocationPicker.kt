@@ -1,10 +1,10 @@
 package com.hva.hva_bewear.domain.weather
 
 import com.hva.hva_bewear.domain.weather.model.Locations
-var location: Locations = Locations.AMSTERDAM
-var set = arrayListOf<String>()
-class LocationPicker() {
 
+object LocationPicker {
+    var location: Locations = Locations.AMSTERDAM
+    var set = arrayListOf<String>()
 
     fun setOfLocations(): ArrayList<String> {
         if (set.isEmpty()) {

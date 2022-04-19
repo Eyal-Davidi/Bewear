@@ -13,7 +13,10 @@ import com.hva.hva_bewear.presentation.main.WeatherUIMapper.uiModel
 import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
 import kotlinx.coroutines.*
 
-class MainViewModel(private val getWeather: GetWeather, private val getClothingAdvice: GetClothingAdvice) : ViewModel() {
+class MainViewModel(
+    private val getWeather: GetWeather,
+    private val getClothingAdvice: GetClothingAdvice
+) : ViewModel() {
 
     private val _weather = MutableLiveData<WeatherUIModel>()
     val weather: LiveData<WeatherUIModel> by lazy {
@@ -27,74 +30,73 @@ class MainViewModel(private val getWeather: GetWeather, private val getClothingA
         _advice
     }
 
-    private val fetchWeatherExceptionHandler = CoroutineExceptionHandler { _, throwable ->  }
+    private val fetchWeatherExceptionHandler = CoroutineExceptionHandler { _, throwable -> }
 
-    fun fetchWeather() {
+    private fun fetchWeather() {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
             getWeather().uiModel().let(_weather::postValue)
         }
     }
 
-    fun fetchAdvice(){
+    private fun fetchAdvice() {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
             generateTextAdvice(getClothingAdvice()).let(_advice::postValue)
         }
     }
 
-    private fun generateTextAdvice(advice: ClothingAdvice) : ClothingAdvice{
+    fun fetch() {
+        fetchWeather()
+        fetchAdvice()
+    }
+
+    private fun generateTextAdvice(advice: ClothingAdvice): ClothingAdvice {
         val extraAdvice: String
         val extraText: String
-        when{
-            advice.wind && advice.highUVI && advice.rain ->
-            {
+        when {
+            advice.wind && advice.highUVI && advice.rain -> {
                 extraText = ", windy, rainy and sunny"
-                extraAdvice = " It will be rainy, windy and sunny! Take some sunscreen and an umbrella with you but don’t be careful with the wind."
+                extraAdvice =
+                    " It will be rainy, windy and sunny! Take some sunscreen and an umbrella with you but don’t be careful with the wind."
             }
-            advice.wind && advice.highUVI ->
-            {
+            advice.wind && advice.highUVI -> {
                 extraText = ", windy and sunny"
-                extraAdvice = " You should use some sunscreen and put on your hat and sunglasses, but be careful of the wind."
+                extraAdvice =
+                    " You should use some sunscreen and put on your hat and sunglasses, but be careful of the wind."
             }
-            advice.wind && advice.rain ->
-            {
+            advice.wind && advice.rain -> {
                 extraText = ", windy and rainy"
                 extraAdvice = " Bring an umbrella but don't lose it to the wind!"
             }
-            advice.highUVI && advice.rain ->
-            {
+            advice.highUVI && advice.rain -> {
                 extraText = ", rainy and sunny"
-                extraAdvice = " It will be both rainy and sunny, take some sunscreen and an umbrella with you."
+                extraAdvice =
+                    " It will be both rainy and sunny, take some sunscreen and an umbrella with you."
             }
-            advice.wind ->
-            {
+            advice.wind -> {
                 extraText = " and windy"
                 extraAdvice = ""
             }
-            advice.highUVI ->
-            {
+            advice.highUVI -> {
                 extraText = " and sunny"
                 extraAdvice = " You should use some sunscreen and put on your hat and sunglasses."
             }
-            advice.rain ->
-            {
+            advice.rain -> {
                 extraText = " and rainy"
                 extraAdvice = " Make sure to bring an umbrella."
             }
-            else ->
-            {
+            else -> {
                 extraText = ""
                 extraAdvice = ""
             }
         }
 
         advice.textAdvice = advice.textAdvice.replace("%d", extraText)
-        if (extraText != "") advice.textAdvice = advice.textAdvice.replace("regular", "medium temperature")
+        if (extraText != "") advice.textAdvice =
+            advice.textAdvice.replace("regular", "medium temperature")
         advice.textAdvice = advice.textAdvice.plus(extraAdvice)
 
         return advice
     }
-
-
 
 
 }

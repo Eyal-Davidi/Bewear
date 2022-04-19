@@ -20,7 +20,7 @@ class WeatherService {
                 listOf(ContentType.Application.Json, ContentType.Application.FormUrlEncoded)
         }
     }
-    private val locationPicker: LocationPicker = LocationPicker()
+    private val locationPicker: LocationPicker = LocationPicker
 
     suspend fun getWeather(): WeatherResponse {
         val location: ArrayList<Double> = locationPicker.calLocation()

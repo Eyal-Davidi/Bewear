@@ -5,7 +5,7 @@ import com.hva.hva_bewear.domain.weather.LocationPicker
 
 
 class LocationPicker() {
-    private val locationpick: LocationPicker =com.hva.hva_bewear.domain.weather.LocationPicker()
+    private val locationpick: LocationPicker =com.hva.hva_bewear.domain.weather.LocationPicker
 
 
     fun setOfLocations() : ArrayList<String>{

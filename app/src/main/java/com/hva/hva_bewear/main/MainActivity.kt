@@ -184,8 +184,8 @@ class MainActivity : ComponentActivity() {
                                     selectedIndex = index
                                     expanded = false
                                     locationPicker.setLocation(s)
-                                    viewModel.fetchWeather()
-                                    viewModel.fetchAdvice()
+                                    viewModel.fetch()
+
                                 }
                             },
                             modifier = Modifier.border(width = 1.dp, color = Color.Black)
