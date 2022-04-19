@@ -9,5 +9,5 @@ import org.koin.dsl.module
 val presentationModule = module {
     // ViewModels
     viewModel { MainViewModel(get(), get(), get()) }
-    factory<AvatarIdProvider> { AppAvatarIdProvider() }
+    factory<AvatarIdProvider> { AppAvatarIdProvider(get()) }
 }
