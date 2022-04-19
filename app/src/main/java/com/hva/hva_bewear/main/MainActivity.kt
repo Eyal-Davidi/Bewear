@@ -66,6 +66,7 @@ class MainActivity : ComponentActivity() {
         val advice by viewModel.advice.observeAsState()
 
         if (weather != null && advice != null) {
+            Avatar(advice!!)
             Column {
                 TopBar(locations)
                 Row {
@@ -74,7 +75,6 @@ class MainActivity : ComponentActivity() {
                 }
                 AdviceDescription(advice!!)
             }
-            Avatar(advice!!)
         }else GifImage(
             imageID = R.drawable.ic_action_loading,
             modifier = Modifier.scale(0.5f)
@@ -243,8 +243,7 @@ class MainActivity : ComponentActivity() {
         Image(
             painter = painterResource(advice.avatar),
             contentDescription = "Avatar",
-            modifier = Modifier.size(300.dp),
-            colorFilter = ColorFilter.tint(Color.Black)
+            modifier = Modifier.size(290.dp),
         )
     }
 
