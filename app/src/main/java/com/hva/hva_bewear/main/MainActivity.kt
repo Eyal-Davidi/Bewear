@@ -30,6 +30,7 @@ import com.hva.hva_bewear.R
 import androidx.compose.ui.unit.sp
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
+import com.hva.hva_bewear.presentation.main.model.AdviceUIModel
 import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -93,7 +94,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun AdviceDescription(advice: ClothingAdvice?) {
+    fun AdviceDescription(advice: AdviceUIModel?) {
         Card(
             shape = RoundedCornerShape(10.dp),
             modifier = Modifier.padding(10.dp),
@@ -116,7 +117,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun AdviceText(advice: ClothingAdvice) {
+    fun AdviceText(advice: AdviceUIModel) {
         Text(
             text = advice.textAdvice,
             modifier = Modifier
