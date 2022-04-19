@@ -126,6 +126,13 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    @Composable
+    fun Avatar(advice: AdviceUIModel){
+        Image(painter = painterResource(advice.avatar),
+            contentDescription = "Clothing Avatar",
+        )
+    }
+
     @Preview(showBackground = true)
     @Composable
     fun DefaultPreview() {
