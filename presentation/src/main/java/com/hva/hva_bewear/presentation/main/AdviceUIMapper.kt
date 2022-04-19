@@ -5,17 +5,16 @@ import com.hva.hva_bewear.presentation.main.model.AdviceUIModel
 
 object AdviceUIMapper {
 
-    fun ClothingAdvice.uiModel(): AdviceUIModel {
+    fun ClothingAdvice.uiModel(idProvider: AvatarIdProvider): AdviceUIModel {
         return AdviceUIModel(
             textAdvice = generateTextAdvice(this),
-            avatar = 1
+            avatar = idProvider.getAdviceLabel(type = this),
         )
     }
 
     private fun generateTextAdvice(advice: ClothingAdvice) : String{
         val extraAdvice: String
         val extraText: String
-        val output = advice.textAdvice
 
         when{
             advice.wind && advice.highUVI && advice.rain ->
@@ -60,10 +59,10 @@ object AdviceUIMapper {
             }
         }
 
-        output.replace("%d", extraText)
-        if (extraText != "") output.replace("regular", "medium temperature")
-        output.plus(extraAdvice)
+        advice.textAdvice = advice.textAdvice.replace("%d", extraText)
+        if (extraText != "") advice.textAdvice = advice.textAdvice.replace("regular", "medium temperature")
+        advice.textAdvice = advice.textAdvice.plus(extraAdvice)
 
-        return output
+        return advice.textAdvice
     }
 }

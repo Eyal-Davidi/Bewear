@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -64,14 +65,17 @@ class MainActivity : ComponentActivity() {
         val weather by viewModel.weather.observeAsState()
         val advice by viewModel.advice.observeAsState()
 
-        if (weather != null && advice != null) Column {
-            TopBar(locations)
-            Row {
-                TemperatureDisplay(weather!!)
-                WindDisplay(weather!!)
+        if (weather != null && advice != null) {
+            Column {
+                TopBar(locations)
+                Row {
+                    TemperatureDisplay(weather!!)
+                    WindDisplay(weather!!)
+                }
+                AdviceDescription(advice!!)
             }
-            AdviceDescription(advice)
-        } else GifImage(
+            Avatar(advice!!)
+        }else GifImage(
             imageID = R.drawable.ic_action_loading,
             modifier = Modifier.scale(0.5f)
         )
@@ -205,10 +209,10 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun AdviceDescription(advice: ClothingAdvice?) {
+    fun AdviceDescription(advice: AdviceUIModel) {
         Card(
             shape = RoundedCornerShape(10.dp),
-            modifier = Modifier.padding(10.dp, top = 300.dp, 10.dp),
+            modifier = Modifier.padding(start = 10.dp, top = 300.dp, end = 10.dp),
             backgroundColor = Color.LightGray,
         ) {
             Column {
@@ -219,9 +223,7 @@ class MainActivity : ComponentActivity() {
                         .align(Alignment.CenterHorizontally)
                         .padding(16.dp, 16.dp, 16.dp, 8.dp),
                 )
-                advice?.let {
-                    AdviceText(advice = advice)
-                }
+                AdviceText(advice = advice)
             }
         }
     }
@@ -238,8 +240,11 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun Avatar(advice: AdviceUIModel){
-        Image(painter = painterResource(advice.avatar),
-            contentDescription = "Clothing Avatar",
+        Image(
+            painter = painterResource(advice.avatar),
+            contentDescription = "Avatar",
+            modifier = Modifier.size(300.dp),
+            colorFilter = ColorFilter.tint(Color.Black)
         )
     }
 
