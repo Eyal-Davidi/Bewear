@@ -30,13 +30,13 @@ class MainViewModel(private val getWeather: GetWeather, private val getClothingA
 
     private val fetchWeatherExceptionHandler = CoroutineExceptionHandler { _, throwable ->  }
 
-    private fun fetchWeather() {
+    fun fetchWeather() {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
             getWeather().uiModel().let(_weather::postValue)
         }
     }
 
-    private fun fetchTextAdvice(){
+    private fun fetchAdvice(){
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
             getClothingAdvice().uiModel().let(_advice::postValue)
         }
