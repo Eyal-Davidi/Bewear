@@ -18,7 +18,7 @@ import java.nio.channels.UnresolvedAddressException
 
 class MainViewModel(
     private val getWeather: GetWeather,
-    private val getClothingAdvice: GetClothingAdvice
+    private val getClothingAdvice: GetClothingAdvice,
     private val idProvider: AvatarIdProvider
     ) : ViewModel() {
 
@@ -28,7 +28,7 @@ class MainViewModel(
         _weather
     }
 
-    private val _advice = MutableStateFlow(ClothingAdvice.DEFAULT)
+    private val _advice = MutableStateFlow(AdviceUIModel())
     val advice: StateFlow<AdviceUIModel> by lazy {
         fetchAdvice()
         _advice
@@ -61,9 +61,8 @@ class MainViewModel(
     fun fetchAdvice() {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
             _uiState.value = UIStates.Loading
-            generateTextAdvice(getClothingAdvice()).let { _advice.value = it }
+            getClothingAdvice().uiModel(idProvider).let { _advice.value = it }
             _uiState.value = UIStates.Normal
-            getClothingAdvice().uiModel(idProvider).let(_advice::postValue)
         }
     }
 
