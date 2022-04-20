@@ -1,7 +1,5 @@
 package com.hva.hva_bewear.presentation.main
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hva.hva_bewear.domain.advice.GetClothingAdvice
@@ -9,37 +7,68 @@ import com.hva.hva_bewear.domain.weather.GetWeather
 import com.hva.hva_bewear.presentation.generic.launchOnIO
 import com.hva.hva_bewear.presentation.main.AdviceUIMapper.uiModel
 import com.hva.hva_bewear.presentation.main.WeatherUIMapper.uiModel
+import com.hva.hva_bewear.presentation.main.model.UIStates
 import com.hva.hva_bewear.presentation.main.model.AdviceUIModel
 import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
 import com.hva.hva_bewear.presentation.main.provider.AvatarIdProvider
 import com.hva.hva_bewear.presentation.main.provider.TextAdviceStringProvider
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import java.nio.channels.UnresolvedAddressException
 
-class MainViewModel(private val getWeather: GetWeather, private val getClothingAdvice: GetClothingAdvice, private val idProvider: AvatarIdProvider, private val stringProvider: TextAdviceStringProvider) : ViewModel() {
+class MainViewModel(
+    private val getWeather: GetWeather, 
+    private val getClothingAdvice: GetClothingAdvice, 
+    private val idProvider: AvatarIdProvider, 
+    private val stringProvider: TextAdviceStringProvider
+) : ViewModel() {
 
-    private val _weather = MutableLiveData<WeatherUIModel>()
-    val weather: LiveData<WeatherUIModel> by lazy {
+    private val _weather = MutableStateFlow(WeatherUIModel())
+    val weather: StateFlow<WeatherUIModel> by lazy {
         fetchWeather()
         _weather
     }
 
-    private val _advice = MutableLiveData<AdviceUIModel>()
-    val advice: LiveData<AdviceUIModel> by lazy {
+    private val _advice = MutableStateFlow(
+        AdviceUIModel(
+            avatar = idProvider.getAdviceLabel(
+                ClothingAdvice.DEFAULT
+            )
+        )
+    )
+    val advice: StateFlow<AdviceUIModel> by lazy {
         fetchAdvice()
         _advice
     }
 
-    private val fetchWeatherExceptionHandler = CoroutineExceptionHandler { _, throwable ->  }
+    private val _uiState = MutableStateFlow<UIStates>(UIStates.Normal)
+    var uiState: StateFlow<UIStates> = _uiState
+
+
+    private val fetchWeatherExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        _uiState.tryEmit(
+            if (throwable is UnresolvedAddressException) {
+                UIStates.NetworkError("No connection!")
+            } else {
+                UIStates.Error("Something went wrong, error ${throwable.javaClass}")
+            }
+        )
+    }
 
     fun fetchWeather() {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
-            getWeather().uiModel().let(_weather::postValue)
+            _uiState.tryEmit(UIStates.Loading)
+            getWeather().uiModel().let(_weather::tryEmit)
+            _uiState.tryEmit(UIStates.Normal)
         }
     }
 
-    fun fetchAdvice(){
+    fun fetchAdvice() {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
-            getClothingAdvice().uiModel(idProvider, stringProvider).let(_advice::postValue)
+            _uiState.tryEmit(UIStates.Loading)
+            getClothingAdvice().uiModel(idProvider, stringProvider).let(_advice::tryEmit)
+            _uiState.tryEmit(UIStates.Normal)
         }
     }
 }

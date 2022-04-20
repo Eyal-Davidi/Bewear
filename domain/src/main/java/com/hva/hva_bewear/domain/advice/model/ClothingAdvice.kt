@@ -6,5 +6,6 @@ enum class ClothingAdvice(var wind: Boolean, var rain: Boolean, var highUVI: Boo
     LONG_SHIRT_LONG_PANTS(false, false, false),
     SHORT_SHIRT_LONG_PANTS(false, false, false),
     SHORT_SHIRT_SHORT_PANTS(false, false, false),
+    DEFAULT(false, false, false),
 }
 
