@@ -3,7 +3,6 @@ package com.hva.hva_bewear.presentation.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hva.hva_bewear.domain.advice.GetClothingAdvice
-import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
 import com.hva.hva_bewear.domain.weather.GetWeather
 import com.hva.hva_bewear.presentation.generic.launchOnIO
 import com.hva.hva_bewear.presentation.main.AdviceUIMapper.uiModel
@@ -50,68 +49,17 @@ class MainViewModel(
 
     fun fetchWeather() {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
-            _uiState.value = UIStates.Loading
-            getWeather().uiModel().let {
-                _weather.value = it
-            }
-            _uiState.value = UIStates.Normal
+            _uiState.tryEmit(UIStates.Loading)
+            getWeather().uiModel().let(_weather::tryEmit)
+            _uiState.tryEmit(UIStates.Normal)
         }
     }
 
     fun fetchAdvice() {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
-            _uiState.value = UIStates.Loading
-            getClothingAdvice().uiModel(idProvider).let { _advice.value = it }
-            _uiState.value = UIStates.Normal
+            _uiState.tryEmit(UIStates.Loading)
+            getClothingAdvice().uiModel(idProvider).let(_advice::tryEmit)
+            _uiState.tryEmit(UIStates.Normal)
         }
-    }
-
-    private fun generateTextAdvice(advice: ClothingAdvice): ClothingAdvice {
-        val extraAdvice: String
-        val extraText: String
-        when {
-            advice.wind && advice.highUVI && advice.rain -> {
-                extraText = ", windy, rainy and sunny"
-                extraAdvice =
-                    " It will be rainy, windy and sunny! Take some sunscreen and an umbrella with you but don’t be careful with the wind."
-            }
-            advice.wind && advice.highUVI -> {
-                extraText = ", windy and sunny"
-                extraAdvice =
-                    " You should use some sunscreen and put on your hat and sunglasses, but be careful of the wind."
-            }
-            advice.wind && advice.rain -> {
-                extraText = ", windy and rainy"
-                extraAdvice = " Bring an umbrella but don't lose it to the wind!"
-            }
-            advice.highUVI && advice.rain -> {
-                extraText = ", rainy and sunny"
-                extraAdvice =
-                    " It will be both rainy and sunny, take some sunscreen and an umbrella with you."
-            }
-            advice.wind -> {
-                extraText = " and windy"
-                extraAdvice = ""
-            }
-            advice.highUVI -> {
-                extraText = " and sunny"
-                extraAdvice = " You should use some sunscreen and put on your hat and sunglasses."
-            }
-            advice.rain -> {
-                extraText = " and rainy"
-                extraAdvice = " Make sure to bring an umbrella."
-            }
-            else -> {
-                extraText = ""
-                extraAdvice = ""
-            }
-        }
-
-        advice.textAdvice = advice.textAdvice.replace("%d", extraText)
-        if (extraText != "") advice.textAdvice =
-            advice.textAdvice.replace("regular", "medium temperature")
-        advice.textAdvice = advice.textAdvice.plus(extraAdvice)
-
-        return advice
     }
 }

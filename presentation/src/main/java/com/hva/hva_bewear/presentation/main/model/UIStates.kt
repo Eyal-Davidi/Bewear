@@ -6,5 +6,4 @@ sealed class UIStates {
     data class Error(override val errorText: String) : ErrorInterface, UIStates()
     object Normal : UIStates()
     object Loading : UIStates()
-    object New: UIStates()
 }
