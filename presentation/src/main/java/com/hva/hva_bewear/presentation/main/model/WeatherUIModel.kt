@@ -6,6 +6,6 @@ data class WeatherUIModel(
     val temperatureDisplay: String = "_",
     val feelsLikeTemperatureDisplay: String = "_",
     val windDisplay: String = "_",
-    val iconId: Int = 0,
+    @DrawableRes val iconId: Int,
     val windDegrees: Int = 0,
 )

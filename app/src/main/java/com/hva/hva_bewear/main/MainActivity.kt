@@ -113,6 +113,7 @@ class MainActivity : ComponentActivity() {
             Image(
                 painter = painterResource(id = weather.iconId),
                 contentDescription = "Weather Icon",
+                modifier = Modifier.defaultMinSize(50.dp),
             )
             Row {
                 Image(
@@ -250,8 +251,7 @@ class MainActivity : ComponentActivity() {
     fun BindStates(Content: @Composable () -> Unit) {
         val state by viewModel.uiState.collectAsState()
         when (val uiState = state) {
-            is UIStates.NetworkError -> ErrorState(errorState = uiState)
-            is UIStates.Error -> ErrorState(errorState = uiState)
+            is UIStates.ErrorInterface -> ErrorState(errorState = uiState)
             UIStates.Loading -> LoadingScreen()
             UIStates.Normal -> Content()
             else -> {

@@ -1,12 +1,8 @@
 package com.hva.hva_bewear.main
 
-import android.content.Context
-import android.media.Image
 import com.hva.hva_bewear.R
-import com.hva.hva_bewear.domain.weather.model.Weather
 import com.hva.hva_bewear.presentation.main.WeatherIconProvider
 
-//class WeatherIconProvider :int {
 class AppWeatherIconProvider : WeatherIconProvider {
 
     override fun getWeatherIcon(type: String): Int {
@@ -21,14 +17,7 @@ class AppWeatherIconProvider : WeatherIconProvider {
                 "11d" -> R.drawable.ic_action_thunder_storm
                 "13d" -> R.drawable.ic_action_snow
                 "50d" -> R.drawable.ic_action_mist
-
-//                "03d" -> R.drawable.ic_action_cloudy
-//                "03d" -> R.drawable.ic_action_cloudy
-//                "03d" -> R.drawable.ic_action_cloudy
-//                "03d" -> R.drawable.ic_action_cloudy
-//                "03d" -> R.drawable.ic_action_cloudy
-
-                   else -> R.drawable.ic_action_mist
+                else -> R.drawable.default_placeholder
             }
         )
     }
