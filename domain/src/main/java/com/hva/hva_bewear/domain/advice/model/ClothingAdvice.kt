@@ -6,5 +6,6 @@ enum class ClothingAdvice(var textAdvice: String, var wind: Boolean, var rain: B
     LONG_SHIRT_LONG_PANTS("Today will be a regular%d day. You should wear a long sleeved shirt, jacket and long pants.", false, false, false),
     SHORT_SHIRT_LONG_PANTS("Today will be a warm%d day. You should wear a short-sleeved shirt and long pants.", false, false, false),
     SHORT_SHIRT_SHORT_PANTS("Today will be a very warm%d day. You should wear a short-sleeved shirt and short pants.", false, false, false),
+    DEFAULT("No Advice", false, false, false),
 }
 

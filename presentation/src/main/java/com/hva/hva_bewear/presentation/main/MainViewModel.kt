@@ -9,38 +9,63 @@ import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
 import com.hva.hva_bewear.domain.weather.GetWeather
 import com.hva.hva_bewear.domain.weather.model.Weather
 import com.hva.hva_bewear.presentation.generic.launchOnIO
+import com.hva.hva_bewear.presentation.main.AdviceUIMapper.uiModel
 import com.hva.hva_bewear.presentation.main.WeatherUIMapper.uiModel
+import com.hva.hva_bewear.presentation.main.model.UIStates
+import com.hva.hva_bewear.presentation.main.model.AdviceUIModel
 import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import java.nio.channels.UnresolvedAddressException
 
 class MainViewModel(
     private val getWeather: GetWeather,
-    private val getClothingAdvice: GetClothingAdvice
-) : ViewModel() {
+    private val getClothingAdvice: GetClothingAdvice,
+    private val idProvider: AvatarIdProvider
+    ) : ViewModel() {
 
-    private val _weather = MutableLiveData<WeatherUIModel>()
-    val weather: LiveData<WeatherUIModel> by lazy {
+    private val _weather = MutableStateFlow(WeatherUIModel())
+    val weather: StateFlow<WeatherUIModel> by lazy {
         fetchWeather()
         _weather
     }
 
-    private val _advice = MutableLiveData<ClothingAdvice>()
-    val advice: LiveData<ClothingAdvice> by lazy {
+    private val _advice = MutableStateFlow(AdviceUIModel())
+    val advice: StateFlow<AdviceUIModel> by lazy {
         fetchAdvice()
         _advice
     }
 
-    private val fetchWeatherExceptionHandler = CoroutineExceptionHandler { _, throwable -> }
+    private val _uiState = MutableStateFlow<UIStates>(UIStates.Normal)
+    var uiState: StateFlow<UIStates> = _uiState
+
+
+    private val fetchWeatherExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        _uiState.tryEmit(
+            if (throwable is UnresolvedAddressException) {
+                UIStates.NetworkError("No connection!")
+            } else {
+                UIStates.Error("Something went wrong, error ${throwable.javaClass}")
+            }
+        )
+    }
 
     private fun fetchWeather() {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
-            getWeather().uiModel().let(_weather::postValue)
+            _uiState.value = UIStates.Loading
+            getWeather().uiModel().let {
+                _weather.value = it
+            }
+            _uiState.value = UIStates.Normal
         }
     }
 
-    private fun fetchAdvice() {
+    fun fetchAdvice(){
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
-            generateTextAdvice(getClothingAdvice()).let(_advice::postValue)
+            _uiState.value = UIStates.Loading
+            getClothingAdvice().uiModel(idProvider).let { _advice.value = it }
+            _uiState.value = UIStates.Normal
         }
     }
 
@@ -97,6 +122,4 @@ class MainViewModel(
 
         return advice
     }
-
-
 }
