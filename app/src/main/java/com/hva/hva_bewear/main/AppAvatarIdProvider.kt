@@ -12,6 +12,7 @@ class AppAvatarIdProvider : AvatarIdProvider {
             ClothingAdvice.LONG_SHIRT_LONG_PANTS -> R.drawable.long_sleeve
             ClothingAdvice.SHORT_SHIRT_LONG_PANTS -> R.drawable.short_sleeve_long_pants
             ClothingAdvice.SHORT_SHIRT_SHORT_PANTS -> R.drawable.short_sleeve_short_pants
+            else -> 0
         }
     }
 }
