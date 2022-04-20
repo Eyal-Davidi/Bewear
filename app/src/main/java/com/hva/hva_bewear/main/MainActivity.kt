@@ -160,6 +160,7 @@ class MainActivity : ComponentActivity() {
                     Text(
                         locations[selectedIndex],
                         fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
                     )
                     Image(
                         painter = if (expanded)
@@ -175,10 +176,10 @@ class MainActivity : ComponentActivity() {
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .width(382.dp)
                         .background(
                             Color.LightGray
-                        )
+                        ),
                 ) {
                     Divider()
                     locations.forEachIndexed { index, s ->
@@ -196,6 +197,7 @@ class MainActivity : ComponentActivity() {
                             Text(
                                 text = s,
                                 textAlign = TextAlign.Center,
+                                fontWeight = FontWeight.Bold,
                                 modifier = Modifier
                                     .wrapContentWidth()
                             )
