@@ -22,7 +22,8 @@ class MainViewModel(
     private val getWeather: GetWeather, 
     private val getClothingAdvice: GetClothingAdvice, 
     private val idProvider: AvatarIdProvider, 
-    private val stringProvider: TextAdviceStringProvider
+    private val stringProvider: TextAdviceStringProvider,
+    private val idWeatherIconProvider: WeatherIconProvider,
 ) : ViewModel() {
 
     private val _weather = MutableStateFlow(WeatherUIModel())
@@ -60,7 +61,7 @@ class MainViewModel(
     fun fetchWeather() {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
             _uiState.tryEmit(UIStates.Loading)
-            getWeather().uiModel().let(_weather::tryEmit)
+            getWeather().uiModel(idProvider = idWeatherIconProvider).let(_weather::tryEmit)
             _uiState.tryEmit(UIStates.Normal)
         }
     }
