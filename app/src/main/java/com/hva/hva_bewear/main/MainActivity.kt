@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,6 +34,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
+import com.hva.hva_bewear.presentation.main.model.AdviceUIModel
 import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.hva.hva_bewear.presentation.main.LocationPicker
@@ -65,6 +67,7 @@ class MainActivity : ComponentActivity() {
         val advice by viewModel.advice.collectAsState()
 
         BindStates {
+            Avatar(advice)
             Column {
                 TopBar(locations)
                 Row {
@@ -204,10 +207,10 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun AdviceDescription(advice: ClothingAdvice?) {
+    fun AdviceDescription(advice: AdviceUIModel) {
         Card(
             shape = RoundedCornerShape(10.dp),
-            modifier = Modifier.padding(10.dp, top = 300.dp, 10.dp),
+            modifier = Modifier.padding(start = 10.dp, top = 300.dp, end = 10.dp),
             backgroundColor = Color.LightGray,
         ) {
             Column {
@@ -218,20 +221,27 @@ class MainActivity : ComponentActivity() {
                         .align(Alignment.CenterHorizontally)
                         .padding(16.dp, 16.dp, 16.dp, 8.dp),
                 )
-                advice?.let {
-                    AdviceText(advice = advice)
-                }
+                AdviceText(advice = advice)
             }
         }
     }
 
     @Composable
-    fun AdviceText(advice: ClothingAdvice) {
+    fun AdviceText(advice: AdviceUIModel) {
         Text(
             text = advice.textAdvice,
             modifier = Modifier
                 .padding(horizontal = 48.dp, vertical = 16.dp),
             textAlign = TextAlign.Center,
+        )
+    }
+
+    @Composable
+    fun Avatar(advice: AdviceUIModel){
+        Image(
+            painter = painterResource(advice.avatar),
+            contentDescription = "Avatar",
+            modifier = Modifier.size(290.dp),
         )
     }
 

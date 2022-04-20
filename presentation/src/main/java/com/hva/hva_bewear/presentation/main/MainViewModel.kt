@@ -6,8 +6,10 @@ import com.hva.hva_bewear.domain.advice.GetClothingAdvice
 import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
 import com.hva.hva_bewear.domain.weather.GetWeather
 import com.hva.hva_bewear.presentation.generic.launchOnIO
+import com.hva.hva_bewear.presentation.main.AdviceUIMapper.uiModel
 import com.hva.hva_bewear.presentation.main.WeatherUIMapper.uiModel
 import com.hva.hva_bewear.presentation.main.model.UIStates
+import com.hva.hva_bewear.presentation.main.model.AdviceUIModel
 import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +19,8 @@ import java.nio.channels.UnresolvedAddressException
 class MainViewModel(
     private val getWeather: GetWeather,
     private val getClothingAdvice: GetClothingAdvice
-) : ViewModel() {
+    private val idProvider: AvatarIdProvider
+    ) : ViewModel() {
 
     private val _weather = MutableStateFlow(WeatherUIModel())
     val weather: StateFlow<WeatherUIModel> by lazy {
@@ -26,7 +29,7 @@ class MainViewModel(
     }
 
     private val _advice = MutableStateFlow(ClothingAdvice.DEFAULT)
-    val advice: StateFlow<ClothingAdvice> by lazy {
+    val advice: StateFlow<AdviceUIModel> by lazy {
         fetchAdvice()
         _advice
     }
@@ -60,6 +63,7 @@ class MainViewModel(
             _uiState.value = UIStates.Loading
             generateTextAdvice(getClothingAdvice()).let { _advice.value = it }
             _uiState.value = UIStates.Normal
+            getClothingAdvice().uiModel(idProvider).let(_advice::postValue)
         }
     }
 
@@ -111,6 +115,4 @@ class MainViewModel(
 
         return advice
     }
-
-
 }
