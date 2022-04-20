@@ -3,6 +3,7 @@ package com.hva.hva_bewear.presentation.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hva.hva_bewear.domain.advice.GetClothingAdvice
+import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
 import com.hva.hva_bewear.domain.weather.GetWeather
 import com.hva.hva_bewear.presentation.generic.launchOnIO
 import com.hva.hva_bewear.presentation.main.AdviceUIMapper.uiModel
@@ -19,7 +20,7 @@ class MainViewModel(
     private val getWeather: GetWeather,
     private val getClothingAdvice: GetClothingAdvice,
     private val idProvider: AvatarIdProvider
-    ) : ViewModel() {
+) : ViewModel() {
 
     private val _weather = MutableStateFlow(WeatherUIModel())
     val weather: StateFlow<WeatherUIModel> by lazy {
@@ -27,7 +28,13 @@ class MainViewModel(
         _weather
     }
 
-    private val _advice = MutableStateFlow(AdviceUIModel())
+    private val _advice = MutableStateFlow(
+        AdviceUIModel(
+            avatar = idProvider.getAdviceLabel(
+                ClothingAdvice.DEFAULT
+            )
+        )
+    )
     val advice: StateFlow<AdviceUIModel> by lazy {
         fetchAdvice()
         _advice
