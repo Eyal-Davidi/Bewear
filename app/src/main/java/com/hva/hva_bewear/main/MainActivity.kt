@@ -177,6 +177,7 @@ class MainActivity : ComponentActivity() {
                     onDismissRequest = { expanded = false },
                     modifier = Modifier
                         .width(382.dp)
+                        .height(220.dp)
                         .background(
                             Color.LightGray
                         ),
