@@ -110,12 +110,16 @@ class MainActivity : ComponentActivity() {
     fun WindDisplay(weather: WeatherUIModel) {
         Column(Modifier.padding(start = 115.dp, top = 80.dp))
         {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(weather.iconUrl)
-                    .build(),
-                contentDescription = null,
-                modifier = Modifier.size(100.dp)
+//            AsyncImage(
+//                model = ImageRequest.Builder(LocalContext.current)
+//                    .data(weather.iconUrl)
+//                    .build(),
+//                contentDescription = null,
+//                modifier = Modifier.size(100.dp)
+//            )
+            Image(
+                painter = painterResource(id = weather.iconId),
+                contentDescription = "Weather Icon",
             )
             Row {
                 Image(
