@@ -4,11 +4,8 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,7 +24,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
 import com.hva.hva_bewear.R
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -211,7 +207,9 @@ class MainActivity : ComponentActivity() {
     fun AdviceDescription(advice: AdviceUIModel) {
         Card(
             shape = RoundedCornerShape(10.dp),
-            modifier = Modifier.padding(start = 10.dp, top = 300.dp, end = 10.dp),
+            modifier = Modifier
+                .offset(y = 300.dp)
+                .padding(start = 10.dp, top = 10.dp, end = 10.dp),
             backgroundColor = Color.LightGray,
         ) {
             Column {
@@ -232,8 +230,8 @@ class MainActivity : ComponentActivity() {
         Text(
             text = advice.textAdvice,
             modifier = Modifier
-                .padding(horizontal = 48.dp, vertical = 16.dp),
-            textAlign = TextAlign.Center,
+                .padding(16.dp),
+            textAlign = TextAlign.Start,
         )
     }
 
