@@ -16,6 +16,7 @@ class AppTextAdviceStringProvider(
                 ClothingAdvice.LONG_SHIRT_LONG_PANTS -> R.string.long_shirt_long_pants_base_string
                 ClothingAdvice.SHORT_SHIRT_LONG_PANTS -> R.string.short_shirt_long_pants_base_string
                 ClothingAdvice.SHORT_SHIRT_SHORT_PANTS -> R.string.short_shirt_short_pants_base_string
+                else -> R.string.default_base_string
             }
         )
     }

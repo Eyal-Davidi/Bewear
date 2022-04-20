@@ -3,6 +3,7 @@ package com.hva.hva_bewear.presentation.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hva.hva_bewear.domain.advice.GetClothingAdvice
+import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
 import com.hva.hva_bewear.domain.weather.GetWeather
 import com.hva.hva_bewear.presentation.generic.launchOnIO
 import com.hva.hva_bewear.presentation.main.AdviceUIMapper.uiModel
