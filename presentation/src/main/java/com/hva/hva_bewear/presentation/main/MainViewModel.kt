@@ -11,15 +11,18 @@ import com.hva.hva_bewear.presentation.main.WeatherUIMapper.uiModel
 import com.hva.hva_bewear.presentation.main.model.UIStates
 import com.hva.hva_bewear.presentation.main.model.AdviceUIModel
 import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
+import com.hva.hva_bewear.presentation.main.provider.AvatarIdProvider
+import com.hva.hva_bewear.presentation.main.provider.TextAdviceStringProvider
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.nio.channels.UnresolvedAddressException
 
 class MainViewModel(
-    private val getWeather: GetWeather,
-    private val getClothingAdvice: GetClothingAdvice,
-    private val idProvider: AvatarIdProvider
+    private val getWeather: GetWeather, 
+    private val getClothingAdvice: GetClothingAdvice, 
+    private val idProvider: AvatarIdProvider, 
+    private val stringProvider: TextAdviceStringProvider
 ) : ViewModel() {
 
     private val _weather = MutableStateFlow(WeatherUIModel())
@@ -65,7 +68,7 @@ class MainViewModel(
     fun fetchAdvice() {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
             _uiState.tryEmit(UIStates.Loading)
-            getClothingAdvice().uiModel(idProvider).let(_advice::tryEmit)
+            getClothingAdvice().uiModel(idProvider, stringProvider).let(_advice::tryEmit)
             _uiState.tryEmit(UIStates.Normal)
         }
     }

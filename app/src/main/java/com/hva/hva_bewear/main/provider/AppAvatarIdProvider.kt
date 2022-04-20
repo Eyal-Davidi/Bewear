@@ -1,9 +1,9 @@
-package com.hva.hva_bewear.main
+package com.hva.hva_bewear.main.provider
 
 import androidx.annotation.DrawableRes
 import com.hva.hva_bewear.R
 import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
-import com.hva.hva_bewear.presentation.main.AvatarIdProvider
+import com.hva.hva_bewear.presentation.main.provider.AvatarIdProvider
 
 class AppAvatarIdProvider : AvatarIdProvider {
     @DrawableRes
@@ -17,4 +17,5 @@ class AppAvatarIdProvider : AvatarIdProvider {
             else -> R.drawable.default_placeholder
         }
     }
+
 }

@@ -2,17 +2,20 @@ package com.hva.hva_bewear.presentation.main
 
 import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
 import com.hva.hva_bewear.presentation.main.model.AdviceUIModel
+import com.hva.hva_bewear.presentation.main.provider.AvatarIdProvider
+import com.hva.hva_bewear.presentation.main.provider.TextAdviceStringProvider
 
 object AdviceUIMapper {
 
-    fun ClothingAdvice.uiModel(idProvider: AvatarIdProvider): AdviceUIModel {
+    fun ClothingAdvice.uiModel(idProvider: AvatarIdProvider, stringProvider: TextAdviceStringProvider): AdviceUIModel {
         return AdviceUIModel(
-            textAdvice = generateTextAdvice(this),
+            textAdvice = generateTextAdvice(this, stringProvider.getAdviceText(this)),
             avatar = idProvider.getAdviceLabel(type = this),
         )
     }
 
-    private fun generateTextAdvice(advice: ClothingAdvice) : String{
+    private fun generateTextAdvice(advice: ClothingAdvice, string: String) : String{
+        var adviceString = string
         val extraAdvice: String
         val extraText: String
 
@@ -59,10 +62,10 @@ object AdviceUIMapper {
             }
         }
 
-        advice.textAdvice = advice.textAdvice.replace("%d", extraText)
-        if (extraText != "") advice.textAdvice = advice.textAdvice.replace("regular", "medium temperature")
-        advice.textAdvice = advice.textAdvice.plus(extraAdvice)
+        adviceString = adviceString.replace("%d", extraText)
+        if (extraText != "") adviceString = adviceString.replace("regular", "medium temperature")
+        adviceString = adviceString.plus(extraAdvice)
 
-        return advice.textAdvice
+        return adviceString
     }
 }
