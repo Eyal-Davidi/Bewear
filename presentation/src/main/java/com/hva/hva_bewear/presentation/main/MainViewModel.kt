@@ -1,13 +1,10 @@
 package com.hva.hva_bewear.presentation.main
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hva.hva_bewear.domain.advice.GetClothingAdvice
 import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
 import com.hva.hva_bewear.domain.weather.GetWeather
-import com.hva.hva_bewear.domain.weather.model.Weather
 import com.hva.hva_bewear.presentation.generic.launchOnIO
 import com.hva.hva_bewear.presentation.main.AdviceUIMapper.uiModel
 import com.hva.hva_bewear.presentation.main.WeatherUIMapper.uiModel
@@ -22,8 +19,9 @@ import java.nio.channels.UnresolvedAddressException
 class MainViewModel(
     private val getWeather: GetWeather,
     private val getClothingAdvice: GetClothingAdvice,
-    private val idProvider: AvatarIdProvider
-    ) : ViewModel() {
+    private val idProvider: AvatarIdProvider,
+    private val stringProvider: TextAdviceStringProvider
+) : ViewModel() {
 
     private val _weather = MutableStateFlow(WeatherUIModel())
     val weather: StateFlow<WeatherUIModel> by lazy {
@@ -31,7 +29,13 @@ class MainViewModel(
         _weather
     }
 
-    private val _advice = MutableStateFlow(AdviceUIModel())
+    private val _advice = MutableStateFlow(
+        AdviceUIModel(
+            avatar = idProvider.getAdviceLabel(
+                ClothingAdvice.DEFAULT
+            )
+        )
+    )
     val advice: StateFlow<AdviceUIModel> by lazy {
         fetchAdvice()
         _advice
@@ -53,19 +57,17 @@ class MainViewModel(
 
     private fun fetchWeather() {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
-            _uiState.value = UIStates.Loading
-            getWeather().uiModel().let {
-                _weather.value = it
-            }
-            _uiState.value = UIStates.Normal
+            _uiState.tryEmit(UIStates.Loading)
+            getWeather().uiModel().let(_weather::tryEmit)
+            _uiState.tryEmit(UIStates.Normal)
         }
     }
 
-    fun fetchAdvice(){
+    fun fetchAdvice() {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
-            _uiState.value = UIStates.Loading
-            getClothingAdvice().uiModel(idProvider).let { _advice.value = it }
-            _uiState.value = UIStates.Normal
+            _uiState.tryEmit(UIStates.Loading)
+            getClothingAdvice().uiModel(idProvider, stringProvider).let(_advice::tryEmit)
+            _uiState.tryEmit(UIStates.Normal)
         }
     }
 

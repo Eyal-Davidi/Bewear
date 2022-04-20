@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">bewear</string>
+
+    <string name="winter_jacket_long_pants_base_string">Today will be a very cold%d day. You should wear a winter coat and long pants.</string>
+    <string name="sweater_long_pants_base_string">Today will be a cold%d day. You should wear a sweater, jacket and long pants.</string>
+    <string name="long_shirt_long_pants_base_string">Today will be a regular%d day. You should wear a long sleeved shirt, jacket and long pants.</string>
+    <string name="short_shirt_long_pants_base_string">Today will be a warm%d day. You should wear a short-sleeved shirt and long pants.</string>
+    <string name="short_shirt_short_pants_base_string">Today will be a very warm%d day. You should wear a short-sleeved shirt and short pants.</string>
+    <string name="default_base_string">No advice for today</string>
 </resources>

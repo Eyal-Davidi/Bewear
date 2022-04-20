@@ -44,6 +44,7 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModel()
     private val locationPicker: LocationPicker = LocationPicker()
+    private var selectedIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -137,7 +138,6 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun TopBar(locations: ArrayList<String>) {
         var expanded by remember { mutableStateOf(false) }
-        var selectedIndex by remember { mutableStateOf(0) }
         Card(
             modifier = Modifier
                 .padding(5.dp, 5.dp)
@@ -177,9 +177,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
-                            Color.Gray
+                            Color.LightGray
                         )
                 ) {
+                    Divider()
                     locations.forEachIndexed { index, s ->
                         DropdownMenuItem(
                             onClick = {
@@ -190,8 +191,7 @@ class MainActivity : ComponentActivity() {
                                     viewModel.fetch()
 
                                 }
-                            },
-                            modifier = Modifier.border(width = 1.dp, color = Color.Black)
+                            }
                         ) {
                             Text(
                                 text = s,
@@ -200,6 +200,7 @@ class MainActivity : ComponentActivity() {
                                     .wrapContentWidth()
                             )
                         }
+                        Divider()
                     }
                 }
             }
@@ -237,7 +238,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun Avatar(advice: AdviceUIModel){
+    fun Avatar(advice: AdviceUIModel) {
         Image(
             painter = painterResource(advice.avatar),
             contentDescription = "Avatar",
