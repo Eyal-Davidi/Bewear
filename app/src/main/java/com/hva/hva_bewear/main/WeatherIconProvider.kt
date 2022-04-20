@@ -13,7 +13,7 @@ class AppWeatherIconProvider : WeatherIconProvider {
         return (
             when (type) {
                 "01d" -> R.drawable.ic_action_sunny
-                "02d" -> R.drawable.ic_action_partly_cloudy
+                "02d" -> R.drawable.ic_action_partly_cloud
                 "03d" -> R.drawable.ic_action_cloudy
                 "04d" -> R.drawable.ic_action_broken_cloudy
                 "09d" -> R.drawable.ic_action_cloudy_rainy
