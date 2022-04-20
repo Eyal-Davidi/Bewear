@@ -1,6 +1,7 @@
 package com.hva.hva_bewear.main
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +36,7 @@ import com.hva.hva_bewear.presentation.main.MainViewModel
 import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.hva.hva_bewear.presentation.main.LocationPicker
+import com.hva.hva_bewear.presentation.main.model.UIStates
 
 class MainActivity : ComponentActivity() {
 
@@ -60,20 +61,19 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun MainScreen() {
         val locations = locationPicker.setOfLocations()
-        val weather by viewModel.weather.observeAsState()
-        val advice by viewModel.advice.observeAsState()
+        val weather by viewModel.weather.collectAsState()
+        val advice by viewModel.advice.collectAsState()
 
-        if (weather != null && advice != null) Column {
-            TopBar(locations)
-            Row {
-                TemperatureDisplay(weather!!)
-                WindDisplay(weather!!)
+        BindStates {
+            Column {
+                TopBar(locations)
+                Row {
+                    TemperatureDisplay(weather)
+                    WindDisplay(weather)
+                }
+                AdviceDescription(advice)
             }
-            AdviceDescription(advice)
-        } else GifImage(
-            imageID = R.drawable.ic_action_loading,
-            modifier = Modifier.scale(0.5f)
-        )
+        }
     }
 
     @Composable
@@ -233,6 +233,50 @@ class MainActivity : ComponentActivity() {
                 .padding(horizontal = 48.dp, vertical = 16.dp),
             textAlign = TextAlign.Center,
         )
+    }
+
+    @Composable
+    fun BindStates(Content: @Composable () -> Unit) {
+        val state by viewModel.uiState.collectAsState()
+        when (val uiState = state) {
+            is UIStates.NetworkError -> ErrorState(errorState = uiState)
+            is UIStates.Error -> ErrorState(errorState = uiState)
+            UIStates.Loading -> LoadingScreen()
+            UIStates.Normal -> Content()
+            else -> {
+                Toast.makeText(
+                    applicationContext,
+                    "Something went really really wrong...\n" +
+                            "(Unknown application state)",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    @Composable
+    fun LoadingScreen() {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier.align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                CircularProgressIndicator()
+                Text(text = "Loading", modifier = Modifier.padding(10.dp))
+            }
+        }
+    }
+
+    @Composable
+    fun ErrorState(errorState: UIStates.ErrorInterface) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier.align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = errorState.errorText, modifier = Modifier.padding(10.dp))
+            }
+        }
     }
 
     @Preview(showBackground = true)

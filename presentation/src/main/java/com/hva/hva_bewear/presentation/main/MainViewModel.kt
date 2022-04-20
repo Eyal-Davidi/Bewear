@@ -1,100 +1,116 @@
 package com.hva.hva_bewear.presentation.main
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hva.hva_bewear.domain.advice.GetClothingAdvice
 import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
 import com.hva.hva_bewear.domain.weather.GetWeather
-import com.hva.hva_bewear.domain.weather.model.Weather
 import com.hva.hva_bewear.presentation.generic.launchOnIO
 import com.hva.hva_bewear.presentation.main.WeatherUIMapper.uiModel
+import com.hva.hva_bewear.presentation.main.model.UIStates
 import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import java.nio.channels.UnresolvedAddressException
 
-class MainViewModel(private val getWeather: GetWeather, private val getClothingAdvice: GetClothingAdvice) : ViewModel() {
+class MainViewModel(
+    private val getWeather: GetWeather,
+    private val getClothingAdvice: GetClothingAdvice
+) : ViewModel() {
 
-    private val _weather = MutableLiveData<WeatherUIModel>()
-    val weather: LiveData<WeatherUIModel> by lazy {
+    private val _weather = MutableStateFlow(WeatherUIModel())
+    val weather: StateFlow<WeatherUIModel> by lazy {
         fetchWeather()
         _weather
     }
 
-    private val _advice = MutableLiveData<ClothingAdvice>()
-    val advice: LiveData<ClothingAdvice> by lazy {
+    private val _advice = MutableStateFlow(ClothingAdvice.DEFAULT)
+    val advice: StateFlow<ClothingAdvice> by lazy {
         fetchAdvice()
         _advice
     }
 
-    private val fetchWeatherExceptionHandler = CoroutineExceptionHandler { _, throwable ->  }
+    private val _uiState = MutableStateFlow<UIStates>(UIStates.Normal)
+    var uiState: StateFlow<UIStates> = _uiState
+
+
+    private val fetchWeatherExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        _uiState.tryEmit(
+            if (throwable is UnresolvedAddressException) {
+                UIStates.NetworkError("No connection!")
+            } else {
+                UIStates.Error("Something went wrong, error ${throwable.javaClass}")
+            }
+        )
+    }
 
     fun fetchWeather() {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
-            getWeather().uiModel().let(_weather::postValue)
+            _uiState.value = UIStates.Loading
+            getWeather().uiModel().let {
+                _weather.value = it
+            }
+            _uiState.value = UIStates.Normal
         }
     }
 
-    fun fetchAdvice(){
+    fun fetchAdvice() {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
-            generateTextAdvice(getClothingAdvice()).let(_advice::postValue)
+            _uiState.value = UIStates.Loading
+            generateTextAdvice(getClothingAdvice()).let { _advice.value = it }
+            _uiState.value = UIStates.Normal
         }
     }
 
-    private fun generateTextAdvice(advice: ClothingAdvice) : ClothingAdvice{
+    private fun generateTextAdvice(advice: ClothingAdvice): ClothingAdvice {
         val extraAdvice: String
         val extraText: String
-        when{
-            advice.wind && advice.highUVI && advice.rain ->
-            {
+        when {
+            advice.wind && advice.highUVI && advice.rain -> {
                 extraText = ", windy, rainy and sunny"
-                extraAdvice = " It will be rainy, windy and sunny! Take some sunscreen and an umbrella with you but don’t be careful with the wind."
+                extraAdvice =
+                    " It will be rainy, windy and sunny! Take some sunscreen and an umbrella with you but don’t be careful with the wind."
             }
-            advice.wind && advice.highUVI ->
-            {
+            advice.wind && advice.highUVI -> {
                 extraText = ", windy and sunny"
-                extraAdvice = " You should use some sunscreen and put on your hat and sunglasses, but be careful of the wind."
+                extraAdvice =
+                    " You should use some sunscreen and put on your hat and sunglasses, but be careful of the wind."
             }
-            advice.wind && advice.rain ->
-            {
+            advice.wind && advice.rain -> {
                 extraText = ", windy and rainy"
                 extraAdvice = " Bring an umbrella but don't lose it to the wind!"
             }
-            advice.highUVI && advice.rain ->
-            {
+            advice.highUVI && advice.rain -> {
                 extraText = ", rainy and sunny"
-                extraAdvice = " It will be both rainy and sunny, take some sunscreen and an umbrella with you."
+                extraAdvice =
+                    " It will be both rainy and sunny, take some sunscreen and an umbrella with you."
             }
-            advice.wind ->
-            {
+            advice.wind -> {
                 extraText = " and windy"
                 extraAdvice = ""
             }
-            advice.highUVI ->
-            {
+            advice.highUVI -> {
                 extraText = " and sunny"
                 extraAdvice = " You should use some sunscreen and put on your hat and sunglasses."
             }
-            advice.rain ->
-            {
+            advice.rain -> {
                 extraText = " and rainy"
                 extraAdvice = " Make sure to bring an umbrella."
             }
-            else ->
-            {
+            else -> {
                 extraText = ""
                 extraAdvice = ""
             }
         }
 
         advice.textAdvice = advice.textAdvice.replace("%d", extraText)
-        if (extraText != "") advice.textAdvice = advice.textAdvice.replace("regular", "medium temperature")
+        if (extraText != "") advice.textAdvice =
+            advice.textAdvice.replace("regular", "medium temperature")
         advice.textAdvice = advice.textAdvice.plus(extraAdvice)
 
         return advice
     }
-
-
 
 
 }
