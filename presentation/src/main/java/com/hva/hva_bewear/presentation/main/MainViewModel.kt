@@ -5,16 +5,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hva.hva_bewear.domain.advice.GetClothingAdvice
-import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
 import com.hva.hva_bewear.domain.weather.GetWeather
 import com.hva.hva_bewear.presentation.generic.launchOnIO
 import com.hva.hva_bewear.presentation.main.AdviceUIMapper.uiModel
 import com.hva.hva_bewear.presentation.main.WeatherUIMapper.uiModel
 import com.hva.hva_bewear.presentation.main.model.AdviceUIModel
 import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
+import com.hva.hva_bewear.presentation.main.provider.AvatarIdProvider
+import com.hva.hva_bewear.presentation.main.provider.TextAdviceStringProvider
 import kotlinx.coroutines.*
 
-class MainViewModel(private val getWeather: GetWeather, private val getClothingAdvice: GetClothingAdvice, private val idProvider: AvatarIdProvider) : ViewModel() {
+class MainViewModel(private val getWeather: GetWeather, private val getClothingAdvice: GetClothingAdvice, private val idProvider: AvatarIdProvider, private val stringProvider: TextAdviceStringProvider) : ViewModel() {
 
     private val _weather = MutableLiveData<WeatherUIModel>()
     val weather: LiveData<WeatherUIModel> by lazy {
@@ -38,7 +39,7 @@ class MainViewModel(private val getWeather: GetWeather, private val getClothingA
 
     fun fetchAdvice(){
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
-            getClothingAdvice().uiModel(idProvider).let(_advice::postValue)
+            getClothingAdvice().uiModel(idProvider, stringProvider).let(_advice::postValue)
         }
     }
 }
