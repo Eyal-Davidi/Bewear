@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
     fun TitleDisplay() {
         Column(Modifier.padding(start = 32.dp, top = 10.dp)) {
             Text(
-                text = "Weather Advice for Today",
+                text = "Today's Advice",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
