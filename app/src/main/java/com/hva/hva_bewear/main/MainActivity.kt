@@ -5,11 +5,8 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,7 +25,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
 import com.hva.hva_bewear.R
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -71,8 +67,10 @@ class MainActivity : ComponentActivity() {
             Column {
                 TopBar(locations)
                 TitleDisplay()
+                Spacer(modifier = Modifier.height(50.dp))
                 Row {
                     TemperatureDisplay(weather)
+                    Spacer(modifier = Modifier.width(125.dp))
                     WindDisplay(weather)
                 }
                 AdviceDescription(advice)
@@ -95,17 +93,17 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun TemperatureDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(start = 16.dp, top = 100.dp)) {
+        Column(Modifier.padding(start = 16.dp, top = 16.dp)) {
             Row {
                 Image(
                     painter = painterResource(id = R.drawable.ic_action_thermometer),
                     contentDescription = "Temperature image",
                     modifier = Modifier
-                        .size(45.dp)
+                        .size(38.dp)
                 )
                 Text(
                     text = weather.temperatureDisplay,
-                    fontSize = 32.sp,
+                    fontSize = 26.sp,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
                 )
@@ -121,7 +119,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun WindDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(start = 115.dp, top = 80.dp))
+        Column(Modifier.padding(start = 5.dp, top = 5.dp))
         {
             Image(
                 painter = painterResource(id = weather.iconId),
@@ -201,8 +199,7 @@ class MainActivity : ComponentActivity() {
                                     selectedIndex = index
                                     expanded = false
                                     locationPicker.setLocation(s)
-                                    viewModel.fetchWeather()
-                                    viewModel.fetchAdvice()
+                                    viewModel.refresh()
                                 }
                             }
                         ) {
@@ -225,16 +222,19 @@ class MainActivity : ComponentActivity() {
     fun AdviceDescription(advice: AdviceUIModel) {
         Card(
             shape = RoundedCornerShape(10.dp),
-            modifier = Modifier.padding(start = 10.dp, top = 300.dp, end = 10.dp),
+            modifier = Modifier
+                .offset(y = 340.dp)
+                .padding(start = 10.dp, end = 10.dp),
             backgroundColor = Color.LightGray,
+
         ) {
             Column {
                 Text(
                     text = "Clothing Description",
                     modifier = Modifier
-                        .scale(2f)
                         .align(Alignment.CenterHorizontally)
                         .padding(16.dp, 16.dp, 16.dp, 8.dp),
+                    fontSize = 30.sp
                 )
                 AdviceText(advice = advice)
             }
@@ -246,8 +246,8 @@ class MainActivity : ComponentActivity() {
         Text(
             text = advice.textAdvice,
             modifier = Modifier
-                .padding(horizontal = 48.dp, vertical = 16.dp),
-            textAlign = TextAlign.Center,
+                .padding(16.dp),
+            textAlign = TextAlign.Start,
         )
     }
 
@@ -256,7 +256,9 @@ class MainActivity : ComponentActivity() {
         Image(
             painter = painterResource(advice.avatar),
             contentDescription = "Avatar",
-            modifier = Modifier.size(290.dp),
+            modifier = Modifier
+                .offset(y = 49.dp)
+                .scale(0.95f),
         )
     }
 
@@ -264,6 +266,7 @@ class MainActivity : ComponentActivity() {
     fun BindStates(Content: @Composable () -> Unit) {
         val state by viewModel.uiState.collectAsState()
         when (val uiState = state) {
+            is UIStates.NetworkError -> ErrorState(errorState = uiState, showRefresh = true)
             is UIStates.ErrorInterface -> ErrorState(errorState = uiState)
             UIStates.Loading -> LoadingScreen()
             UIStates.Normal -> Content()
@@ -292,13 +295,23 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun ErrorState(errorState: UIStates.ErrorInterface) {
+    fun ErrorState(errorState: UIStates.ErrorInterface, showRefresh: Boolean = false) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(text = errorState.errorText, modifier = Modifier.padding(10.dp))
+                if (showRefresh) {
+                    Button(
+                        onClick = { viewModel.refresh() },
+                        modifier = Modifier
+                            .height(40.dp)
+                            .width(100.dp),
+                    ) {
+                        Text(text = "Refresh")
+                    }
+                }
             }
         }
     }
