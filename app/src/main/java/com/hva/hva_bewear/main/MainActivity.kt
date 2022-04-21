@@ -81,14 +81,13 @@ class MainActivity : ComponentActivity() {
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colors.secondary,
             )
         }
     }
 
     @Composable
     fun TemperatureDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(start = 16.dp, top = 0.dp)) {
+        Column(Modifier.padding(start = 16.dp, top = 50.dp)) {
             Row {
                 Image(
                     painter = painterResource(id = R.drawable.ic_action_thermometer),
@@ -128,13 +127,13 @@ class MainActivity : ComponentActivity() {
                     painter = painterResource(id = R.drawable.ic_baseline_navigation_24),
                     contentDescription = "Wind navigation image",
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(25.dp)
                         .rotate(weather.windDegrees.toFloat())
                 )
                 Text(
                     text = weather.windDisplay,
                     color = Color.Black,
-                    fontSize = 22.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
                 )
@@ -222,7 +221,7 @@ class MainActivity : ComponentActivity() {
     fun AdviceDescription(advice: AdviceUIModel) {
         Card(
             shape = RoundedCornerShape(topEnd = 10.dp, topStart = 10.dp),
-            modifier = Modifier.padding(top = 300.dp)
+            modifier = Modifier.padding(top = 390.dp)
                 .fillMaxWidth()
                 .height(height = 200.dp),
             backgroundColor = MaterialTheme.colors.primaryVariant,
@@ -233,7 +232,7 @@ class MainActivity : ComponentActivity() {
                     color = Color.Black,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
-                        .padding(16.dp, 16.dp, 16.dp, 8.dp),
+                        .padding(16.dp, 16.dp, 16.dp, 0.dp),
                     fontSize = 30.sp
                 )
                 AdviceText(advice = advice)
@@ -247,7 +246,7 @@ class MainActivity : ComponentActivity() {
             text = advice.textAdvice,
             color = Color.Black,
             modifier = Modifier
-                .padding(16.dp),
+                .padding(10.dp),
             textAlign = TextAlign.Start,
         )
     }
