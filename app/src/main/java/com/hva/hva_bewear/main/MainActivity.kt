@@ -90,6 +90,7 @@ class MainActivity : ComponentActivity() {
                 )
                 Text(
                     text = weather.temperatureDisplay,
+                    color = Color.Black,
                     fontSize = 26.sp,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
@@ -97,6 +98,7 @@ class MainActivity : ComponentActivity() {
             }
             Text(
                 text = weather.feelsLikeTemperatureDisplay,
+                color = Color.Black,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
@@ -123,6 +125,7 @@ class MainActivity : ComponentActivity() {
                 )
                 Text(
                     text = weather.windDisplay,
+                    color = Color.Black,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
@@ -140,7 +143,7 @@ class MainActivity : ComponentActivity() {
                 .clip(RoundedCornerShape(10.dp))
                 .clickable(onClick = { expanded = true })
                 .fillMaxWidth(),
-            backgroundColor = Color.LightGray,
+            backgroundColor = MaterialTheme.colors.primaryVariant,
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
@@ -155,6 +158,7 @@ class MainActivity : ComponentActivity() {
                     )
                     Text(
                         locations[selectedIndex],
+                        color = Color.Black,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                     )
@@ -175,7 +179,7 @@ class MainActivity : ComponentActivity() {
                         .width(382.dp)
                         .height(220.dp)
                         .background(
-                            Color.LightGray
+                            MaterialTheme.colors.primaryVariant
                         ),
                 ) {
                     Divider()
@@ -192,6 +196,7 @@ class MainActivity : ComponentActivity() {
                         ) {
                             Text(
                                 text = s,
+                                color = Color.Black,
                                 textAlign = TextAlign.Center,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
@@ -209,15 +214,13 @@ class MainActivity : ComponentActivity() {
     fun AdviceDescription(advice: AdviceUIModel) {
         Card(
             shape = RoundedCornerShape(10.dp),
-            modifier = Modifier
-                .offset(y = 340.dp)
-                .padding(start = 10.dp, end = 10.dp),
-            backgroundColor = Color.LightGray,
-
+            modifier = Modifier.padding(start = 10.dp, top = 300.dp, end = 10.dp),
+            backgroundColor = MaterialTheme.colors.primaryVariant,
         ) {
             Column {
                 Text(
                     text = "Clothing Description",
+                    color = Color.Black,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .padding(16.dp, 16.dp, 16.dp, 8.dp),
@@ -232,6 +235,7 @@ class MainActivity : ComponentActivity() {
     fun AdviceText(advice: AdviceUIModel) {
         Text(
             text = advice.textAdvice,
+            color = Color.Black,
             modifier = Modifier
                 .padding(16.dp),
             textAlign = TextAlign.Start,
