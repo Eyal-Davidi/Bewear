@@ -9,7 +9,7 @@ class AppWeatherIconProvider : WeatherIconProvider {
     override fun getWeatherIcon(type: String): Int {
         return when (type) {
             "01d" -> R.drawable.ic_action_sunny
-            "02d" -> R.drawable.ic_action_partly_cloud
+            "02d" -> R.drawable.ic_action_partly_cloudy
             "03d" -> R.drawable.ic_action_cloudy
             "04d" -> R.drawable.ic_action_broken_cloudy
             "09d" -> R.drawable.ic_action_cloudy_rainy
