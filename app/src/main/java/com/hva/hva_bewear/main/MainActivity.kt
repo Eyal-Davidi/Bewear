@@ -62,7 +62,7 @@ class MainActivity : ComponentActivity() {
             Column {
                 TopBar(locations)
                 TitleDisplay()
-                Spacer(modifier = Modifier.height(50.dp))
+                Spacer(modifier = Modifier.height(1.dp))
                 Row {
                     TemperatureDisplay(weather)
                     Spacer(modifier = Modifier.width(125.dp))
@@ -75,9 +75,9 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun TitleDisplay() {
-        Column(Modifier.padding(start = 32.dp, top = 10.dp)) {
+        Column(Modifier.padding(start = 110.dp, top = 1.dp)) {
             Text(
-                text = "Weather Advice for Today",
+                text = "Today's Advice",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
@@ -85,10 +85,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
     @Composable
     fun TemperatureDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(start = 16.dp, top = 16.dp)) {
+        Column(Modifier.padding(start = 16.dp, top = 0.dp)) {
             Row {
                 Image(
                     painter = painterResource(id = R.drawable.ic_action_thermometer),
@@ -116,12 +115,12 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun WindDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(start = 5.dp, top = 5.dp))
+        Column(Modifier.padding(start = 65.dp, top = 1.dp))
         {
             Image(
                 painter = painterResource(id = weather.iconId),
                 contentDescription = "Weather Icon",
-                modifier = Modifier.size(70.dp),
+                modifier = Modifier.size(150.dp),
             )
             Row {
                 Image(
@@ -221,8 +220,9 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun AdviceDescription(advice: AdviceUIModel) {
         Card(
-            shape = RoundedCornerShape(10.dp),
-            modifier = Modifier.padding(start = 10.dp, top = 300.dp, end = 10.dp),
+            shape = RoundedCornerShape(topEnd = 10.dp, topStart = 10.dp),
+            modifier = Modifier.padding(top = 350.dp)
+                .size(500.dp, 200.dp),
             backgroundColor = MaterialTheme.colors.primaryVariant,
         ) {
             Column {
@@ -256,7 +256,7 @@ class MainActivity : ComponentActivity() {
             painter = painterResource(advice.avatar),
             contentDescription = "Avatar",
             modifier = Modifier
-                .offset(y = 49.dp)
+                .offset(y = 75.dp)
                 .scale(0.95f),
         )
     }
