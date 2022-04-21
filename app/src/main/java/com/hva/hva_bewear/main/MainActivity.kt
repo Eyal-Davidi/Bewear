@@ -67,8 +67,10 @@ class MainActivity : ComponentActivity() {
             Avatar(advice)
             Column {
                 TopBar(locations)
+                Spacer(modifier = Modifier.height(50.dp))
                 Row {
                     TemperatureDisplay(weather)
+                    Spacer(modifier = Modifier.width(125.dp))
                     WindDisplay(weather)
                 }
                 AdviceDescription(advice)
@@ -78,17 +80,17 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun TemperatureDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(start = 16.dp, top = 100.dp)) {
+        Column(Modifier.padding(start = 16.dp, top = 16.dp)) {
             Row {
                 Image(
                     painter = painterResource(id = R.drawable.ic_action_thermometer),
                     contentDescription = "Temperature image",
                     modifier = Modifier
-                        .size(45.dp)
+                        .size(38.dp)
                 )
                 Text(
                     text = weather.temperatureDisplay,
-                    fontSize = 32.sp,
+                    fontSize = 26.sp,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
                 )
@@ -104,7 +106,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun WindDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(start = 115.dp, top = 80.dp))
+        Column(Modifier.padding(start = 5.dp, top = 5.dp))
         {
             Image(
                 painter = painterResource(id = weather.iconId),
@@ -208,17 +210,18 @@ class MainActivity : ComponentActivity() {
         Card(
             shape = RoundedCornerShape(10.dp),
             modifier = Modifier
-                .offset(y = 300.dp)
-                .padding(start = 10.dp, top = 10.dp, end = 10.dp),
+                .offset(y = 340.dp)
+                .padding(start = 10.dp, end = 10.dp),
             backgroundColor = Color.LightGray,
+
         ) {
             Column {
                 Text(
                     text = "Clothing Description",
                     modifier = Modifier
-                        .scale(2f)
                         .align(Alignment.CenterHorizontally)
                         .padding(16.dp, 16.dp, 16.dp, 8.dp),
+                    fontSize = 30.sp
                 )
                 AdviceText(advice = advice)
             }
@@ -240,7 +243,9 @@ class MainActivity : ComponentActivity() {
         Image(
             painter = painterResource(advice.avatar),
             contentDescription = "Avatar",
-            modifier = Modifier.size(290.dp),
+            modifier = Modifier
+                .offset(y = 49.dp)
+                .scale(0.95f),
         )
     }
 
