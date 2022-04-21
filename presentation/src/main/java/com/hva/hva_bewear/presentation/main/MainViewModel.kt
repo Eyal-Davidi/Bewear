@@ -13,20 +13,26 @@ import com.hva.hva_bewear.presentation.main.model.AdviceUIModel
 import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
 import com.hva.hva_bewear.presentation.main.provider.AvatarIdProvider
 import com.hva.hva_bewear.presentation.main.provider.TextAdviceStringProvider
+import com.hva.hva_bewear.presentation.main.provider.WeatherIconProvider
+import io.ktor.client.features.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.nio.channels.UnresolvedAddressException
 
 class MainViewModel(
-    private val getWeather: GetWeather, 
-    private val getClothingAdvice: GetClothingAdvice, 
-    private val idProvider: AvatarIdProvider, 
+    private val getWeather: GetWeather,
+    private val getClothingAdvice: GetClothingAdvice,
+    private val idProvider: AvatarIdProvider,
     private val stringProvider: TextAdviceStringProvider,
     private val idWeatherIconProvider: WeatherIconProvider,
 ) : ViewModel() {
 
-    private val _weather = MutableStateFlow(WeatherUIModel())
+    private val _weather = MutableStateFlow(
+        WeatherUIModel(
+            iconId = idWeatherIconProvider.getWeatherIcon("")
+        )
+    )
     val weather: StateFlow<WeatherUIModel> by lazy {
         fetchWeather()
         _weather
@@ -50,15 +56,26 @@ class MainViewModel(
 
     private val fetchWeatherExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         _uiState.tryEmit(
-            if (throwable is UnresolvedAddressException) {
-                UIStates.NetworkError("No connection!")
-            } else {
-                UIStates.Error("Something went wrong, error ${throwable.javaClass}")
+            when (throwable) {
+                is UnresolvedAddressException ->
+                    UIStates.NetworkError("No connection!")
+                is ClientRequestException ->
+                    UIStates.ClientRequestError(
+                        "The limit of api calls is reached!\n " +
+                                "Please contact the app owners"
+                    )
+                else ->
+                    UIStates.Error("Something went wrong, error ${throwable.javaClass}")
             }
         )
     }
 
-    fun fetchWeather() {
+    fun refresh() {
+        fetchWeather()
+        fetchAdvice()
+    }
+
+    private fun fetchWeather() {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
             _uiState.tryEmit(UIStates.Loading)
             getWeather().uiModel(idProvider = idWeatherIconProvider).let(_weather::tryEmit)
@@ -66,7 +83,7 @@ class MainViewModel(
         }
     }
 
-    fun fetchAdvice() {
+    private fun fetchAdvice() {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
             _uiState.tryEmit(UIStates.Loading)
             getClothingAdvice().uiModel(idProvider, stringProvider).let(_advice::tryEmit)
