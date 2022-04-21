@@ -16,8 +16,9 @@ private val DarkColorPalette = darkColors(
 private val LightColorPalette = lightColors(
     primary = VividSkyBlue,
     primaryVariant = BlueNCS,
-    secondary = BlueGreen,
-    background = VividSkyBlue
+    secondary = Yellow,
+    background = VividSkyBlue,
+
 
     /* Other default colors to override
     background = Color.White,

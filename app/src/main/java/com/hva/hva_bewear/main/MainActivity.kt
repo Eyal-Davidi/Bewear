@@ -81,6 +81,7 @@ class MainActivity : ComponentActivity() {
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
+                color = MaterialTheme.colors.secondary,
             )
         }
     }
@@ -221,8 +222,9 @@ class MainActivity : ComponentActivity() {
     fun AdviceDescription(advice: AdviceUIModel) {
         Card(
             shape = RoundedCornerShape(topEnd = 10.dp, topStart = 10.dp),
-            modifier = Modifier.padding(top = 350.dp)
-                .size(500.dp, 200.dp),
+            modifier = Modifier.padding(top = 300.dp)
+                .fillMaxWidth()
+                .height(height = 200.dp),
             backgroundColor = MaterialTheme.colors.primaryVariant,
         ) {
             Column {
