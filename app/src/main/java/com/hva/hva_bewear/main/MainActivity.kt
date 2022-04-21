@@ -1,5 +1,6 @@
 package com.hva.hva_bewear.main
 
+import android.icu.text.CaseMap
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -34,11 +35,9 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
-import com.hva.hva_bewear.presentation.main.model.AdviceUIModel
-import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.hva.hva_bewear.presentation.main.LocationPicker
-import com.hva.hva_bewear.presentation.main.model.UIStates
+import com.hva.hva_bewear.presentation.main.model.*
 
 class MainActivity : ComponentActivity() {
 
@@ -71,6 +70,7 @@ class MainActivity : ComponentActivity() {
             Avatar(advice)
             Column {
                 TopBar(locations)
+                TitleDisplay()
                 Row {
                     TemperatureDisplay(weather)
                     WindDisplay(weather)
@@ -79,6 +79,19 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    @Composable
+    fun TitleDisplay() {
+        Column(Modifier.padding(start = 32.dp, top = 10.dp)) {
+            Text(
+                text = "Weather Advice for Today",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+            )
+        }
+    }
+
 
     @Composable
     fun TemperatureDisplay(weather: WeatherUIModel) {
