@@ -75,12 +75,13 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun TitleDisplay() {
-        Column(Modifier.padding(start = 110.dp, top = 1.dp)) {
+        Column(Modifier.offset(95.dp)) {
             Text(
                 text = "Today's Advice",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
+                color = Color.Black,
             )
         }
     }
@@ -115,25 +116,28 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun WindDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(start = 65.dp, top = 1.dp))
+        Column(Modifier.padding(start = 35.dp, top = 50.dp))
         {
             Image(
                 painter = painterResource(id = weather.iconId),
                 contentDescription = "Weather Icon",
-                modifier = Modifier.size(150.dp),
+                modifier = Modifier
+                    .scale(1.5f)
+                    .wrapContentSize(),
             )
             Row {
                 Image(
                     painter = painterResource(id = R.drawable.ic_baseline_navigation_24),
                     contentDescription = "Wind navigation image",
                     modifier = Modifier
-                        .size(25.dp)
+                        .size(40.dp)
                         .rotate(weather.windDegrees.toFloat())
                 )
+                Spacer(Modifier.width(5.dp))
                 Text(
                     text = weather.windDisplay,
                     color = Color.Black,
-                    fontSize = 18.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
                 )
