@@ -188,8 +188,7 @@ class MainActivity : ComponentActivity() {
                                     selectedIndex = index
                                     expanded = false
                                     locationPicker.setLocation(s)
-                                    viewModel.fetchWeather()
-                                    viewModel.fetchAdvice()
+                                    viewModel.refresh()
                                 }
                             }
                         ) {
@@ -251,6 +250,7 @@ class MainActivity : ComponentActivity() {
     fun BindStates(Content: @Composable () -> Unit) {
         val state by viewModel.uiState.collectAsState()
         when (val uiState = state) {
+            is UIStates.NetworkError -> ErrorState(errorState = uiState, showRefresh = true)
             is UIStates.ErrorInterface -> ErrorState(errorState = uiState)
             UIStates.Loading -> LoadingScreen()
             UIStates.Normal -> Content()
@@ -279,13 +279,23 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun ErrorState(errorState: UIStates.ErrorInterface) {
+    fun ErrorState(errorState: UIStates.ErrorInterface, showRefresh: Boolean = false) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(text = errorState.errorText, modifier = Modifier.padding(10.dp))
+                if (showRefresh) {
+                    Button(
+                        onClick = { viewModel.refresh() },
+                        modifier = Modifier
+                            .height(40.dp)
+                            .width(100.dp),
+                    ) {
+                        Text(text = "Refresh")
+                    }
+                }
             }
         }
     }
