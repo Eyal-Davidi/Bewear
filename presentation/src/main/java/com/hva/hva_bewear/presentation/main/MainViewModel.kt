@@ -1,5 +1,6 @@
 package com.hva.hva_bewear.presentation.main
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hva.hva_bewear.domain.advice.GetClothingAdvice
@@ -68,6 +69,7 @@ class MainViewModel(
                     UIStates.Error("Something went wrong, error ${throwable.javaClass}")
             }
         )
+        Log.e("AppERR", throwable.stackTraceToString())
     }
 
     fun refresh() {
