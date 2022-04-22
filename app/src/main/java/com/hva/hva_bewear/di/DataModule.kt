@@ -15,7 +15,7 @@ val dataModule = module {
     // Services
     single { TextService() }
 
-    single<WeatherRepository> { RemoteWeatherRepository(get()) }
+    single<WeatherRepository> { RemoteWeatherRepository(get(), get()) }
 
     single { WeatherService() }
 }

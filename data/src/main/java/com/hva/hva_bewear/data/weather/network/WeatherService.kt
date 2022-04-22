@@ -1,24 +1,24 @@
 package com.hva.hva_bewear.data.weather.network
 
-import android.os.Environment
+import android.content.Context
 import android.util.Log
 import com.hva.hva_bewear.data.weather.network.response.WeatherResponse
 import com.hva.hva_bewear.domain.weather.LocationPicker
+import com.hva.hva_bewear.domain.weather.model.Locations
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import io.ktor.util.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import java.io.BufferedReader
 import java.io.File
-import java.util.*
-import kotlin.io.path.toPath
-import kotlin.math.log
-
+import java.io.FileNotFoundException
+import java.io.PrintWriter
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 
 class WeatherService {
     private val client = HttpClient(CIO) {
@@ -35,26 +35,53 @@ class WeatherService {
 
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
-    suspend fun getWeather(): WeatherResponse {
-        val location = locationPicker.calLocation()
+    private lateinit var location: Locations
+
+    suspend fun getWeather(context: Context): WeatherResponse {
+        location = locationPicker.calLocation()
+        // Directly call from the api
 //        return client.get(url.replace(lat, location.lat.toString()).replace(lon, location.lon.toString()))
 
-//        val file = File("/data/app/~~EW7KV06MeF0GG8kgNzXl3w==/com.hva.appname-6xv0VSSwsUhYX9RRqc7U0Q==/base.apk!/res/raw/", "Beijing.json")
-//        file.createNewFile()
-//        file.appendText(client.get(url.replace(lat, location.lat.toString()).replace(lon, location.lon.toString())))
+        // Use locally stored files to cache the api data
+        var file = File(context.filesDir, "${location.cityName.lowercase()}.json")
+        // If the file does not yet exists a new file is created
+        if(!file.exists()) file = createNewFile(file)
 
-//        val file = File.createTempFile("${Environment.getDataDirectory().absolutePath}/", "beijing.json")
-//        file.appendText(client.get(url.replace(lat, location.lat.toString()).replace(lon, location.lon.toString())))
+        var weather: WeatherResponse = json.decodeFromString(file.readText())
+        // If the date in the file is before the current date the file is refreshed
+        if(instantToDate(weather.daily[0].date).isBefore(LocalDate.now())) {
+            writeApiDataToFile(file)
+            weather = json.decodeFromString(file.readText())
+        }
+        return weather
+    }
 
+    private suspend fun createNewFile(file: File): File {
+        kotlin.runCatching {
+            file.createNewFile()
+            writeApiDataToFile(file)
+        }
+        if(!file.exists()) throw FileNotFoundException()
+        return file
+    }
 
-        val fileName = "res/raw/${location.cityName.lowercase()}.json"
-        val classLoader = this.javaClass.classLoader!!
-        Log.i("TAG", "getWeather: ${Environment.getDataDirectory().absolutePath}")
-        val bufferedReader: BufferedReader = classLoader.getResourceAsStream(fileName).bufferedReader()
-        val jsonString = bufferedReader.use(BufferedReader::readText)
-        return json.decodeFromString(jsonString)
+    private suspend fun writeApiDataToFile(file: File): File {
+        Log.e("API_CALL", "writeApiDataToFile: An Api call has been made!")
+        kotlin.runCatching {
+            val printWriter = PrintWriter(file)
+            val jsonFromApi: String = client.get(
+                url.replace(lat, location.lat.toString()).replace(lon, location.lon.toString())
+            )
+            printWriter.write(jsonFromApi)
+            printWriter.close()
+        }
+        return file
+    }
 
-//        return json.decodeFromString(file.readText())
+    private fun instantToDate(instant: Int): LocalDate {
+        return Instant.ofEpochSecond(instant.toLong())
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
     }
 
     companion object {

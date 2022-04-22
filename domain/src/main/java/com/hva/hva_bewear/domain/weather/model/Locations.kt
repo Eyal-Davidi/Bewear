@@ -17,6 +17,7 @@ enum class Locations(val cityName: String, val lat : Double,val lon : Double) {
 //    HAARLEM("Haarlem", 52.3873878, 4.6462194),
     //HOORN("Hoorn",52.641460,5.056810),
     JOHANNESBURG("Johannesburg", -26.2041028, 28.0473051),
+    KERMAN("Kerman", 30.2731806, 56.9962093),
 //    LEEUWARDEN("Leeuwarden", 53.2012334, 5.7999133),
 //    LELYSTAD("Lelystad", 52.518537, 5.471422),
 //    MAASTRICHT("Maastricht", 50.849375, 5.694609),
