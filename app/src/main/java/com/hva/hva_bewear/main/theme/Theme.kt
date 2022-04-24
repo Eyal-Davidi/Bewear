@@ -10,7 +10,8 @@ import androidx.compose.ui.graphics.Color
 private val DarkColorPalette = darkColors(
     primary = VividSkyBlue,
     primaryVariant = BlueGreen,
-    secondary = BlueGreen
+    secondary = BlueGreen,
+    background = VividSkyBlue,
 )
 
 private val LightColorPalette = lightColors(

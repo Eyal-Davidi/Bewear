@@ -225,7 +225,7 @@ class MainActivity : ComponentActivity() {
     fun AdviceDescription(advice: AdviceUIModel) {
         Card(
             shape = RoundedCornerShape(topEnd = 10.dp, topStart = 10.dp),
-            modifier = Modifier.padding(top = 390.dp)
+            modifier = Modifier.offset(y = 350.dp)
                 .fillMaxWidth()
                 .height(height = 200.dp),
             backgroundColor = MaterialTheme.colors.primaryVariant,
