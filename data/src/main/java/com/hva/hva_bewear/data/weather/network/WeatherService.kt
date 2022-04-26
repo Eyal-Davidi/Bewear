@@ -48,10 +48,11 @@ class WeatherService {
         var file = File(context.filesDir, fileName)
         // If the file does not yet exists a new file is created
         if (!file.exists()) file = createNewFile(file)
+        //TODO make check if file is actually json
 
         var weather: WeatherResponse = json.decodeFromString(file.readText())
         // If the date in the file is before the current date the file is refreshed
-        if (dateIsBeforeCurrentDay(weather.daily[0].date)) {
+        if (dateIsBeforeCurrentHour(weather.daily[0].date)) {
             writeApiDataToFile(file)
             weather = json.decodeFromString(file.readText())
         }
@@ -71,6 +72,7 @@ class WeatherService {
         Log.e("API_CALL", "writeApiDataToFile: An Api call has been made!")
         kotlin.runCatching {
             val printWriter = PrintWriter(file)
+            //TODO make internet connection error
             val jsonFromApi: String = client.get(
                 url.replace(lat, location.lat.toString()).replace(lon, location.lon.toString())
             )
