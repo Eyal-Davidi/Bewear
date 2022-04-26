@@ -8,6 +8,10 @@ import com.hva.hva_bewear.domain.weather.model.DailyWeather
 import com.hva.hva_bewear.domain.weather.model.HourlyWeather
 import com.hva.hva_bewear.domain.weather.model.Weather
 import com.hva.hva_bewear.domain.weather.model.WeatherDetails
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 object WeatherMapper {
     fun WeatherResponse.toDomain(): Weather {
@@ -19,7 +23,7 @@ object WeatherMapper {
 
     fun DailyWeatherResponse.toDomain(): DailyWeather {
         return DailyWeather(
-            date = this.date,
+            date = this.date.instantToDateTime(),
             sunrise = this.sunrise,
             sunset = this.sunset,
             moonrise = this.moonrise,
@@ -56,7 +60,7 @@ object WeatherMapper {
 
     fun HourlyWeatherResponse.toDomain(): HourlyWeather {
         return HourlyWeather(
-            date = this.date,
+            date = this.date.instantToDateTime(),
             temperature = this.temperature,
             feelsLike = this.feelsLike,
             pressure = this.pressure,
@@ -77,5 +81,17 @@ object WeatherMapper {
 
     fun WeatherDetailsResponse.toDomain():WeatherDetails {
         return WeatherDetails(this.id, this.main, this.description, this.icon)
+    }
+
+    fun Int.instantToDate(): LocalDate {
+        return Instant.ofEpochSecond(toLong())
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+    }
+
+    fun Int.instantToDateTime(): LocalDateTime {
+        return Instant.ofEpochSecond(toLong())
+            .atZone(ZoneId.systemDefault())
+            .toLocalDateTime()
     }
 }

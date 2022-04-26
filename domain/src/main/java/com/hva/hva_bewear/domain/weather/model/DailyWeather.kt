@@ -1,7 +1,9 @@
 package com.hva.hva_bewear.domain.weather.model
 
+import java.time.LocalDateTime
+
 data class DailyWeather(
-    val date : Int,
+    val date : LocalDateTime,
     val sunrise : Int,
     val sunset : Int,
     val moonrise : Int,

@@ -31,11 +31,12 @@ class MainViewModel(
 
     private val _weather = MutableStateFlow(
         WeatherUIModel(
-            iconId = idWeatherIconProvider.getWeatherIcon("")
+            iconId = idWeatherIconProvider.getWeatherIcon(""),
+            backgroundId = idWeatherIconProvider.getWeatherBackground(""),
         )
     )
     val weather: StateFlow<WeatherUIModel> by lazy {
-        fetchWeather()
+        fetchData()
         _weather
     }
 
@@ -47,7 +48,6 @@ class MainViewModel(
         )
     )
     val advice: StateFlow<AdviceUIModel> by lazy {
-        fetchAdvice()
         _advice
     }
 
@@ -73,21 +73,13 @@ class MainViewModel(
     }
 
     fun refresh() {
-        fetchWeather()
-        fetchAdvice()
+        fetchData()
     }
 
-    private fun fetchWeather() {
+    private fun fetchData() {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
             _uiState.tryEmit(UIStates.Loading)
             getWeather().uiModel(idProvider = idWeatherIconProvider).let(_weather::tryEmit)
-            _uiState.tryEmit(UIStates.Normal)
-        }
-    }
-
-    private fun fetchAdvice() {
-        viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
-            _uiState.tryEmit(UIStates.Loading)
             getClothingAdvice().uiModel(idProvider, stringProvider).let(_advice::tryEmit)
             _uiState.tryEmit(UIStates.Normal)
         }

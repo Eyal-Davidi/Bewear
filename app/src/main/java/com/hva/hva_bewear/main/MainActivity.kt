@@ -33,6 +33,7 @@ import com.hva.hva_bewear.presentation.main.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.hva.hva_bewear.presentation.main.LocationPicker
 import com.hva.hva_bewear.presentation.main.model.*
+import kotlin.time.Duration.Companion.hours
 
 class MainActivity : ComponentActivity() {
 
@@ -93,7 +94,10 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun TitleDisplay() {
-        Column(Modifier.offset(95.dp)) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             Text(
                 text = "Today's Advice",
                 fontSize = 32.sp,
@@ -115,7 +119,9 @@ class MainActivity : ComponentActivity() {
                 textAlign = TextAlign.Left,
                 color = Color.Black,
             )
-            Row (Modifier.padding(top = 10.dp)){
+//            Row(Modifier.padding(top = 45.dp))
+            Row()
+            {
                 Image(
                     painter = painterResource(id = R.drawable.ic_action_thermometer),
                     contentDescription = "Temperature image",
@@ -332,7 +338,7 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CircularProgressIndicator()
+//                GifImage(imageID = R.drawable.day_night, modifier = Modifier.size(100.dp))
                 Text(text = "Loading", modifier = Modifier.padding(10.dp))
             }
         }
