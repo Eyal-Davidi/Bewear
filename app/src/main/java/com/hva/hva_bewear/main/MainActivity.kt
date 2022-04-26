@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
         val advice by viewModel.advice.collectAsState()
 
         BindStates {
-            Loader()
+            Loader(weather)
             Avatar(advice)
             Column{
                 TopBar(locations)
@@ -318,8 +318,8 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun Loader() {
-        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.sunny_weather))
+    fun Loader(weather: WeatherUIModel) {
+        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(weather.backgroundId))
         LottieAnimation(composition)
 
         LottieAnimation(
