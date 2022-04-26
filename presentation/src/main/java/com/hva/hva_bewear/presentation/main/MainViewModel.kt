@@ -92,4 +92,11 @@ class MainViewModel(
             _uiState.tryEmit(UIStates.Normal)
         }
     }
+
+    fun fetch() {
+        fetchWeather()
+        fetchAdvice()
+    }
+
+
 }

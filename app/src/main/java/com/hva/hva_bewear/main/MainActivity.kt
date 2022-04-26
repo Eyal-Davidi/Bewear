@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,11 +29,13 @@ import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.hva.hva_bewear.presentation.main.LocationPicker
+import com.hva.hva_bewear.presentation.main.LocationViewModel
 import com.hva.hva_bewear.presentation.main.model.*
 
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModel()
+    private val LocationviewModel: LocationViewModel by viewModel()
     private val locationPicker: LocationPicker = LocationPicker()
     private var selectedIndex = 0
 
@@ -53,14 +56,14 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun MainScreen() {
-        val locations = locationPicker.setOfLocations()
+        val locations by LocationviewModel.locations.observeAsState()
         val weather by viewModel.weather.collectAsState()
         val advice by viewModel.advice.collectAsState()
 
         BindStates {
             Avatar(advice)
             Column{
-                TopBar(locations)
+                locations?.let { TopBar(it) }
                 TitleDisplay()
                 Spacer(modifier = Modifier.height(1.dp))
                 Row {
@@ -170,7 +173,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun TopBar(locations: ArrayList<String>) {
+    private fun TopBar(locations: List<String>) {
         var expanded by remember { mutableStateOf(false) }
         Card(
             modifier = Modifier
@@ -224,7 +227,7 @@ class MainActivity : ComponentActivity() {
                                 if (index != selectedIndex) {
                                     selectedIndex = index
                                     expanded = false
-                                    locationPicker.setLocation(s)
+                                    LocationviewModel.setLocation(s)
                                     viewModel.refresh()
                                 }
                             }

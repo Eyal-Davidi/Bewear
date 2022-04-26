@@ -6,7 +6,7 @@ object LocationPicker {
     var location: Locations = Locations.AMSTERDAM
     var set = arrayListOf<String>()
 
-    fun setOfLocations(): ArrayList<String> {
+    fun setOfLocations(): List<String> {
         if (set.isEmpty()) {
             set.add(location.cityName)
             enumValues<Locations>().forEach {
