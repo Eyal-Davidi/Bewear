@@ -65,8 +65,15 @@ class MainActivity : ComponentActivity() {
                 Spacer(modifier = Modifier.height(1.dp))
                 Row {
                     TemperatureDisplay(weather)
-                    Spacer(modifier = Modifier.width(125.dp))
-                    WindDisplay(weather)
+                    Row(
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier
+                            .padding(end = 26.dp)
+                            .fillMaxWidth(),
+                    ){
+                        WindDisplay(weather)
+                    }
+
                 }
                 Row(
                     verticalAlignment = Alignment.Bottom,
@@ -97,13 +104,13 @@ class MainActivity : ComponentActivity() {
     fun TemperatureDisplay(weather: WeatherUIModel) {
         Column(Modifier.padding(start = 16.dp)) {
             Text(
-                text = "Average weather:",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
+                text = "Average:",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Left,
                 color = Color.Black,
             )
-            Row (Modifier.padding(top = 16.dp)){
+            Row (Modifier.padding(top = 10.dp)){
                 Image(
                     painter = painterResource(id = R.drawable.ic_action_thermometer),
                     contentDescription = "Temperature image",
@@ -121,7 +128,7 @@ class MainActivity : ComponentActivity() {
             Text(
                 text = weather.feelsLikeTemperatureDisplay,
                 color = Color.Black,
-                fontSize = 24.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
             )
@@ -130,7 +137,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun WindDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(start = 1.dp, top = 50.dp))
+        Column(Modifier.padding(start = 0.dp, top = 30.dp))
         {
             Image(
                 painter = painterResource(id = weather.iconId),
@@ -276,7 +283,7 @@ class MainActivity : ComponentActivity() {
             contentDescription = "Avatar",
             modifier = Modifier
                 .offset(y = 100.dp)
-                .scale(0.95f),
+                .scale(1f),
         )
     }
 
