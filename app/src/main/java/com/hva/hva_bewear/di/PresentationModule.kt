@@ -1,8 +1,10 @@
 package com.hva.hva_bewear.di
 
+import com.hva.hva_bewear.domain.location.GetLocation
 import com.hva.hva_bewear.main.provider.AppWeatherIconProvider
 import com.hva.hva_bewear.main.provider.AppAvatarIdProvider
 import com.hva.hva_bewear.main.provider.AppTextAdviceStringProvider
+import com.hva.hva_bewear.presentation.main.GetLocationPick
 import com.hva.hva_bewear.presentation.main.LocationViewModel
 import com.hva.hva_bewear.presentation.main.provider.AvatarIdProvider
 import com.hva.hva_bewear.presentation.main.MainViewModel
@@ -18,4 +20,5 @@ val presentationModule = module {
     factory<AvatarIdProvider> { AppAvatarIdProvider() }
     factory<TextAdviceStringProvider> { AppTextAdviceStringProvider(get()) }
     factory<WeatherIconProvider> { AppWeatherIconProvider() }
+    factory<GetLocation> { GetLocationPick(get()) }
 }
