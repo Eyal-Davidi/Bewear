@@ -1,16 +1,46 @@
 package com.hva.hva_bewear.domain.advice
 
+import com.hva.hva_bewear.domain.advice.model.AdviceWeather
 import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
 import com.hva.hva_bewear.domain.weather.data.WeatherRepository
-import com.hva.hva_bewear.domain.weather.model.Weather
+import com.hva.hva_bewear.domain.weather.model.DailyWeather
+import com.hva.hva_bewear.domain.weather.model.HourlyWeather
 
 class GetClothingAdvice(private val repository: WeatherRepository) {
 
-    suspend operator fun invoke(): ClothingAdvice {
+    suspend operator fun invoke(isHourly: Boolean = false, index: Int = 0): ClothingAdvice {
         val weather = repository.getWeather()
 
-        val currentWeather = weather.daily[0]
-        val feelsLike = currentWeather.feelsLike.day
+        fun DailyWeather.toAdvice(): AdviceWeather{
+            return AdviceWeather(
+                feelsLike = feelsLike.day,
+                uvIndex = uvIndex,
+                windSpeed = windSpeed,
+                percentageOfPrecipitation = percentageOfPrecipitation,
+                rain = rain
+            )
+        }
+        fun HourlyWeather.toAdvice(): AdviceWeather{
+            return AdviceWeather(
+                feelsLike = feelsLike,
+                uvIndex = uvIndex,
+                windSpeed = windSpeed,
+                percentageOfPrecipitation = percentageOfPrecipitation,
+                rain = rain.hour
+            )
+        }
+
+        val currentWeather =
+            if (isHourly) {
+                weather.hourly.getOrElse(index = index) { weather.hourly[weather.hourly.lastIndex] }
+                    .toAdvice()
+            }
+            else {
+                weather.daily.getOrElse(index = index) { weather.daily[weather.daily.lastIndex] }
+                    .toAdvice()
+            }
+
+        val feelsLike = currentWeather.feelsLike
 
         val advice = when {
             feelsLike < WINTER_JACKET_THRESHOLD -> ClothingAdvice.WINTER_JACKET_LONG_PANTS
@@ -38,9 +68,5 @@ class GetClothingAdvice(private val repository: WeatherRepository) {
         private const val SWEATER_THRESHOLD = 10
         private const val LONG_SHIRT_THRESHOLD = 20
         private const val SHORT_SHIRT_THRESHOLD = 25
-
-
     }
-
-
 }
