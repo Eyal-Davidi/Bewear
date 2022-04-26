@@ -1,6 +1,7 @@
 package com.hva.hva_bewear.presentation.main
 
 import com.hva.hva_bewear.domain.weather.model.DailyWeather
+import com.hva.hva_bewear.domain.weather.model.HourlyWeather
 import com.hva.hva_bewear.domain.weather.model.Weather
 import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
 import com.hva.hva_bewear.presentation.main.provider.WeatherIconProvider
@@ -9,21 +10,23 @@ import kotlin.math.roundToInt
 
 object WeatherUIMapper {
 
-    fun Weather.uiModel(day: Int = 0, idProvider: WeatherIconProvider): WeatherUIModel = daily[day].uiModel(idProvider)
+    fun Weather.uiModel(day: Int = 0, idProvider: WeatherIconProvider): WeatherUIModel = daily[day].uiModel(idProvider, hourly)
 
     //fun ClothingAdvice.uiModel(idProvider: AvatarIdProvider, stringProvider: TextAdviceStringProvider): AdviceUIModel {
-    private fun DailyWeather.uiModel(idProvider: WeatherIconProvider): WeatherUIModel {
+    private fun DailyWeather.uiModel(idProvider: WeatherIconProvider, hourly: List<HourlyWeather>): WeatherUIModel {
         return WeatherUIModel(
             temperatureDisplay = parseTemperature(temperature.day),
+            minMaxDisplay = parseTemperature(temperature.min) + " / " + parseTemperature(temperature.max),
             feelsLikeTemperatureDisplay = "Feels like: \n${parseTemperature(feelsLike.day)}",
             windDisplay = "${setWindDirection(windDegree)} ${calculateBeaufortScale(windSpeed)}",
+            hourlyWeather = hourly,
             iconId = idProvider.getWeatherIcon(weather[0].icon),
             // Because we want the arrow to point towards the direction the wind is blowing we add 180° to it
             windDegrees = windDegree + 180,
         )
     }
 
-    private fun parseTemperature(temperature: Double) = "${temperature.roundToInt()} °C"
+    private fun parseTemperature(temperature: Double) = "${temperature.roundToInt()}°"
     private fun setWindDirection(windDegree: Int): String {
         return when (windDegree) {
             in 34..78 -> "NE"
