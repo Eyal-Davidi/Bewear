@@ -85,10 +85,7 @@ class MainViewModel(
         }
     }
 
-    fun fetch() {
-        fetchWeather()
-        fetchAdvice()
-    }
+
 
 
 }
