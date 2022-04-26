@@ -83,13 +83,21 @@ class MainActivity : ComponentActivity() {
                 textAlign = TextAlign.Center,
                 color = Color.Black,
             )
+
         }
     }
 
     @Composable
     fun TemperatureDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(start = 16.dp, top = 50.dp)) {
-            Row {
+        Column(Modifier.padding(start = 16.dp)) {
+            Text(
+                text = "Average weather:",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Left,
+                color = Color.Black,
+            )
+            Row (Modifier.padding(top = 16.dp)){
                 Image(
                     painter = painterResource(id = R.drawable.ic_action_thermometer),
                     contentDescription = "Temperature image",
@@ -116,7 +124,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun WindDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(start = 35.dp, top = 50.dp))
+        Column(Modifier.padding(start = 1.dp, top = 50.dp))
         {
             Image(
                 painter = painterResource(id = weather.iconId),
@@ -130,7 +138,7 @@ class MainActivity : ComponentActivity() {
                     painter = painterResource(id = R.drawable.ic_baseline_navigation_24),
                     contentDescription = "Wind navigation image",
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(30.dp)
                         .rotate(weather.windDegrees.toFloat())
                 )
                 Spacer(Modifier.width(5.dp))
@@ -261,7 +269,7 @@ class MainActivity : ComponentActivity() {
             painter = painterResource(advice.avatar),
             contentDescription = "Avatar",
             modifier = Modifier
-                .offset(y = 75.dp)
+                .offset(y = 100.dp)
                 .scale(0.95f),
         )
     }
