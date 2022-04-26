@@ -21,4 +21,21 @@ class AppWeatherIconProvider : WeatherIconProvider {
         }
 
     }
+
+    @DrawableRes
+    override fun getWeatherBackground(type: String): Int {
+        return when (type) {
+            "01d" -> R.raw.sunny_weather
+            "02d" -> R.raw.sunny_weather
+            "03d" -> R.raw.cloudy_weather
+            "04d" -> R.raw.sunny_weather
+            "09d" -> R.raw.rainy_weather
+            "10d" -> R.raw.sunny_weather
+            "11d" -> R.raw.rainy_weather
+            "13d" -> R.raw.snow_weather
+            "50d" -> R.raw.cloudy_weather
+            else -> R.drawable.default_placeholder
+        }
+
+    }
 }

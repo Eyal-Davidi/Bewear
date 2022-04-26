@@ -25,11 +25,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hva.hva_bewear.R
 import androidx.compose.ui.unit.sp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.hva.hva_bewear.presentation.main.LocationViewModel
 import com.hva.hva_bewear.presentation.main.model.*
+import kotlin.time.Duration.Companion.hours
 
 class MainActivity : ComponentActivity() {
 
@@ -59,6 +64,7 @@ class MainActivity : ComponentActivity() {
         val advice by viewModel.advice.collectAsState()
 
         BindStates {
+            Loader(weather)
             Avatar(advice)
             Column {
                 locations?.let { TopBar(it) }
@@ -71,7 +77,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .padding(end = 26.dp)
                             .fillMaxWidth(),
-                    ) {
+                    ){
                         WindDisplay(weather)
                     }
 
@@ -114,7 +120,9 @@ class MainActivity : ComponentActivity() {
                 textAlign = TextAlign.Left,
                 color = Color.Black,
             )
-            Row(Modifier.padding(top = 10.dp)) {
+//            Row(Modifier.padding(top = 45.dp))
+            Row()
+            {
                 Image(
                     painter = painterResource(id = R.drawable.ic_action_thermometer),
                     contentDescription = "Temperature image",
@@ -311,13 +319,27 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
+    fun Loader(weather: WeatherUIModel) {
+        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(weather.backgroundId))
+        LottieAnimation(composition)
+
+        LottieAnimation(
+            composition,
+            iterations = LottieConstants.IterateForever,
+            speed = 0.33f,
+        )
+
+
+    }
+
+    @Composable
     fun LoadingScreen() {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CircularProgressIndicator()
+//                GifImage(imageID = R.drawable.day_night, modifier = Modifier.size(100.dp))
                 Text(text = "Loading", modifier = Modifier.padding(10.dp))
             }
         }
