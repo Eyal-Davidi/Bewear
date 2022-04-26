@@ -99,7 +99,11 @@ dependencies {
     implementation "io.insert-koin:koin-core:$koin_version"
     implementation "io.insert-koin:koin-android:$koin_version"
 
-// Coil
+    // Coil
     implementation "io.coil-kt:coil-compose:2.0.0-rc03"
     implementation "io.coil-kt:coil-gif:2.0.0-rc03"
+
+    //Lottie
+    def lottieVersion = "5.0.3"
+    implementation "com.airbnb.android:lottie:$lottieVersion"
 }
