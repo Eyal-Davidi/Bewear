@@ -10,5 +10,6 @@ data class WeatherUIModel(
     val hourlyWeather: List<HourlyWeather> = emptyList(),
     val windDisplay: String = "_",
     @DrawableRes val iconId: Int,
+    @DrawableRes val backgroundId: Int,
     val windDegrees: Int = 0,
 )

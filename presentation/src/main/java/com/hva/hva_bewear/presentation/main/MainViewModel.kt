@@ -31,7 +31,8 @@ class MainViewModel(
 
     private val _weather = MutableStateFlow(
         WeatherUIModel(
-            iconId = idWeatherIconProvider.getWeatherIcon("")
+            iconId = idWeatherIconProvider.getWeatherIcon(""),
+            backgroundId = idWeatherIconProvider.getWeatherBackground(""),
         )
     )
     val weather: StateFlow<WeatherUIModel> by lazy {

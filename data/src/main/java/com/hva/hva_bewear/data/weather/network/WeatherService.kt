@@ -2,6 +2,8 @@ package com.hva.hva_bewear.data.weather.network
 
 import android.content.Context
 import android.util.Log
+import com.hva.hva_bewear.data.weather.network.WeatherMapper.instantToDate
+import com.hva.hva_bewear.data.weather.network.WeatherMapper.instantToDateTime
 import com.hva.hva_bewear.data.weather.network.response.WeatherResponse
 import com.hva.hva_bewear.domain.weather.LocationPicker
 import com.hva.hva_bewear.domain.weather.model.Locations
@@ -11,19 +13,14 @@ import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.delay
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import org.json.JSONException
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.PrintWriter
 import java.lang.Exception
-import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneId
 
 class WeatherService {
     private val client = HttpClient(CIO) {
@@ -111,18 +108,6 @@ class WeatherService {
     private fun dateIsBeforeCurrentDay(dateInt: Int): Boolean {
         val date = dateInt.instantToDate()
         return date.isBefore(LocalDate.now())
-    }
-
-    private fun Int.instantToDate(): LocalDate {
-        return Instant.ofEpochSecond(toLong())
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate()
-    }
-
-    private fun Int.instantToDateTime(): LocalDateTime {
-        return Instant.ofEpochSecond(toLong())
-            .atZone(ZoneId.systemDefault())
-            .toLocalDateTime()
     }
 
     private fun File.isJson(): Boolean {

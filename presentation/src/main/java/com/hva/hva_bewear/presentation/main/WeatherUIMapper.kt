@@ -21,6 +21,7 @@ object WeatherUIMapper {
             windDisplay = "${setWindDirection(windDegree)} ${calculateBeaufortScale(windSpeed)}",
             hourlyWeather = hourly,
             iconId = idProvider.getWeatherIcon(weather[0].icon),
+            backgroundId = idProvider.getWeatherBackground(weather[0].icon),
             // Because we want the arrow to point towards the direction the wind is blowing we add 180° to it
             windDegrees = windDegree + 180,
         )

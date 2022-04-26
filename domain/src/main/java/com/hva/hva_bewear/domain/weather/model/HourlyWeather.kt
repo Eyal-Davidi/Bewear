@@ -1,7 +1,9 @@
 package com.hva.hva_bewear.domain.weather.model
 
+import java.time.LocalDateTime
+
 data class HourlyWeather(
-    val date : Int,
+    val date : LocalDateTime,
     val temperature : Double,
     val feelsLike : Double,
     val pressure : Int,
