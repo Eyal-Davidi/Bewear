@@ -20,5 +20,5 @@ val presentationModule = module {
     factory<AvatarIdProvider> { AppAvatarIdProvider() }
     factory<TextAdviceStringProvider> { AppTextAdviceStringProvider(get()) }
     factory<WeatherIconProvider> { AppWeatherIconProvider() }
-    factory<GetLocation> { GetLocationPick(get()) }
+    single<GetLocation> { GetLocationPick(get()) }
 }

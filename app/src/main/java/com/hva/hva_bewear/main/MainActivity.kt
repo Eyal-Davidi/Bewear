@@ -28,15 +28,13 @@ import androidx.compose.ui.unit.sp
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import com.hva.hva_bewear.presentation.main.LocationPicker
 import com.hva.hva_bewear.presentation.main.LocationViewModel
 import com.hva.hva_bewear.presentation.main.model.*
 
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModel()
-    private val LocationviewModel: LocationViewModel by viewModel()
-    private val locationPicker: LocationPicker = LocationPicker()
+    private val locationViewModel: LocationViewModel by viewModel()
     private var selectedIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,13 +54,13 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun MainScreen() {
-        val locations by LocationviewModel.locations.observeAsState()
+        val locations by locationViewModel.locations.observeAsState()
         val weather by viewModel.weather.collectAsState()
         val advice by viewModel.advice.collectAsState()
 
         BindStates {
             Avatar(advice)
-            Column{
+            Column {
                 locations?.let { TopBar(it) }
                 TitleDisplay()
                 Spacer(modifier = Modifier.height(1.dp))
@@ -73,7 +71,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .padding(end = 26.dp)
                             .fillMaxWidth(),
-                    ){
+                    ) {
                         WindDisplay(weather)
                     }
 
@@ -116,7 +114,7 @@ class MainActivity : ComponentActivity() {
                 textAlign = TextAlign.Left,
                 color = Color.Black,
             )
-            Row (Modifier.padding(top = 10.dp)){
+            Row(Modifier.padding(top = 10.dp)) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_action_thermometer),
                     contentDescription = "Temperature image",
@@ -227,7 +225,7 @@ class MainActivity : ComponentActivity() {
                                 if (index != selectedIndex) {
                                     selectedIndex = index
                                     expanded = false
-                                    LocationviewModel.setLocation(s)
+                                    locationViewModel.setLocation(s)
                                     viewModel.refresh()
                                 }
                             }
@@ -351,7 +349,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun DefaultPreview() {
         M2Mobi_HvATheme {
-            TopBar(locations = locationPicker.setOfLocations())
+            locationViewModel.locations.value?.let { TopBar(locations = it) }
         }
     }
 }

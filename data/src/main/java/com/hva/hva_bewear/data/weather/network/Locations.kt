@@ -1,4 +1,4 @@
-package com.hva.hva_bewear.domain.weather.model
+package com.hva.hva_bewear.data.weather.network
 
 enum class Locations(val cityName: String, val lat : Double,val lon : Double) {
     AMSTERDAM("Amsterdam",52.3676,4.9041),
