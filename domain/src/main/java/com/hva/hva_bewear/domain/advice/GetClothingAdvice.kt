@@ -2,14 +2,15 @@ package com.hva.hva_bewear.domain.advice
 
 import com.hva.hva_bewear.domain.advice.model.AdviceWeather
 import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
+import com.hva.hva_bewear.domain.weather.GetWeather
 import com.hva.hva_bewear.domain.weather.data.WeatherRepository
 import com.hva.hva_bewear.domain.weather.model.DailyWeather
 import com.hva.hva_bewear.domain.weather.model.HourlyWeather
 
-class GetClothingAdvice(private val repository: WeatherRepository) {
+class GetClothingAdvice(private val getWeather: GetWeather) {
 
     suspend operator fun invoke(isHourly: Boolean = false, index: Int = 0): ClothingAdvice {
-        val weather = repository.getWeather()
+        val weather = getWeather()
 
         fun DailyWeather.toAdvice(): AdviceWeather{
             return AdviceWeather(
