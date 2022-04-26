@@ -29,6 +29,7 @@ import com.hva.hva_bewear.presentation.main.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.hva.hva_bewear.presentation.main.LocationPicker
 import com.hva.hva_bewear.presentation.main.model.*
+import kotlin.time.Duration.Companion.hours
 
 class MainActivity : ComponentActivity() {
 
