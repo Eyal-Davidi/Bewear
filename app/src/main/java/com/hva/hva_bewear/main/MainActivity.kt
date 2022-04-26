@@ -88,7 +88,10 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun TitleDisplay() {
-        Column(Modifier.offset(95.dp)) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             Text(
                 text = "Today's Advice",
                 fontSize = 32.sp,
