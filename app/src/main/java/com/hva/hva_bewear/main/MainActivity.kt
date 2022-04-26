@@ -59,23 +59,39 @@ class MainActivity : ComponentActivity() {
 
         BindStates {
             Avatar(advice)
-            Column {
+            Column{
                 TopBar(locations)
                 TitleDisplay()
                 Spacer(modifier = Modifier.height(1.dp))
                 Row {
                     TemperatureDisplay(weather)
-                    Spacer(modifier = Modifier.width(125.dp))
-                    WindDisplay(weather)
+                    Row(
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier
+                            .padding(end = 26.dp)
+                            .fillMaxWidth(),
+                    ){
+                        WindDisplay(weather)
+                    }
+
                 }
-                AdviceDescription(advice)
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    modifier = Modifier
+                        .fillMaxHeight(),
+                ) {
+                    AdviceDescription(advice)
+                }
             }
         }
     }
 
     @Composable
     fun TitleDisplay() {
-        Column(Modifier.offset(95.dp)) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             Text(
                 text = "Today's Advice",
                 fontSize = 32.sp,
@@ -91,13 +107,15 @@ class MainActivity : ComponentActivity() {
     fun TemperatureDisplay(weather: WeatherUIModel) {
         Column(Modifier.padding(start = 16.dp)) {
             Text(
-                text = "Average weather:",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
+                text = "Average:",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Left,
                 color = Color.Black,
             )
-            Row (Modifier.padding(top = 16.dp)){
+//            Row(Modifier.padding(top = 45.dp))
+            Row()
+            {
                 Image(
                     painter = painterResource(id = R.drawable.ic_action_thermometer),
                     contentDescription = "Temperature image",
@@ -115,7 +133,7 @@ class MainActivity : ComponentActivity() {
             Text(
                 text = weather.feelsLikeTemperatureDisplay,
                 color = Color.Black,
-                fontSize = 24.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
             )
@@ -124,7 +142,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun WindDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(start = 1.dp, top = 50.dp))
+        Column(Modifier.padding(start = 0.dp, top = 30.dp))
         {
             Image(
                 painter = painterResource(id = weather.iconId),
@@ -233,9 +251,9 @@ class MainActivity : ComponentActivity() {
     fun AdviceDescription(advice: AdviceUIModel) {
         Card(
             shape = RoundedCornerShape(topEnd = 10.dp, topStart = 10.dp),
-            modifier = Modifier.offset(y = 350.dp)
+            modifier = Modifier
                 .fillMaxWidth()
-                .height(height = 200.dp),
+                .wrapContentHeight(),
             backgroundColor = MaterialTheme.colors.primaryVariant,
         ) {
             Column {
@@ -258,7 +276,7 @@ class MainActivity : ComponentActivity() {
             text = advice.textAdvice,
             color = Color.Black,
             modifier = Modifier
-                .padding(10.dp),
+                .padding(horizontal = 10.dp, vertical = 16.dp),
             textAlign = TextAlign.Start,
         )
     }
@@ -270,7 +288,7 @@ class MainActivity : ComponentActivity() {
             contentDescription = "Avatar",
             modifier = Modifier
                 .offset(y = 100.dp)
-                .scale(0.95f),
+                .scale(1f),
         )
     }
 
@@ -300,7 +318,7 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CircularProgressIndicator()
+//                GifImage(imageID = R.drawable.day_night, modifier = Modifier.size(100.dp))
                 Text(text = "Loading", modifier = Modifier.padding(10.dp))
             }
         }
