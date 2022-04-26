@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
 
         BindStates {
             Avatar(advice)
-            Column {
+            Column{
                 TopBar(locations)
                 TitleDisplay()
                 Spacer(modifier = Modifier.height(1.dp))
@@ -68,7 +68,13 @@ class MainActivity : ComponentActivity() {
                     Spacer(modifier = Modifier.width(125.dp))
                     WindDisplay(weather)
                 }
-                AdviceDescription(advice)
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    modifier = Modifier
+                        .fillMaxHeight(),
+                ) {
+                    AdviceDescription(advice)
+                }
             }
         }
     }
@@ -225,9 +231,9 @@ class MainActivity : ComponentActivity() {
     fun AdviceDescription(advice: AdviceUIModel) {
         Card(
             shape = RoundedCornerShape(topEnd = 10.dp, topStart = 10.dp),
-            modifier = Modifier.offset(y = 350.dp)
+            modifier = Modifier
                 .fillMaxWidth()
-                .height(height = 200.dp),
+                .wrapContentHeight(),
             backgroundColor = MaterialTheme.colors.primaryVariant,
         ) {
             Column {
@@ -250,7 +256,7 @@ class MainActivity : ComponentActivity() {
             text = advice.textAdvice,
             color = Color.Black,
             modifier = Modifier
-                .padding(10.dp),
+                .padding(horizontal = 10.dp, vertical = 16.dp),
             textAlign = TextAlign.Start,
         )
     }
