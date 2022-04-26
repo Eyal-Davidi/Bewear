@@ -138,7 +138,7 @@ class MainActivity : ComponentActivity() {
                     painter = painterResource(id = R.drawable.ic_baseline_navigation_24),
                     contentDescription = "Wind navigation image",
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(30.dp)
                         .rotate(weather.windDegrees.toFloat())
                 )
                 Spacer(Modifier.width(5.dp))
