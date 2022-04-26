@@ -24,6 +24,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hva.hva_bewear.R
 import androidx.compose.ui.unit.sp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -59,6 +63,7 @@ class MainActivity : ComponentActivity() {
         val advice by viewModel.advice.collectAsState()
 
         BindStates {
+            Loader(weather)
             Avatar(advice)
             Column{
                 TopBar(locations)
@@ -310,6 +315,20 @@ class MainActivity : ComponentActivity() {
                 ).show()
             }
         }
+    }
+
+    @Composable
+    fun Loader(weather: WeatherUIModel) {
+        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(weather.backgroundId))
+        LottieAnimation(composition)
+
+        LottieAnimation(
+            composition,
+            iterations = LottieConstants.IterateForever,
+            speed = 0.33f,
+        )
+
+
     }
 
     @Composable
