@@ -3,19 +3,21 @@ package com.hva.hva_bewear.presentation.main
 import com.hva.hva_bewear.domain.weather.model.DailyWeather
 import com.hva.hva_bewear.domain.weather.model.Weather
 import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
+import com.hva.hva_bewear.presentation.main.provider.WeatherIconProvider
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
 object WeatherUIMapper {
 
-    fun Weather.uiModel(day: Int = 0): WeatherUIModel = daily[day].uiModel()
+    fun Weather.uiModel(day: Int = 0, idProvider: WeatherIconProvider): WeatherUIModel = daily[day].uiModel(idProvider)
 
-    private fun DailyWeather.uiModel(): WeatherUIModel {
+    //fun ClothingAdvice.uiModel(idProvider: AvatarIdProvider, stringProvider: TextAdviceStringProvider): AdviceUIModel {
+    private fun DailyWeather.uiModel(idProvider: WeatherIconProvider): WeatherUIModel {
         return WeatherUIModel(
             temperatureDisplay = parseTemperature(temperature.day),
             feelsLikeTemperatureDisplay = "Feels like: \n${parseTemperature(feelsLike.day)}",
             windDisplay = "${setWindDirection(windDegree)} ${calculateBeaufortScale(windSpeed)}",
-            iconUrl = "https://openweathermap.org/img/wn/${weather[0].icon}@4x.png",
+            iconId = idProvider.getWeatherIcon(weather[0].icon),
             // Because we want the arrow to point towards the direction the wind is blowing we add 180° to it
             windDegrees = windDegree + 180,
         )

@@ -17,8 +17,8 @@ object LocationPicker {
         }
         return set
     }
-        fun calLocation(): ArrayList<Double> {
-            return arrayListOf(location.lat, location.lon)
+        fun calLocation(): Locations {
+            return location
         }
 
         fun setLocation(locale: String) {
