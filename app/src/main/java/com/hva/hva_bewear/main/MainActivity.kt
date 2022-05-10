@@ -86,13 +86,13 @@ class MainActivity : ComponentActivity() {
                     }
 
                 }
-                Row(
-                    verticalAlignment = Alignment.Bottom,
-                    modifier = Modifier
-                        .fillMaxHeight(),
-                ) {
-                    AdviceDescription(advice)
-                }
+//                Row(
+//                    verticalAlignment = Alignment.Bottom,
+//                    modifier = Modifier
+//                        .fillMaxHeight(),
+//                ) {
+//                    AdviceDescription(advice)
+//                }
 
                 Row(
                     verticalAlignment = Alignment.Bottom,
@@ -296,46 +296,46 @@ class MainActivity : ComponentActivity() {
                 Card(
                     shape = RoundedCornerShape(topStart = 5.dp),
                     modifier = Modifier
-                        .wrapContentHeight(),
+                        .width(100.dp)
+                        .height(150.dp),
                     backgroundColor = MaterialTheme.colors.primaryVariant,
                 ) {
-                    Column {
+                    Column (horizontalAlignment = Alignment.CenterHorizontally){
+                        Image(
+                            painter = painterResource(hourlyAdvice[i].avatar),
+                            contentDescription = "Avatar",
+                            modifier = Modifier
+                                .offset(y = 20.dp)
+                                .scale(1f),
+
+                        )
+                    }
+
+                    Column(horizontalAlignment = Alignment.End) {
+                        Image(
+                            painter = painterResource(id = weather.iconId),
+                            contentDescription = "Weather Icon",
+                            modifier = Modifier
+                                .offset(x = 15.dp, y = -20.dp)
+                                .scale(0.7f)
+                                .wrapContentSize(),
+                        )
+                    }
+
+                    Column (horizontalAlignment = Alignment.Start){
                         Text(
-//                            Calendar.getInstance()
-                            text = weather.hourlyWeather[1].toString(),
+                            text = weather.hourlyWeather[0].date.hour.toString() + ":00",
                             color = Color.Black,
                             modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(16.dp, 16.dp, 16.dp, 0.dp),
-                            fontSize = 30.sp
+                                .padding(start = 5.dp, top = 5.dp),
+                            fontSize = 12.sp
                         )
                         Text(
                             text = weather.temperatureDisplay,
                             color = Color.Black,
                             modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(16.dp, 16.dp, 16.dp, 0.dp),
-                            fontSize = 30.sp
-                        )
-                    }
-
-                    Column {
-                        Image(
-                            painter = painterResource(hourlyAdvice[i].avatar),
-                            contentDescription = "Avatar",
-                            modifier = Modifier
-                                .offset(y = 100.dp)
-                                .scale(1f),
-                        )
-                    }
-
-                    Column {
-                        Image(
-                            painter = painterResource(id = weather.iconId),
-                            contentDescription = "Weather Icon",
-                            modifier = Modifier
-                                .scale(1.5f)
-                                .wrapContentSize(),
+                                .padding(start = 5.dp, top = 1.dp),
+                            fontSize = 12.sp
                         )
                     }
                 }
