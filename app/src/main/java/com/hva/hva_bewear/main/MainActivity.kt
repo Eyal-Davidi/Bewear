@@ -5,6 +5,9 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,6 +41,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.*
+import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
 
@@ -264,11 +269,27 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun AdviceDescription(advice: AdviceUIModel) {
+
+        var offsetY by remember { mutableStateOf(0f) }
+        Calendar.getInstance().time
         Card(
             shape = RoundedCornerShape(topEnd = 10.dp, topStart = 10.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight(),
+                .wrapContentHeight()
+                .offset(y = offsetY.roundToInt().dp)
+                .draggable(
+                    orientation = Orientation.Vertical,
+                    state = rememberDraggableState { delta ->
+                        offsetY += delta
+                        val maxOffset = -100f;
+                        offsetY = when {
+                            offsetY < maxOffset -> maxOffset
+                            offsetY > 0f -> 0f
+                            else -> offsetY
+                        }
+                    }
+                ),
             backgroundColor = MaterialTheme.colors.primaryVariant,
         ) {
             Column {
