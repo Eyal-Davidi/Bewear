@@ -123,13 +123,10 @@ class MainViewModel(
                     idProvider,
                     stringProvider
                 ).let(_advice::tryEmit)
-
-            getWeather().uiModel(idProvider = idWeatherIconProvider).let(_weather::tryEmit)
-            getClothingAdvice().uiModel(idProvider, stringProvider).let(_advice::tryEmit)
             List(
                 size = AMOUNT_OF_HOURS_IN_HOURLY,
                 init = {
-                    getClothingAdvice(isHourly = true, index = it).uiModel(idProvider, stringProvider)
+                    getClothingAdvice(isHourly = true, index = it, location = location).uiModel(idProvider, stringProvider)
                 }
             ).let(_hourlyAdvice::tryEmit)
             _uiState.tryEmit(UIStates.Normal)
