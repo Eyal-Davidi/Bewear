@@ -68,16 +68,7 @@ class MainViewModel(
     }
 
     private val _hourlyAdvice = MutableStateFlow(
-        List(
-            size = AMOUNT_OF_HOURS_IN_HOURLY,
-            init = {
-                AdviceUIModel(
-                    avatar = idProvider.getAdviceLabel(
-                        ClothingAdvice.DEFAULT
-                    )
-                )
-            }
-        )
+        generateDefaultAdvice()
     )
     val hourlyAdvice: StateFlow<List<AdviceUIModel>> by lazy {
         _hourlyAdvice
@@ -85,6 +76,20 @@ class MainViewModel(
 
     private val _uiState = MutableStateFlow<UIStates>(UIStates.Normal)
     var uiState: StateFlow<UIStates> = _uiState
+
+    private fun generateDefaultAdvice(): List<AdviceUIModel> {
+        val list = arrayListOf<AdviceUIModel>()
+        for (i in 1..AMOUNT_OF_HOURS_IN_HOURLY) {
+            list.add(
+                AdviceUIModel(
+                    avatar = idProvider.getAdviceLabel(
+                        ClothingAdvice.DEFAULT
+                    )
+                )
+            )
+        }
+        return list
+    }
 
 
     private val fetchWeatherExceptionHandler = CoroutineExceptionHandler { _, throwable ->
