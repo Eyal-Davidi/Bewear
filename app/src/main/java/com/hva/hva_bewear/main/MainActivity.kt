@@ -32,7 +32,6 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import com.hva.hva_bewear.presentation.main.LocationViewModel
 import com.hva.hva_bewear.presentation.main.model.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +41,6 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModel()
-    private val locationViewModel: LocationViewModel by viewModel()
     private var selectedIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,7 +60,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun MainScreen() {
-        val locations by locationViewModel.locations.observeAsState()
+        val locations by viewModel.locations.observeAsState()
         val weather by viewModel.weather.collectAsState()
         val advice by viewModel.advice.collectAsState()
         val hourlyAdvice by viewModel.hourlyAdvice.collectAsState()
@@ -238,11 +236,7 @@ class MainActivity : ComponentActivity() {
                                 if (index != selectedIndex) {
                                     selectedIndex = index
                                     expanded = false
-                                    CoroutineScope(Dispatchers.Main).launch {
-                                        locationViewModel.setLocation(s)
-                                        delay(1000)
-                                        viewModel.refresh()
-                                    }
+                                    viewModel.refresh(s)
                                 }
                             }
                         ) {
@@ -380,7 +374,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun DefaultPreview() {
         M2Mobi_HvATheme {
-            locationViewModel.locations.value?.let { TopBar(locations = it) }
+            viewModel.locations.value?.let { TopBar(locations = it) }
         }
     }
 }
