@@ -29,12 +29,17 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.hva.hva_bewear.domain.weather.model.Weather
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.hva.hva_bewear.presentation.main.LocationViewModel
 import com.hva.hva_bewear.presentation.main.model.*
-import kotlin.time.Duration.Companion.hours
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.*
 
 class MainActivity : ComponentActivity() {
 
@@ -62,6 +67,7 @@ class MainActivity : ComponentActivity() {
         val locations by locationViewModel.locations.observeAsState()
         val weather by viewModel.weather.collectAsState()
         val advice by viewModel.advice.collectAsState()
+        val hourlyAdvice by viewModel.hourlyAdvice.collectAsState()
 
         BindStates {
             Loader(weather)
@@ -88,6 +94,14 @@ class MainActivity : ComponentActivity() {
                         .fillMaxHeight(),
                 ) {
                     AdviceDescription(advice)
+                }
+
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    modifier = Modifier
+                        .fillMaxHeight(),
+                ) {
+                    HourlyDisplay(weather, hourlyAdvice)
                 }
             }
         }
@@ -205,6 +219,7 @@ class MainActivity : ComponentActivity() {
                         color = Color.Black,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
+                        modifier = Modifier.align(Alignment.CenterVertically)
                     )
                     Image(
                         painter = if (expanded)
@@ -233,8 +248,11 @@ class MainActivity : ComponentActivity() {
                                 if (index != selectedIndex) {
                                     selectedIndex = index
                                     expanded = false
-                                    locationViewModel.setLocation(s)
-                                    viewModel.refresh()
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        locationViewModel.setLocation(s)
+                                        delay(1000)
+                                        viewModel.refresh()
+                                    }
                                 }
                             }
                         ) {
@@ -278,19 +296,19 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun HourlyDisplay(advice: AdviceUIModel) {
-        for (i in currentHour..24) {
-            Row {
+    fun HourlyDisplay(weather: WeatherUIModel, hourlyAdvice: List<AdviceUIModel>) {
+        Row {
+            for (i in 0..23) {
                 Card(
-                    shape = RoundedCornerShape(topEnd = 10.dp, topStart = 10.dp),
+                    shape = RoundedCornerShape(topStart = 5.dp),
                     modifier = Modifier
-                        .fillMaxWidth()
                         .wrapContentHeight(),
                     backgroundColor = MaterialTheme.colors.primaryVariant,
                 ) {
                     Column {
                         Text(
-                            text = "XXXcurrentHour displayXxx",
+//                            Calendar.getInstance()
+                            text = weather.hourlyWeather[1].toString(),
                             color = Color.Black,
                             modifier = Modifier
                                 .align(Alignment.CenterHorizontally)
@@ -298,126 +316,151 @@ class MainActivity : ComponentActivity() {
                             fontSize = 30.sp
                         )
                         Text(
-                            text = "XXXcurrent tempratureXxx",
+                            text = weather.temperatureDisplay,
                             color = Color.Black,
                             modifier = Modifier
                                 .align(Alignment.CenterHorizontally)
                                 .padding(16.dp, 16.dp, 16.dp, 0.dp),
                             fontSize = 30.sp
                         )
-                        AdviceText(advice = advice)
                     }
 
                     Column {
-                        Text(
-                            text = "XXXicon weather imageXxx",
-                            color = Color.Black,
+                        Image(
+                            painter = painterResource(hourlyAdvice[i].avatar),
+                            contentDescription = "Avatar",
                             modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(16.dp, 16.dp, 16.dp, 0.dp),
-                            fontSize = 30.sp
+                                .offset(y = 100.dp)
+                                .scale(1f),
+                        )
+                    }
+
+                    Column {
+                        Image(
+                            painter = painterResource(id = weather.iconId),
+                            contentDescription = "Weather Icon",
+                            modifier = Modifier
+                                .scale(1.5f)
+                                .wrapContentSize(),
                         )
                     }
                 }
             }
         }
+    }
 
-        @Composable
-        fun AdviceText(advice: AdviceUIModel) {
-            Text(
-                text = advice.textAdvice,
-                color = Color.Black,
-                modifier = Modifier
-                    .padding(horizontal = 10.dp, vertical = 16.dp),
-                textAlign = TextAlign.Start,
+    @Composable
+    fun Avatar(advice: AdviceUIModel) {
+        Image(
+            painter = painterResource(advice.avatar),
+            contentDescription = "Avatar",
+            modifier = Modifier
+                .offset(y = 100.dp)
+                .scale(1f),
+        )
+    }
+
+    @Composable
+    fun BindStates(Content: @Composable () -> Unit) {
+        val state by viewModel.uiState.collectAsState()
+        when (val uiState = state) {
+            is UIStates.NetworkError -> ErrorState(
+                errorState = uiState,
+                showRefresh = true
             )
-        }
-
-        @Composable
-        fun Avatar(advice: AdviceUIModel) {
-            Image(
-                painter = painterResource(advice.avatar),
-                contentDescription = "Avatar",
-                modifier = Modifier
-                    .offset(y = 100.dp)
-                    .scale(1f),
-            )
-        }
-
-        @Composable
-        fun BindStates(Content: @Composable () -> Unit) {
-            val state by viewModel.uiState.collectAsState()
-            when (val uiState = state) {
-                is UIStates.NetworkError -> ErrorState(errorState = uiState, showRefresh = true)
-                is UIStates.ErrorInterface -> ErrorState(errorState = uiState)
-                UIStates.Loading -> LoadingScreen()
-                UIStates.Normal -> Content()
-                else -> {
-                    Toast.makeText(
-                        applicationContext,
-                        "Something went really really wrong...\n" +
-                                "(Unknown application state)",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
+            is UIStates.ErrorInterface -> ErrorState(errorState = uiState)
+            UIStates.Loading -> LoadingScreen()
+            UIStates.Normal -> Content()
+            else -> {
+                Toast.makeText(
+                    applicationContext,
+                    "Something went really really wrong...\n" +
+                            "(Unknown application state)",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
+    }
 
-        @Composable
-        fun Loader(weather: WeatherUIModel) {
-            val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(weather.backgroundId))
-            LottieAnimation(composition)
-
-            LottieAnimation(
-                composition,
-                iterations = LottieConstants.IterateForever,
-                speed = 0.33f,
+    @Composable
+    fun Loader(weather: WeatherUIModel) {
+        val composition by rememberLottieComposition(
+            LottieCompositionSpec.RawRes(
+                weather.backgroundId
             )
+        )
+        LottieAnimation(
+            composition,
+            iterations = LottieConstants.IterateForever,
+            speed = 0.33f,
+        )
+    }
 
-
-        }
-
-        @Composable
-        fun LoadingScreen() {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Column(
-                    modifier = Modifier.align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-//                GifImage(imageID = R.drawable.day_night, modifier = Modifier.size(100.dp))
-                    Text(text = "Loading", modifier = Modifier.padding(10.dp))
-                }
+    @Composable
+    fun LoadingScreen() {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier.align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                val composition by rememberLottieComposition(
+                    LottieCompositionSpec.RawRes(R.raw.day_night_loading)
+                )
+                LottieAnimation(
+                    composition,
+                    iterations = LottieConstants.IterateForever,
+//                    speed = 0.33f,
+                )
+                Text(text = "Loading", modifier = Modifier.padding(10.dp))
             }
         }
+    }
 
-        @Composable
-        fun ErrorState(errorState: UIStates.ErrorInterface, showRefresh: Boolean = false) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Column(
-                    modifier = Modifier.align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(text = errorState.errorText, modifier = Modifier.padding(10.dp))
-                    if (showRefresh) {
-                        Button(
-                            onClick = { viewModel.refresh() },
-                            modifier = Modifier
-                                .height(40.dp)
-                                .width(100.dp),
-                        ) {
-                            Text(text = "Refresh")
-                        }
+    @Composable
+    fun ErrorState(
+        errorState: UIStates.ErrorInterface,
+        showRefresh: Boolean = false
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier.align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = errorState.errorText,
+                    modifier = Modifier.padding(10.dp)
+                )
+                if (showRefresh) {
+                    Button(
+                        onClick = { viewModel.refresh() },
+                        modifier = Modifier
+                            .height(40.dp)
+                            .width(100.dp),
+                    ) {
+                        Text(text = "Refresh")
                     }
                 }
             }
         }
+    }
 
-        @Preview(showBackground = true)
-        @Composable
-        fun DefaultPreview() {
-            M2Mobi_HvATheme {
-                locationViewModel.locations.value?.let { TopBar(locations = it) }
-            }
+    @Composable
+    fun AdviceText(advice: AdviceUIModel) {
+        Text(
+            text = advice.textAdvice,
+            color = Color.Black,
+            modifier = Modifier
+                .padding(horizontal = 10.dp, vertical = 16.dp),
+            textAlign = TextAlign.Start,
+        )
+    }
+
+
+    @Preview(showBackground = true)
+    @Composable
+    fun DefaultPreview() {
+        M2Mobi_HvATheme {
+            locationViewModel.locations.value?.let { TopBar(locations = it) }
         }
     }
 }

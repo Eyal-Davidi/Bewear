@@ -51,6 +51,22 @@ class MainViewModel(
         _advice
     }
 
+    private val _hourlyAdvice = MutableStateFlow(
+        List(
+            size = AMOUNT_OF_HOURS_IN_HOURLY,
+            init = {
+                AdviceUIModel(
+                    avatar = idProvider.getAdviceLabel(
+                        ClothingAdvice.DEFAULT
+                    )
+                )
+            }
+        )
+    )
+    val hourlyAdvice: StateFlow<List<AdviceUIModel>> by lazy {
+        _hourlyAdvice
+    }
+
     private val _uiState = MutableStateFlow<UIStates>(UIStates.Normal)
     var uiState: StateFlow<UIStates> = _uiState
 
@@ -81,11 +97,17 @@ class MainViewModel(
             _uiState.tryEmit(UIStates.Loading)
             getWeather().uiModel(idProvider = idWeatherIconProvider).let(_weather::tryEmit)
             getClothingAdvice().uiModel(idProvider, stringProvider).let(_advice::tryEmit)
+            List(
+                size = AMOUNT_OF_HOURS_IN_HOURLY,
+                init = {
+                    getClothingAdvice(isHourly = true, index = it).uiModel(idProvider, stringProvider)
+                }
+            ).let(_hourlyAdvice::tryEmit)
             _uiState.tryEmit(UIStates.Normal)
         }
     }
 
-
-
-
+    companion object {
+        private const val AMOUNT_OF_HOURS_IN_HOURLY = 24
+    }
 }
