@@ -317,7 +317,7 @@ class MainActivity : ComponentActivity() {
 
                     Column(horizontalAlignment = Alignment.End) {
                         Image(
-                            painter = painterResource(id = weather.iconId),
+                            painter = painterResource(id = weather.hourlyIcons[i]),
                             contentDescription = "Weather Icon",
                             modifier = Modifier
                                 .offset(x = 15.dp, y = -10.dp)
