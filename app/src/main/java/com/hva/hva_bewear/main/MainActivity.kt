@@ -32,14 +32,11 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import com.hva.hva_bewear.presentation.main.LocationViewModel
 import com.hva.hva_bewear.presentation.main.model.*
-import kotlin.time.Duration.Companion.hours
 
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModel()
-    private val locationViewModel: LocationViewModel by viewModel()
     private var selectedIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,7 +56,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun MainScreen() {
-        val locations by locationViewModel.locations.observeAsState()
+        val locations by viewModel.locations.observeAsState()
         val weather by viewModel.weather.collectAsState()
         val advice by viewModel.advice.collectAsState()
 
@@ -77,7 +74,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .padding(end = 26.dp)
                             .fillMaxWidth(),
-                    ){
+                    ) {
                         WindDisplay(weather)
                     }
 
@@ -205,6 +202,7 @@ class MainActivity : ComponentActivity() {
                         color = Color.Black,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
+                        modifier = Modifier.align(Alignment.CenterVertically)
                     )
                     Image(
                         painter = if (expanded)
@@ -233,8 +231,7 @@ class MainActivity : ComponentActivity() {
                                 if (index != selectedIndex) {
                                     selectedIndex = index
                                     expanded = false
-                                    locationViewModel.setLocation(s)
-                                    viewModel.refresh()
+                                    viewModel.refresh(s)
                                 }
                             }
                         ) {
@@ -321,15 +318,11 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun Loader(weather: WeatherUIModel) {
         val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(weather.backgroundId))
-        LottieAnimation(composition)
-
         LottieAnimation(
             composition,
             iterations = LottieConstants.IterateForever,
             speed = 0.33f,
         )
-
-
     }
 
     @Composable
@@ -339,7 +332,12 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-//                GifImage(imageID = R.drawable.day_night, modifier = Modifier.size(100.dp))
+                val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.day_night_loading))
+                LottieAnimation(
+                    composition,
+                    iterations = LottieConstants.IterateForever,
+//                    speed = 0.33f,
+                )
                 Text(text = "Loading", modifier = Modifier.padding(10.dp))
             }
         }
@@ -371,7 +369,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun DefaultPreview() {
         M2Mobi_HvATheme {
-            locationViewModel.locations.value?.let { TopBar(locations = it) }
+            viewModel.locations.value?.let { TopBar(locations = it) }
         }
     }
 }
