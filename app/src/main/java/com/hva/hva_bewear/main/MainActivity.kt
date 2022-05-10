@@ -34,7 +34,10 @@ import com.hva.hva_bewear.presentation.main.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.hva.hva_bewear.presentation.main.LocationViewModel
 import com.hva.hva_bewear.presentation.main.model.*
-import kotlin.time.Duration.Companion.hours
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -205,6 +208,7 @@ class MainActivity : ComponentActivity() {
                         color = Color.Black,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
+                        modifier = Modifier.align(Alignment.CenterVertically)
                     )
                     Image(
                         painter = if (expanded)
@@ -233,8 +237,11 @@ class MainActivity : ComponentActivity() {
                                 if (index != selectedIndex) {
                                     selectedIndex = index
                                     expanded = false
-                                    locationViewModel.setLocation(s)
-                                    viewModel.refresh()
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        locationViewModel.setLocation(s)
+                                        delay(1000)
+                                        viewModel.refresh()
+                                    }
                                 }
                             }
                         ) {
@@ -321,15 +328,11 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun Loader(weather: WeatherUIModel) {
         val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(weather.backgroundId))
-        LottieAnimation(composition)
-
         LottieAnimation(
             composition,
             iterations = LottieConstants.IterateForever,
             speed = 0.33f,
         )
-
-
     }
 
     @Composable
@@ -339,7 +342,12 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-//                GifImage(imageID = R.drawable.day_night, modifier = Modifier.size(100.dp))
+                val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.day_night_loading))
+                LottieAnimation(
+                    composition,
+                    iterations = LottieConstants.IterateForever,
+//                    speed = 0.33f,
+                )
                 Text(text = "Loading", modifier = Modifier.padding(10.dp))
             }
         }
