@@ -20,11 +20,20 @@ object WeatherUIMapper {
             feelsLikeTemperatureDisplay = "Feels like: \n${parseTemperature(feelsLike.day)}",
             windDisplay = "${setWindDirection(windDegree)} ${calculateBeaufortScale(windSpeed)}",
             hourlyWeather = hourly,
+            hourlyIcons = getHourlyIconList(hourly, idProvider),
             iconId = idProvider.getWeatherIcon(weather[0].icon),
             backgroundId = idProvider.getWeatherBackground(weather[0].icon),
             // Because we want the arrow to point towards the direction the wind is blowing we add 180° to it
             windDegrees = windDegree + 180,
         )
+    }
+
+    private fun getHourlyIconList(hourly: List<HourlyWeather>, idProvider: WeatherIconProvider):List<Int> {
+        val list = arrayListOf<Int>()
+        for (hour in hourly) {
+            list.add(idProvider.getWeatherIcon(hour.weather[0].icon))
+        }
+        return list
     }
 
     private fun parseTemperature(temperature: Double) = "${temperature.roundToInt()}°"

@@ -1,10 +1,13 @@
 package com.hva.hva_bewear.presentation.main
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hva.hva_bewear.domain.advice.GetClothingAdvice
 import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
+import com.hva.hva_bewear.domain.location.LocationPicker
 import com.hva.hva_bewear.domain.weather.GetWeather
 import com.hva.hva_bewear.presentation.generic.launchOnIO
 import com.hva.hva_bewear.presentation.main.AdviceUIMapper.uiModel
@@ -27,6 +30,7 @@ class MainViewModel(
     private val idProvider: AvatarIdProvider,
     private val stringProvider: TextAdviceStringProvider,
     private val idWeatherIconProvider: WeatherIconProvider,
+    private val locationPick: LocationPicker
 ) : ViewModel() {
 
     private val _weather = MutableStateFlow(
@@ -36,7 +40,7 @@ class MainViewModel(
         )
     )
     val weather: StateFlow<WeatherUIModel> by lazy {
-        fetchData()
+        refresh()
         _weather
     }
 
@@ -49,6 +53,18 @@ class MainViewModel(
     )
     val advice: StateFlow<AdviceUIModel> by lazy {
         _advice
+    }
+
+    private val _locations: MutableStateFlow<List<String>> = MutableStateFlow(
+        locationPick.setOfLocations()
+    )
+    val locations: StateFlow<List<String>> by lazy {
+        _locations
+    }
+
+    private val _currentLocation: MutableStateFlow<String> = MutableStateFlow(locations.value[0])
+    val currentLocation: StateFlow<String> by lazy {
+        _currentLocation
     }
 
     private val _hourlyAdvice = MutableStateFlow(
@@ -88,19 +104,27 @@ class MainViewModel(
         Log.e("AppERR", throwable.stackTraceToString())
     }
 
-    fun refresh() {
-        fetchData()
+    fun refresh(location: String = currentLocation.value) {
+        fetchData(location)
     }
 
-    private fun fetchData() {
+    private fun fetchData(location: String) {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
             _uiState.tryEmit(UIStates.Loading)
-            getWeather().uiModel(idProvider = idWeatherIconProvider).let(_weather::tryEmit)
-            getClothingAdvice().uiModel(idProvider, stringProvider).let(_advice::tryEmit)
+
+            _currentLocation.tryEmit(location)
+            getWeather(location)
+                .uiModel(idProvider = idWeatherIconProvider)
+                .let(_weather::tryEmit)
+            getClothingAdvice(location = location)
+                .uiModel(
+                    idProvider,
+                    stringProvider
+                ).let(_advice::tryEmit)
             List(
                 size = AMOUNT_OF_HOURS_IN_HOURLY,
                 init = {
-                    getClothingAdvice(isHourly = true, index = it).uiModel(idProvider, stringProvider)
+                    getClothingAdvice(isHourly = true, index = it, location = location).uiModel(idProvider, stringProvider)
                 }
             ).let(_hourlyAdvice::tryEmit)
             _uiState.tryEmit(UIStates.Normal)
@@ -111,3 +135,5 @@ class MainViewModel(
         private const val AMOUNT_OF_HOURS_IN_HOURLY = 24
     }
 }
+
+

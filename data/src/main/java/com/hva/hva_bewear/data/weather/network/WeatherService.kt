@@ -20,7 +20,7 @@ import java.lang.Exception
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-class WeatherService(private val getLocation: GetLocation) {
+class WeatherService() {
     private val client = HttpClient(CIO) {
         install(JsonFeature) {
             serializer = KotlinxSerializer(kotlinx.serialization.json.Json {
@@ -36,8 +36,8 @@ class WeatherService(private val getLocation: GetLocation) {
 
     private lateinit var location: Locations
 
-    suspend fun getWeather(context: Context): WeatherResponse {
-        location = getLocation.getLocation()
+    suspend fun getWeather(context: Context, cityName: String): WeatherResponse {
+        location = Locations.CityName(cityName)
         // Directly call from the api
 //        return client.get(url.replace(lat, location.lat.toString()).replace(lon, location.lon.toString()))
 
@@ -56,7 +56,7 @@ class WeatherService(private val getLocation: GetLocation) {
             else writeApiDataToFile(file)
 
         // If the date in the file is before the current date the file is refreshed
-        return if (dateIsBeforeCurrentHour(weather.daily[0].date)) {
+        return if (dateIsBeforeCurrentHour(weather.hourly[0].date)) {
             writeApiDataToFile(file)
         } else weather
     }
