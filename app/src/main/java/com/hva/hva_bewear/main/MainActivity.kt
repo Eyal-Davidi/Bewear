@@ -33,6 +33,10 @@ import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.hva.hva_bewear.presentation.main.model.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -59,6 +63,7 @@ class MainActivity : ComponentActivity() {
         val locations by viewModel.locations.observeAsState()
         val weather by viewModel.weather.collectAsState()
         val advice by viewModel.advice.collectAsState()
+        val hourlyAdvice by viewModel.hourlyAdvice.collectAsState()
 
         BindStates {
             Loader(weather)
@@ -74,7 +79,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .padding(end = 26.dp)
                             .fillMaxWidth(),
-                    ) {
+                    ){
                         WindDisplay(weather)
                     }
 
