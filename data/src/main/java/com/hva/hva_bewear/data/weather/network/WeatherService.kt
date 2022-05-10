@@ -5,8 +5,6 @@ import android.util.Log
 import com.hva.hva_bewear.data.weather.network.WeatherMapper.instantToDate
 import com.hva.hva_bewear.data.weather.network.WeatherMapper.instantToDateTime
 import com.hva.hva_bewear.data.weather.network.response.WeatherResponse
-import com.hva.hva_bewear.domain.weather.LocationPicker
-import com.hva.hva_bewear.domain.weather.model.Locations
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
@@ -22,7 +20,7 @@ import java.lang.Exception
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-class WeatherService {
+class WeatherService(private val getLocation: GetLocation) {
     private val client = HttpClient(CIO) {
         install(JsonFeature) {
             serializer = KotlinxSerializer(kotlinx.serialization.json.Json {
@@ -33,14 +31,13 @@ class WeatherService {
                 listOf(ContentType.Application.Json, ContentType.Application.FormUrlEncoded)
         }
     }
-    private val locationPicker: LocationPicker = LocationPicker()
 
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
     private lateinit var location: Locations
 
     suspend fun getWeather(context: Context): WeatherResponse {
-        location = locationPicker.calLocation()
+        location = getLocation.getLocation()
         // Directly call from the api
 //        return client.get(url.replace(lat, location.lat.toString()).replace(lon, location.lon.toString()))
 
