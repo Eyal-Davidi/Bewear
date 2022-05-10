@@ -62,6 +62,7 @@ class MainActivity : ComponentActivity() {
         val locations by locationViewModel.locations.observeAsState()
         val weather by viewModel.weather.collectAsState()
         val advice by viewModel.advice.collectAsState()
+        val hourlyAdvice by viewModel.hourlyAdvice.collectAsState()
 
         BindStates {
             Loader(weather)
