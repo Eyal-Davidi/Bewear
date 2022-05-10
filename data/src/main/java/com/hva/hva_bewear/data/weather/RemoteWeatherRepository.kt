@@ -14,7 +14,7 @@ import com.hva.hva_bewear.domain.weather.model.WeatherDetails
 
 class RemoteWeatherRepository(private val service: WeatherService, private val context: Context) : WeatherRepository {
 
-    override suspend fun getWeather(): Weather {
-        return service.getWeather(context).toDomain()
+    override suspend fun getWeather(location: String): Weather {
+        return service.getWeather(context, location).toDomain()
     }
 }

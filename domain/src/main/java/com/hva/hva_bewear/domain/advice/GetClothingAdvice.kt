@@ -9,8 +9,8 @@ import com.hva.hva_bewear.domain.weather.model.HourlyWeather
 
 class GetClothingAdvice(private val getWeather: GetWeather) {
 
-    suspend operator fun invoke(isHourly: Boolean = false, index: Int = 0): ClothingAdvice {
-        val weather = getWeather()
+    suspend operator fun invoke(isHourly: Boolean = false, index: Int = 0, location: String): ClothingAdvice {
+        val weather = getWeather(location)
 
         fun DailyWeather.toAdvice(): AdviceWeather{
             return AdviceWeather(
