@@ -60,7 +60,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun MainScreen() {
-        val locations by viewModel.locations.observeAsState()
+        val locations by viewModel.locations.collectAsState()
         val weather by viewModel.weather.collectAsState()
         val advice by viewModel.advice.collectAsState()
         val hourlyAdvice by viewModel.hourlyAdvice.collectAsState()
@@ -69,7 +69,7 @@ class MainActivity : ComponentActivity() {
             Loader(weather)
             Avatar(advice)
             Column {
-                locations?.let { TopBar(it) }
+                TopBar(locations)
                 TitleDisplay()
                 Spacer(modifier = Modifier.height(1.dp))
                 Row {
@@ -374,7 +374,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun DefaultPreview() {
         M2Mobi_HvATheme {
-            viewModel.locations.value?.let { TopBar(locations = it) }
+
         }
     }
 }

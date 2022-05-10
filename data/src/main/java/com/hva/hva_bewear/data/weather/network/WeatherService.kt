@@ -56,7 +56,7 @@ class WeatherService() {
             else writeApiDataToFile(file)
 
         // If the date in the file is before the current date the file is refreshed
-        return if (dateIsBeforeCurrentHour(weather.daily[0].date)) {
+        return if (dateIsBeforeCurrentHour(weather.hourly[0].date)) {
             writeApiDataToFile(file)
         } else weather
     }

@@ -8,6 +8,7 @@ data class WeatherUIModel(
     val minMaxDisplay: String = "_",
     val feelsLikeTemperatureDisplay: String = "_",
     val hourlyWeather: List<HourlyWeather> = emptyList(),
+    val hourlyIcons: List<Int> = emptyList(),
     val windDisplay: String = "_",
     @DrawableRes val iconId: Int,
     @DrawableRes val backgroundId: Int,
