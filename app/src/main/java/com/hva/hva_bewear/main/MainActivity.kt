@@ -291,10 +291,14 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun HourlyDisplay(weather: WeatherUIModel, hourlyAdvice: List<AdviceUIModel>) {
-        Row {
+        Row(
+            modifier = Modifier
+                .horizontalScroll(rememberScrollState())
+                .wrapContentWidth()
+        ) {
             for (i in 0..23) {
                 Card(
-                    shape = RoundedCornerShape(topStart = 5.dp),
+                    shape = RoundedCornerShape(topEnd = 5.dp, topStart = 5.dp),
                     modifier = Modifier
                         .width(100.dp)
                         .height(150.dp),
@@ -305,7 +309,7 @@ class MainActivity : ComponentActivity() {
                             painter = painterResource(hourlyAdvice[i].avatar),
                             contentDescription = "Avatar",
                             modifier = Modifier
-                                .offset(y = 20.dp)
+                                .offset(y = 30.dp)
                                 .scale(1f),
 
                         )
@@ -316,26 +320,26 @@ class MainActivity : ComponentActivity() {
                             painter = painterResource(id = weather.iconId),
                             contentDescription = "Weather Icon",
                             modifier = Modifier
-                                .offset(x = 15.dp, y = -20.dp)
-                                .scale(0.7f)
+                                .offset(x = 15.dp, y = -10.dp)
+                                .scale(0.75f)
                                 .wrapContentSize(),
                         )
                     }
 
                     Column (horizontalAlignment = Alignment.Start){
                         Text(
-                            text = weather.hourlyWeather[0].date.hour.toString() + ":00",
+                            text = weather.hourlyWeather[i].date.hour.toString() + ":00",
                             color = Color.Black,
                             modifier = Modifier
                                 .padding(start = 5.dp, top = 5.dp),
-                            fontSize = 12.sp
+                            fontSize = 16.sp
                         )
                         Text(
-                            text = weather.temperatureDisplay,
+                            text = weather.hourlyWeather[i].temperature.toInt().toString() + "°",
                             color = Color.Black,
                             modifier = Modifier
                                 .padding(start = 5.dp, top = 1.dp),
-                            fontSize = 12.sp
+                            fontSize = 16.sp
                         )
                     }
                 }
