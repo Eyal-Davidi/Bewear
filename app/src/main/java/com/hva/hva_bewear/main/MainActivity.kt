@@ -77,7 +77,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .padding(end = 26.dp)
                             .fillMaxWidth(),
-                    ){
+                    ) {
                         WindDisplay(weather)
                     }
 
@@ -278,100 +278,146 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun AdviceText(advice: AdviceUIModel) {
-        Text(
-            text = advice.textAdvice,
-            color = Color.Black,
-            modifier = Modifier
-                .padding(horizontal = 10.dp, vertical = 16.dp),
-            textAlign = TextAlign.Start,
-        )
-    }
+    fun HourlyDisplay(advice: AdviceUIModel) {
+        for (i in currentHour..24) {
+            Row {
+                Card(
+                    shape = RoundedCornerShape(topEnd = 10.dp, topStart = 10.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    backgroundColor = MaterialTheme.colors.primaryVariant,
+                ) {
+                    Column {
+                        Text(
+                            text = "XXXcurrentHour displayXxx",
+                            color = Color.Black,
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .padding(16.dp, 16.dp, 16.dp, 0.dp),
+                            fontSize = 30.sp
+                        )
+                        Text(
+                            text = "XXXcurrent tempratureXxx",
+                            color = Color.Black,
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .padding(16.dp, 16.dp, 16.dp, 0.dp),
+                            fontSize = 30.sp
+                        )
+                        AdviceText(advice = advice)
+                    }
 
-    @Composable
-    fun Avatar(advice: AdviceUIModel) {
-        Image(
-            painter = painterResource(advice.avatar),
-            contentDescription = "Avatar",
-            modifier = Modifier
-                .offset(y = 100.dp)
-                .scale(1f),
-        )
-    }
-
-    @Composable
-    fun BindStates(Content: @Composable () -> Unit) {
-        val state by viewModel.uiState.collectAsState()
-        when (val uiState = state) {
-            is UIStates.NetworkError -> ErrorState(errorState = uiState, showRefresh = true)
-            is UIStates.ErrorInterface -> ErrorState(errorState = uiState)
-            UIStates.Loading -> LoadingScreen()
-            UIStates.Normal -> Content()
-            else -> {
-                Toast.makeText(
-                    applicationContext,
-                    "Something went really really wrong...\n" +
-                            "(Unknown application state)",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
-    }
-
-    @Composable
-    fun Loader(weather: WeatherUIModel) {
-        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(weather.backgroundId))
-        LottieAnimation(composition)
-
-        LottieAnimation(
-            composition,
-            iterations = LottieConstants.IterateForever,
-            speed = 0.33f,
-        )
-
-
-    }
-
-    @Composable
-    fun LoadingScreen() {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier.align(Alignment.Center),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-//                GifImage(imageID = R.drawable.day_night, modifier = Modifier.size(100.dp))
-                Text(text = "Loading", modifier = Modifier.padding(10.dp))
-            }
-        }
-    }
-
-    @Composable
-    fun ErrorState(errorState: UIStates.ErrorInterface, showRefresh: Boolean = false) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier.align(Alignment.Center),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = errorState.errorText, modifier = Modifier.padding(10.dp))
-                if (showRefresh) {
-                    Button(
-                        onClick = { viewModel.refresh() },
-                        modifier = Modifier
-                            .height(40.dp)
-                            .width(100.dp),
-                    ) {
-                        Text(text = "Refresh")
+                    Column {
+                        Text(
+                            text = "XXXicon weather imageXxx",
+                            color = Color.Black,
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .padding(16.dp, 16.dp, 16.dp, 0.dp),
+                            fontSize = 30.sp
+                        )
                     }
                 }
             }
         }
-    }
 
-    @Preview(showBackground = true)
-    @Composable
-    fun DefaultPreview() {
-        M2Mobi_HvATheme {
-            locationViewModel.locations.value?.let { TopBar(locations = it) }
+        @Composable
+        fun AdviceText(advice: AdviceUIModel) {
+            Text(
+                text = advice.textAdvice,
+                color = Color.Black,
+                modifier = Modifier
+                    .padding(horizontal = 10.dp, vertical = 16.dp),
+                textAlign = TextAlign.Start,
+            )
+        }
+
+        @Composable
+        fun Avatar(advice: AdviceUIModel) {
+            Image(
+                painter = painterResource(advice.avatar),
+                contentDescription = "Avatar",
+                modifier = Modifier
+                    .offset(y = 100.dp)
+                    .scale(1f),
+            )
+        }
+
+        @Composable
+        fun BindStates(Content: @Composable () -> Unit) {
+            val state by viewModel.uiState.collectAsState()
+            when (val uiState = state) {
+                is UIStates.NetworkError -> ErrorState(errorState = uiState, showRefresh = true)
+                is UIStates.ErrorInterface -> ErrorState(errorState = uiState)
+                UIStates.Loading -> LoadingScreen()
+                UIStates.Normal -> Content()
+                else -> {
+                    Toast.makeText(
+                        applicationContext,
+                        "Something went really really wrong...\n" +
+                                "(Unknown application state)",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+
+        @Composable
+        fun Loader(weather: WeatherUIModel) {
+            val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(weather.backgroundId))
+            LottieAnimation(composition)
+
+            LottieAnimation(
+                composition,
+                iterations = LottieConstants.IterateForever,
+                speed = 0.33f,
+            )
+
+
+        }
+
+        @Composable
+        fun LoadingScreen() {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+//                GifImage(imageID = R.drawable.day_night, modifier = Modifier.size(100.dp))
+                    Text(text = "Loading", modifier = Modifier.padding(10.dp))
+                }
+            }
+        }
+
+        @Composable
+        fun ErrorState(errorState: UIStates.ErrorInterface, showRefresh: Boolean = false) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = errorState.errorText, modifier = Modifier.padding(10.dp))
+                    if (showRefresh) {
+                        Button(
+                            onClick = { viewModel.refresh() },
+                            modifier = Modifier
+                                .height(40.dp)
+                                .width(100.dp),
+                        ) {
+                            Text(text = "Refresh")
+                        }
+                    }
+                }
+            }
+        }
+
+        @Preview(showBackground = true)
+        @Composable
+        fun DefaultPreview() {
+            M2Mobi_HvATheme {
+                locationViewModel.locations.value?.let { TopBar(locations = it) }
+            }
         }
     }
 }
