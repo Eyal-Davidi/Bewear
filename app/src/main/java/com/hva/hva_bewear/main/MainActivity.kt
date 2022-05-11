@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,17 +29,20 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.hva.hva_bewear.domain.weather.model.Weather
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import com.hva.hva_bewear.presentation.main.LocationPicker
 import com.hva.hva_bewear.presentation.main.model.*
-import kotlin.time.Duration.Companion.hours
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.*
 
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModel()
-    private val locationPicker: LocationPicker = LocationPicker()
     private var selectedIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,14 +62,15 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun MainScreen() {
-        val locations = locationPicker.setOfLocations()
+        val locations by viewModel.locations.collectAsState()
         val weather by viewModel.weather.collectAsState()
         val advice by viewModel.advice.collectAsState()
+        val hourlyAdvice by viewModel.hourlyAdvice.collectAsState()
 
         BindStates {
             Loader(weather)
             Avatar(advice)
-            Column{
+            Column {
                 TopBar(locations)
                 TitleDisplay()
                 Spacer(modifier = Modifier.height(1.dp))
@@ -76,7 +81,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .padding(end = 26.dp)
                             .fillMaxWidth(),
-                    ){
+                    ) {
                         WindDisplay(weather)
                     }
 
@@ -84,9 +89,17 @@ class MainActivity : ComponentActivity() {
                 Row(
                     verticalAlignment = Alignment.Bottom,
                     modifier = Modifier
-                        .fillMaxHeight(),
+//                        .fillMaxHeight(),
                 ) {
                     AdviceDescription(advice)
+                }
+
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    modifier = Modifier
+                        .fillMaxHeight(),
+                ) {
+                    HourlyDisplay(weather, hourlyAdvice)
                 }
             }
         }
@@ -178,7 +191,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun TopBar(locations: ArrayList<String>) {
+    private fun TopBar(locations: List<String>) {
         var expanded by remember { mutableStateOf(false) }
         Card(
             modifier = Modifier
@@ -204,6 +217,7 @@ class MainActivity : ComponentActivity() {
                         color = Color.Black,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
+                        modifier = Modifier.align(Alignment.CenterVertically)
                     )
                     Image(
                         painter = if (expanded)
@@ -232,8 +246,7 @@ class MainActivity : ComponentActivity() {
                                 if (index != selectedIndex) {
                                     selectedIndex = index
                                     expanded = false
-                                    locationPicker.setLocation(s)
-                                    viewModel.refresh()
+                                    viewModel.refresh(s)
                                 }
                             }
                         ) {
@@ -277,14 +290,65 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun AdviceText(advice: AdviceUIModel) {
-        Text(
-            text = advice.textAdvice,
-            color = Color.Black,
+    fun HourlyDisplay(weather: WeatherUIModel, hourlyAdvice: List<AdviceUIModel>) {
+        Row(
             modifier = Modifier
-                .padding(horizontal = 10.dp, vertical = 16.dp),
-            textAlign = TextAlign.Start,
-        )
+                .horizontalScroll(rememberScrollState())
+                .wrapContentWidth()
+        ) {
+            for (i in 0..23) {
+                Card(
+                    border = BorderStroke(3.dp, Color.Gray),
+                    shape = RoundedCornerShape(topEnd = 5.dp, topStart = 5.dp),
+                    modifier = Modifier
+                        .width(100.dp)
+                        .height(150.dp),
+                    backgroundColor = MaterialTheme.colors.primaryVariant,
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Image(
+                            painter = painterResource(hourlyAdvice[i].avatar),
+                            contentDescription = "Avatar",
+                            modifier = Modifier
+                                .offset(y = 30.dp)
+                                .scale(1f),
+                            )
+                    }
+
+                    Column(horizontalAlignment = Alignment.End) {
+                        val icon =
+                            if (weather.hourlyIcons.isEmpty()) R.drawable.ic_action_cloudy
+                            else weather.hourlyIcons[i]
+                        Image(
+                            painter = painterResource(id = icon),
+                            contentDescription = "Weather Icon",
+                            modifier = Modifier
+                                .offset(x = 15.dp, y = -10.dp)
+                                .scale(0.75f)
+                                .wrapContentSize(),
+                        )
+                    }
+
+                    Column(horizontalAlignment = Alignment.Start) {
+                        Text(
+                            text = weather.hourlyWeather[i].date.hour.toString() + ":00",
+                            color = Color.Black,
+                            modifier = Modifier
+                                .padding(start = 5.dp, top = 5.dp),
+                            fontSize = 16.sp
+                        )
+                        Text(
+                            text = weather.hourlyWeather[i].temperature.toInt()
+                                .toString() + "°",
+                            color = Color.Black,
+                            modifier = Modifier
+                                .padding(start = 5.dp, top = 1.dp),
+                            fontSize = 16.sp
+                        )
+                    }
+                }
+            }
+        }
     }
 
     @Composable
@@ -302,7 +366,10 @@ class MainActivity : ComponentActivity() {
     fun BindStates(Content: @Composable () -> Unit) {
         val state by viewModel.uiState.collectAsState()
         when (val uiState = state) {
-            is UIStates.NetworkError -> ErrorState(errorState = uiState, showRefresh = true)
+            is UIStates.NetworkError -> ErrorState(
+                errorState = uiState,
+                showRefresh = true
+            )
             is UIStates.ErrorInterface -> ErrorState(errorState = uiState)
             UIStates.Loading -> LoadingScreen()
             UIStates.Normal -> Content()
@@ -319,16 +386,16 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun Loader(weather: WeatherUIModel) {
-        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(weather.backgroundId))
-        LottieAnimation(composition)
-
+        val composition by rememberLottieComposition(
+            LottieCompositionSpec.RawRes(
+                weather.backgroundId
+            )
+        )
         LottieAnimation(
             composition,
             iterations = LottieConstants.IterateForever,
             speed = 0.33f,
         )
-
-
     }
 
     @Composable
@@ -338,20 +405,33 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-//                GifImage(imageID = R.drawable.day_night, modifier = Modifier.size(100.dp))
+                val composition by rememberLottieComposition(
+                    LottieCompositionSpec.RawRes(R.raw.day_night_loading)
+                )
+                LottieAnimation(
+                    composition,
+                    iterations = LottieConstants.IterateForever,
+//                    speed = 0.33f,
+                )
                 Text(text = "Loading", modifier = Modifier.padding(10.dp))
             }
         }
     }
 
     @Composable
-    fun ErrorState(errorState: UIStates.ErrorInterface, showRefresh: Boolean = false) {
+    fun ErrorState(
+        errorState: UIStates.ErrorInterface,
+        showRefresh: Boolean = false
+    ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = errorState.errorText, modifier = Modifier.padding(10.dp))
+                Text(
+                    text = errorState.errorText,
+                    modifier = Modifier.padding(10.dp)
+                )
                 if (showRefresh) {
                     Button(
                         onClick = { viewModel.refresh() },
@@ -366,11 +446,22 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @Composable
+    fun AdviceText(advice: AdviceUIModel) {
+        Text(
+            text = advice.textAdvice,
+            color = Color.Black,
+            modifier = Modifier
+                .padding(horizontal = 10.dp, vertical = 16.dp),
+            textAlign = TextAlign.Start,
+        )
+    }
+
+
     @Preview(showBackground = true)
     @Composable
     fun DefaultPreview() {
         M2Mobi_HvATheme {
-            TopBar(locations = locationPicker.setOfLocations())
         }
     }
 }
