@@ -4,7 +4,11 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,6 +45,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.jvm.internal.Intrinsics
+import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
 
@@ -87,20 +94,30 @@ class MainActivity : ComponentActivity() {
                     }
 
                 }
-                Row(
-                    verticalAlignment = Alignment.Bottom,
-                    modifier = Modifier
-//                        .fillMaxHeight(),
-                ) {
-                    AdviceDescription(advice)
-                }
 
-                Row(
-                    verticalAlignment = Alignment.Bottom,
+
+                Box(
                     modifier = Modifier
-                        .fillMaxHeight(),
-                ) {
-                    HourlyDisplay(weather, hourlyAdvice)
+                        .fillMaxHeight()
+                ){
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .height(170.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .offset(y = (-20).dp)
+                        ) {
+                            AdviceDescription(advice)
+                        }
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                        ) {
+                            HourlyDisplay(weather, hourlyAdvice)
+                        }
+                    }
                 }
             }
         }
@@ -269,11 +286,26 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun AdviceDescription(advice: AdviceUIModel) {
+
+        var offsetY by remember { mutableStateOf(0f) }
         Card(
             shape = RoundedCornerShape(topEnd = 10.dp, topStart = 10.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight(),
+                .requiredHeightIn(170.dp, 300.dp)
+                .offset(y = offsetY.roundToInt().dp)
+                .draggable(
+                    orientation = Orientation.Vertical,
+                    state = rememberDraggableState { delta ->
+                        offsetY += delta
+                        val maxOffset = -127f
+                        offsetY = when {
+                            offsetY < maxOffset -> maxOffset
+                            offsetY > 0f -> 0f
+                            else -> offsetY
+                        }
+                    }
+                ),
             backgroundColor = MaterialTheme.colors.primaryVariant,
         ) {
             Column {
@@ -288,6 +320,14 @@ class MainActivity : ComponentActivity() {
                 AdviceText(advice = advice)
             }
         }
+        Column(
+            modifier = Modifier
+                .offset(x = 145.dp, y = (5 + offsetY.roundToInt()).dp)
+                .clip(RoundedCornerShape(3.dp))
+                .background(Color.Gray)
+                .requiredWidth(100.dp)
+                .requiredHeight(5.dp),
+        ){}
     }
 
     @Composable
@@ -324,7 +364,7 @@ class MainActivity : ComponentActivity() {
                             painter = painterResource(id = icon),
                             contentDescription = "Weather Icon",
                             modifier = Modifier
-                                .offset(x = 15.dp, y = -10.dp)
+                                .offset(x = 15.dp, y = (-10).dp)
                                 .scale(0.75f)
                                 .wrapContentSize(),
                         )
