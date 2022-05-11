@@ -55,39 +55,40 @@ class MainViewModel(
         _advice
     }
 
-    private val _locations: MutableLiveData<List<String>> = MutableLiveData(
+    private val _locations: MutableStateFlow<List<String>> = MutableStateFlow(
         locationPick.setOfLocations()
     )
-    val locations: LiveData<List<String>> by lazy {
+    val locations: StateFlow<List<String>> by lazy {
         _locations
     }
 
-    private val _currentLocation: MutableLiveData<String> = MutableLiveData(
-        locations.value?.get(0) ?: "Amsterdam"
-    )
-    val currentLocation: LiveData<String> by lazy {
+    private val _currentLocation: MutableStateFlow<String> = MutableStateFlow(locations.value[0])
+    val currentLocation: StateFlow<String> by lazy {
         _currentLocation
     }
 
     private val _hourlyAdvice = MutableStateFlow(
-        List(
-            size = AMOUNT_OF_HOURS_IN_HOURLY,
-            init = {
+        generateDefaultAdvice()
+    )
+    val hourlyAdvice: StateFlow<List<AdviceUIModel>> by lazy {
+        _hourlyAdvice
+    }
+    private fun generateDefaultAdvice(): List<AdviceUIModel> {
+        val list = arrayListOf<AdviceUIModel>()
+        for (i in 1..AMOUNT_OF_HOURS_IN_HOURLY) {
+            list.add(
                 AdviceUIModel(
                     avatar = idProvider.getAdviceLabel(
                         ClothingAdvice.DEFAULT
                     )
                 )
-            }
-        )
-    )
-    val hourlyAdvice: StateFlow<List<AdviceUIModel>> by lazy {
-        _hourlyAdvice
+            )
+        }
+        return list
     }
 
     private val _uiState = MutableStateFlow<UIStates>(UIStates.Normal)
     var uiState: StateFlow<UIStates> = _uiState
-
 
     private val fetchWeatherExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         _uiState.tryEmit(
@@ -106,7 +107,7 @@ class MainViewModel(
         Log.e("AppERR", throwable.stackTraceToString())
     }
 
-    fun refresh(location: String = currentLocation.value.orEmpty()) {
+    fun refresh(location: String = currentLocation.value) {
         fetchData(location)
     }
 
@@ -114,7 +115,7 @@ class MainViewModel(
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
             _uiState.tryEmit(UIStates.Loading)
 
-            _currentLocation.postValue(location)
+            _currentLocation.tryEmit(location)
             getWeather(location)
                 .uiModel(idProvider = idWeatherIconProvider)
                 .let(_weather::tryEmit)
