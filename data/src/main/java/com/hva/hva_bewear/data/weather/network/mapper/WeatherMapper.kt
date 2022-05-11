@@ -1,4 +1,4 @@
-package com.hva.hva_bewear.data.weather.network
+package com.hva.hva_bewear.data.weather.network.mapper
 
 import com.hva.hva_bewear.data.weather.network.response.DailyWeatherResponse
 import com.hva.hva_bewear.data.weather.network.response.HourlyWeatherResponse
@@ -8,16 +8,13 @@ import com.hva.hva_bewear.domain.weather.model.DailyWeather
 import com.hva.hva_bewear.domain.weather.model.HourlyWeather
 import com.hva.hva_bewear.domain.weather.model.Weather
 import com.hva.hva_bewear.domain.weather.model.WeatherDetails
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
+import java.time.*
 
 object WeatherMapper {
     fun WeatherResponse.toDomain(): Weather {
         return Weather(
             daily = this.daily.map { it.toDomain() },
-            hourly = this.hourly.map { it.toDomain() },
+            hourly = this.hourly.map { it.toDomain(timeZoneOffset) },
         )
     }
 
@@ -58,9 +55,9 @@ object WeatherMapper {
         )
     }
 
-    fun HourlyWeatherResponse.toDomain(): HourlyWeather {
+    fun HourlyWeatherResponse.toDomain(timezoneOffset: Int): HourlyWeather {
         return HourlyWeather(
-            date = this.date.instantToDateTime(),
+            date = this.date.instantToDateTime(timezoneOffset),
             temperature = this.temperature,
             feelsLike = this.feelsLike,
             pressure = this.pressure,
@@ -89,9 +86,9 @@ object WeatherMapper {
             .toLocalDate()
     }
 
-    fun Int.instantToDateTime(): LocalDateTime {
+    fun Int.instantToDateTime(timezoneOffset: Int = 0): LocalDateTime {
         return Instant.ofEpochSecond(toLong())
-            .atZone(ZoneId.systemDefault())
+            .atZone(ZoneId.ofOffset("UTC", ZoneOffset.ofTotalSeconds(timezoneOffset)))
             .toLocalDateTime()
     }
 }

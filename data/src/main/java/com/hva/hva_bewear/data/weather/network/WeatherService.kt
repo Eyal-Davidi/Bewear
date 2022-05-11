@@ -2,8 +2,8 @@ package com.hva.hva_bewear.data.weather.network
 
 import android.content.Context
 import android.util.Log
-import com.hva.hva_bewear.data.weather.network.WeatherMapper.instantToDate
-import com.hva.hva_bewear.data.weather.network.WeatherMapper.instantToDateTime
+import com.hva.hva_bewear.data.weather.network.mapper.WeatherMapper.instantToDate
+import com.hva.hva_bewear.data.weather.network.mapper.WeatherMapper.instantToDateTime
 import com.hva.hva_bewear.data.weather.network.response.WeatherResponse
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -19,8 +19,10 @@ import java.io.PrintWriter
 import java.lang.Exception
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 
-class WeatherService() {
+class WeatherService {
     private val client = HttpClient(CIO) {
         install(JsonFeature) {
             serializer = KotlinxSerializer(kotlinx.serialization.json.Json {
@@ -35,6 +37,8 @@ class WeatherService() {
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
     private lateinit var location: Locations
+
+    private var timeZoneOffset = 0
 
     suspend fun getWeather(context: Context, cityName: String): WeatherResponse {
         location = Locations.CityName(cityName)
@@ -55,6 +59,7 @@ class WeatherService() {
             if (file.isJson()) json.decodeFromString(file.readText())
             else writeApiDataToFile(file)
 
+        timeZoneOffset = weather.timeZoneOffset
         // If the date in the file is before the current date the file is refreshed
         return if (dateIsBeforeCurrentHour(weather.hourly[0].date)) {
             writeApiDataToFile(file)
@@ -93,8 +98,8 @@ class WeatherService() {
      * Calculates if the provided dateInt is before the current hour
      */
     private fun dateIsBeforeCurrentHour(dateInt: Int): Boolean {
-        val dateTime = dateInt.instantToDateTime()
-        val now = LocalDateTime.now()
+        val dateTime = dateInt.instantToDateTime(timeZoneOffset)
+        val now = LocalDateTime.now(ZoneId.ofOffset("UTC", ZoneOffset.ofTotalSeconds(timeZoneOffset)))
         return dateIsBeforeCurrentDay(dateInt) ||
                 dateTime.hour < now.hour
     }
