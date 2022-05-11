@@ -331,26 +331,27 @@ class MainActivity : ComponentActivity() {
         ) {
             for (i in 0..23) {
                 Card(
+                    border = BorderStroke(3.dp, Color.Gray),
                     shape = RoundedCornerShape(topEnd = 5.dp, topStart = 5.dp),
                     modifier = Modifier
                         .width(100.dp)
                         .height(150.dp),
                     backgroundColor = MaterialTheme.colors.primaryVariant,
                 ) {
-                    Column (horizontalAlignment = Alignment.CenterHorizontally){
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Image(
                             painter = painterResource(hourlyAdvice[i].avatar),
                             contentDescription = "Avatar",
                             modifier = Modifier
                                 .offset(y = 30.dp)
                                 .scale(1f),
-
-                        )
+                            )
                     }
 
                     Column(horizontalAlignment = Alignment.End) {
-                        val icon = if (weather.hourlyIcons.isEmpty()) R.drawable.ic_action_cloudy
-                        else weather.hourlyIcons[i]
+                        val icon =
+                            if (weather.hourlyIcons.isEmpty()) R.drawable.ic_action_cloudy
+                            else weather.hourlyIcons[i]
                         Image(
                             painter = painterResource(id = icon),
                             contentDescription = "Weather Icon",
@@ -361,7 +362,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    Column (horizontalAlignment = Alignment.Start){
+                    Column(horizontalAlignment = Alignment.Start) {
                         Text(
                             text = weather.hourlyWeather[i].date.hour.toString() + ":00",
                             color = Color.Black,
@@ -370,7 +371,8 @@ class MainActivity : ComponentActivity() {
                             fontSize = 16.sp
                         )
                         Text(
-                            text = weather.hourlyWeather[i].temperature.toInt().toString() + "°",
+                            text = weather.hourlyWeather[i].temperature.toInt()
+                                .toString() + "°",
                             color = Color.Black,
                             modifier = Modifier
                                 .padding(start = 5.dp, top = 1.dp),
@@ -493,7 +495,6 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun DefaultPreview() {
         M2Mobi_HvATheme {
-
         }
     }
 }
