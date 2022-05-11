@@ -1,14 +1,15 @@
 package com.hva.hva_bewear.presentation.main
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hva.hva_bewear.domain.advice.GetClothingAdvice
 import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
+import com.hva.hva_bewear.domain.avatar_type.GetAvatarType
+import com.hva.hva_bewear.domain.avatar_type.SetTypeOfAvatar
 import com.hva.hva_bewear.domain.location.LocationPicker
 import com.hva.hva_bewear.domain.weather.GetWeather
+import com.hva.hva_bewear.domain.avatar_type.model.AvatarType
 import com.hva.hva_bewear.presentation.generic.launchOnIO
 import com.hva.hva_bewear.presentation.main.AdviceUIMapper.uiModel
 import com.hva.hva_bewear.presentation.main.WeatherUIMapper.uiModel
@@ -27,10 +28,12 @@ import java.nio.channels.UnresolvedAddressException
 class MainViewModel(
     private val getWeather: GetWeather,
     private val getClothingAdvice: GetClothingAdvice,
+    private val getAvatarType: GetAvatarType,
+    private val setTypeOfAvatar: SetTypeOfAvatar,
     private val idProvider: AvatarIdProvider,
     private val stringProvider: TextAdviceStringProvider,
     private val idWeatherIconProvider: WeatherIconProvider,
-    private val locationPick: LocationPicker
+    private val locationPick: LocationPicker,
 ) : ViewModel() {
 
     private val _weather = MutableStateFlow(
@@ -44,10 +47,16 @@ class MainViewModel(
         _weather
     }
 
+    private val _typeOfAvatar = MutableStateFlow(AvatarType.MALE)
+    val avatarType: StateFlow<AvatarType> by lazy {
+        _typeOfAvatar
+    }
+
     private val _advice = MutableStateFlow(
         AdviceUIModel(
             avatar = idProvider.getAdviceLabel(
-                ClothingAdvice.DEFAULT
+                ClothingAdvice.DEFAULT,
+                avatarType.value,
             )
         )
     )
@@ -73,13 +82,15 @@ class MainViewModel(
     val hourlyAdvice: StateFlow<List<AdviceUIModel>> by lazy {
         _hourlyAdvice
     }
+
     private fun generateDefaultAdvice(): List<AdviceUIModel> {
         val list = arrayListOf<AdviceUIModel>()
         for (i in 1..AMOUNT_OF_HOURS_IN_HOURLY) {
             list.add(
                 AdviceUIModel(
                     avatar = idProvider.getAdviceLabel(
-                        ClothingAdvice.DEFAULT
+                        ClothingAdvice.DEFAULT,
+                        avatarType.value,
                     )
                 )
             )
@@ -115,6 +126,7 @@ class MainViewModel(
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
             _uiState.tryEmit(UIStates.Loading)
 
+            getAvatarType().let(_typeOfAvatar::tryEmit)
             _currentLocation.tryEmit(location)
             getWeather(location)
                 .uiModel(idProvider = idWeatherIconProvider)
@@ -122,15 +134,27 @@ class MainViewModel(
             getClothingAdvice(location = location)
                 .uiModel(
                     idProvider,
-                    stringProvider
+                    stringProvider,
+                    avatarType.value,
                 ).let(_advice::tryEmit)
             List(
                 size = AMOUNT_OF_HOURS_IN_HOURLY,
                 init = {
-                    getClothingAdvice(isHourly = true, index = it, location = location).uiModel(idProvider, stringProvider)
+                    getClothingAdvice(isHourly = true, index = it, location = location).uiModel(
+                        idProvider,
+                        stringProvider,
+                        avatarType.value
+                    )
                 }
             ).let(_hourlyAdvice::tryEmit)
             _uiState.tryEmit(UIStates.Normal)
+        }
+    }
+
+    fun updateTypeOfAvatar(avatarType: AvatarType) {
+        viewModelScope.launch {
+            setTypeOfAvatar(avatarType)
+            refresh()
         }
     }
 

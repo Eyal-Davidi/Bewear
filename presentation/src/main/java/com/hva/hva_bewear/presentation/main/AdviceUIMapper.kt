@@ -1,16 +1,17 @@
 package com.hva.hva_bewear.presentation.main
 
 import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
+import com.hva.hva_bewear.domain.avatar_type.model.AvatarType
 import com.hva.hva_bewear.presentation.main.model.AdviceUIModel
 import com.hva.hva_bewear.presentation.main.provider.AvatarIdProvider
 import com.hva.hva_bewear.presentation.main.provider.TextAdviceStringProvider
 
 object AdviceUIMapper {
 
-    fun ClothingAdvice.uiModel(idProvider: AvatarIdProvider, stringProvider: TextAdviceStringProvider): AdviceUIModel {
+    fun ClothingAdvice.uiModel(idProvider: AvatarIdProvider, stringProvider: TextAdviceStringProvider, avatarType: AvatarType): AdviceUIModel {
         return AdviceUIModel(
             textAdvice = generateTextAdvice(this, stringProvider.getAdviceText(this)),
-            avatar = idProvider.getAdviceLabel(type = this),
+            avatar = idProvider.getAdviceLabel(type = this, avatarType),
         )
     }
 

@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,17 +33,11 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.hva.hva_bewear.domain.weather.model.Weather
+import com.hva.hva_bewear.domain.avatar_type.model.AvatarType
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.hva.hva_bewear.presentation.main.model.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.util.*
-import kotlin.jvm.internal.Intrinsics
 import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
@@ -399,7 +391,25 @@ class MainActivity : ComponentActivity() {
             contentDescription = "Avatar",
             modifier = Modifier
                 .offset(y = 100.dp)
-                .scale(1f),
+                .scale(1f)
+                .clickable {
+                    //TODO: Make an actual settings space to set this
+                    val text = when(viewModel.avatarType.value) {
+                        AvatarType.MALE -> {
+                            viewModel.updateTypeOfAvatar(AvatarType.FEMALE)
+                            "Avatar type: Female"
+                        }
+                        AvatarType.FEMALE -> {
+                            viewModel.updateTypeOfAvatar(AvatarType.BOTH)
+                            "Avatar type: Both"
+                        }
+                        else -> {
+                            viewModel.updateTypeOfAvatar(AvatarType.MALE)
+                            "Avatar type: Male"
+                        }
+                    }
+                    Toast.makeText(applicationContext, text, Toast.LENGTH_SHORT).show()
+                }
         )
     }
 
