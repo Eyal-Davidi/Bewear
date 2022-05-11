@@ -23,7 +23,7 @@ object AdviceUIMapper {
             advice.wind && advice.highUVI && advice.rain ->
             {
                 extraText = ", windy, rainy and sunny"
-                extraAdvice = " It will be rainy, windy and sunny! Take some sunscreen and an umbrella with you but don’t be careful with the wind."
+                extraAdvice = " It will be rainy, windy and sunny! Take some sunscreen and an umbrella with you but be careful with the wind."
             }
             advice.wind && advice.highUVI ->
             {

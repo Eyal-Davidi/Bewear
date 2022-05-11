@@ -1,9 +1,7 @@
 package com.hva.hva_bewear.presentation.main.model
 
 import androidx.annotation.DrawableRes
-import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
 import com.hva.hva_bewear.domain.weather.model.HourlyWeather
-import com.hva.hva_bewear.presentation.main.MainViewModel
 
 data class WeatherUIModel(
     val temperatureDisplay: String = "_",

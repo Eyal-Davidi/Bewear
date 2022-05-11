@@ -86,13 +86,13 @@ class MainActivity : ComponentActivity() {
                     }
 
                 }
-//                Row(
-//                    verticalAlignment = Alignment.Bottom,
-//                    modifier = Modifier
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    modifier = Modifier
 //                        .fillMaxHeight(),
-//                ) {
-//                    AdviceDescription(advice)
-//                }
+                ) {
+                    AdviceDescription(advice)
+                }
 
                 Row(
                     verticalAlignment = Alignment.Bottom,
@@ -316,8 +316,10 @@ class MainActivity : ComponentActivity() {
                     }
 
                     Column(horizontalAlignment = Alignment.End) {
+                        val icon = if (weather.hourlyIcons.isEmpty()) R.drawable.ic_action_cloudy
+                        else weather.hourlyIcons[i]
                         Image(
-                            painter = painterResource(id = weather.hourlyIcons[i]),
+                            painter = painterResource(id = icon),
                             contentDescription = "Weather Icon",
                             modifier = Modifier
                                 .offset(x = 15.dp, y = -10.dp)
