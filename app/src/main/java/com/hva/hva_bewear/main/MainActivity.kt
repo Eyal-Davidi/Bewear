@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,6 +44,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.jvm.internal.Intrinsics
 import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
@@ -92,7 +94,6 @@ class MainActivity : ComponentActivity() {
 
                 }
 
-                Sc
 
                 Box(
                     modifier = Modifier
@@ -101,12 +102,11 @@ class MainActivity : ComponentActivity() {
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
-//                            .height(170.dp)
-                            .wrapContentHeight()
+                            .height(170.dp)
                     ) {
                         Box(
                             modifier = Modifier
-//                                .offset(y = (-20).dp)
+                                .offset(y = (-20).dp)
                         ) {
                             AdviceDescription(advice)
                         }
@@ -287,18 +287,17 @@ class MainActivity : ComponentActivity() {
     fun AdviceDescription(advice: AdviceUIModel) {
 
         var offsetY by remember { mutableStateOf(0f) }
-        Calendar.getInstance().time
         Card(
             shape = RoundedCornerShape(topEnd = 10.dp, topStart = 10.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight()
+                .requiredHeightIn(170.dp, 300.dp)
                 .offset(y = offsetY.roundToInt().dp)
                 .draggable(
                     orientation = Orientation.Vertical,
                     state = rememberDraggableState { delta ->
                         offsetY += delta
-                        val maxOffset = -150f
+                        val maxOffset = -127f
                         offsetY = when {
                             offsetY < maxOffset -> maxOffset
                             offsetY > 0f -> 0f
@@ -320,6 +319,14 @@ class MainActivity : ComponentActivity() {
                 AdviceText(advice = advice)
             }
         }
+        Column(
+            modifier = Modifier
+                .offset(x = 145.dp, y = (5 + offsetY.roundToInt()).dp)
+                .clip(RoundedCornerShape(3.dp))
+                .background(Color.Gray)
+                .requiredWidth(100.dp)
+                .requiredHeight(5.dp),
+        ){}
     }
 
     @Composable
