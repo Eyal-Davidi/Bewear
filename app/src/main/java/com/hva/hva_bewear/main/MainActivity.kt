@@ -29,6 +29,7 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.hva.hva_bewear.domain.weather.model.Weather
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -37,6 +38,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.*
 
 class MainActivity : ComponentActivity() {
 
@@ -79,7 +81,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .padding(end = 26.dp)
                             .fillMaxWidth(),
-                    ){
+                    ) {
                         WindDisplay(weather)
                     }
 
@@ -87,9 +89,17 @@ class MainActivity : ComponentActivity() {
                 Row(
                     verticalAlignment = Alignment.Bottom,
                     modifier = Modifier
-                        .fillMaxHeight(),
+//                        .fillMaxHeight(),
                 ) {
                     AdviceDescription(advice)
+                }
+
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    modifier = Modifier
+                        .fillMaxHeight(),
+                ) {
+                    HourlyDisplay(weather, hourlyAdvice)
                 }
             }
         }
@@ -280,14 +290,65 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun AdviceText(advice: AdviceUIModel) {
-        Text(
-            text = advice.textAdvice,
-            color = Color.Black,
+    fun HourlyDisplay(weather: WeatherUIModel, hourlyAdvice: List<AdviceUIModel>) {
+        Row(
             modifier = Modifier
-                .padding(horizontal = 10.dp, vertical = 16.dp),
-            textAlign = TextAlign.Start,
-        )
+                .horizontalScroll(rememberScrollState())
+                .wrapContentWidth()
+        ) {
+            for (i in 0..23) {
+                Card(
+                    border = BorderStroke(3.dp, Color.Gray),
+                    shape = RoundedCornerShape(topEnd = 5.dp, topStart = 5.dp),
+                    modifier = Modifier
+                        .width(100.dp)
+                        .height(150.dp),
+                    backgroundColor = MaterialTheme.colors.primaryVariant,
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Image(
+                            painter = painterResource(hourlyAdvice[i].avatar),
+                            contentDescription = "Avatar",
+                            modifier = Modifier
+                                .offset(y = 30.dp)
+                                .scale(1f),
+                            )
+                    }
+
+                    Column(horizontalAlignment = Alignment.End) {
+                        val icon =
+                            if (weather.hourlyIcons.isEmpty()) R.drawable.ic_action_cloudy
+                            else weather.hourlyIcons[i]
+                        Image(
+                            painter = painterResource(id = icon),
+                            contentDescription = "Weather Icon",
+                            modifier = Modifier
+                                .offset(x = 15.dp, y = -10.dp)
+                                .scale(0.75f)
+                                .wrapContentSize(),
+                        )
+                    }
+
+                    Column(horizontalAlignment = Alignment.Start) {
+                        Text(
+                            text = weather.hourlyWeather[i].date.hour.toString() + ":00",
+                            color = Color.Black,
+                            modifier = Modifier
+                                .padding(start = 5.dp, top = 5.dp),
+                            fontSize = 16.sp
+                        )
+                        Text(
+                            text = weather.hourlyWeather[i].temperature.toInt()
+                                .toString() + "°",
+                            color = Color.Black,
+                            modifier = Modifier
+                                .padding(start = 5.dp, top = 1.dp),
+                            fontSize = 16.sp
+                        )
+                    }
+                }
+            }
+        }
     }
 
     @Composable
@@ -305,7 +366,10 @@ class MainActivity : ComponentActivity() {
     fun BindStates(Content: @Composable () -> Unit) {
         val state by viewModel.uiState.collectAsState()
         when (val uiState = state) {
-            is UIStates.NetworkError -> ErrorState(errorState = uiState, showRefresh = true)
+            is UIStates.NetworkError -> ErrorState(
+                errorState = uiState,
+                showRefresh = true
+            )
             is UIStates.ErrorInterface -> ErrorState(errorState = uiState)
             UIStates.Loading -> LoadingScreen()
             UIStates.Normal -> Content()
@@ -322,7 +386,11 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun Loader(weather: WeatherUIModel) {
-        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(weather.backgroundId))
+        val composition by rememberLottieComposition(
+            LottieCompositionSpec.RawRes(
+                weather.backgroundId
+            )
+        )
         LottieAnimation(
             composition,
             iterations = LottieConstants.IterateForever,
@@ -337,7 +405,9 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.day_night_loading))
+                val composition by rememberLottieComposition(
+                    LottieCompositionSpec.RawRes(R.raw.day_night_loading)
+                )
                 LottieAnimation(
                     composition,
                     iterations = LottieConstants.IterateForever,
@@ -349,13 +419,19 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun ErrorState(errorState: UIStates.ErrorInterface, showRefresh: Boolean = false) {
+    fun ErrorState(
+        errorState: UIStates.ErrorInterface,
+        showRefresh: Boolean = false
+    ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = errorState.errorText, modifier = Modifier.padding(10.dp))
+                Text(
+                    text = errorState.errorText,
+                    modifier = Modifier.padding(10.dp)
+                )
                 if (showRefresh) {
                     Button(
                         onClick = { viewModel.refresh() },
@@ -370,11 +446,22 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @Composable
+    fun AdviceText(advice: AdviceUIModel) {
+        Text(
+            text = advice.textAdvice,
+            color = Color.Black,
+            modifier = Modifier
+                .padding(horizontal = 10.dp, vertical = 16.dp),
+            textAlign = TextAlign.Start,
+        )
+    }
+
+
     @Preview(showBackground = true)
     @Composable
     fun DefaultPreview() {
         M2Mobi_HvATheme {
-
         }
     }
 }

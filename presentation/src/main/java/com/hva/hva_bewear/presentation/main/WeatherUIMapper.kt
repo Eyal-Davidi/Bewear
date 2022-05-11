@@ -12,7 +12,6 @@ object WeatherUIMapper {
 
     fun Weather.uiModel(day: Int = 0, idProvider: WeatherIconProvider): WeatherUIModel = daily[day].uiModel(idProvider, hourly)
 
-    //fun ClothingAdvice.uiModel(idProvider: AvatarIdProvider, stringProvider: TextAdviceStringProvider): AdviceUIModel {
     private fun DailyWeather.uiModel(idProvider: WeatherIconProvider, hourly: List<HourlyWeather>): WeatherUIModel {
         return WeatherUIModel(
             temperatureDisplay = parseTemperature(temperature.day),
@@ -28,7 +27,7 @@ object WeatherUIMapper {
         )
     }
 
-    private fun getHourlyIconList(hourly: List<HourlyWeather>, idProvider: WeatherIconProvider):List<Int> {
+    private fun getHourlyIconList(hourly: List<HourlyWeather>, idProvider: WeatherIconProvider) : List<Int> {
         val list = arrayListOf<Int>()
         for (hour in hourly) {
             list.add(idProvider.getWeatherIcon(hour.weather[0].icon))
