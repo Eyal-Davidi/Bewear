@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -90,20 +91,32 @@ class MainActivity : ComponentActivity() {
                     }
 
                 }
-                Row(
-                    verticalAlignment = Alignment.Bottom,
-                    modifier = Modifier
-//                        .fillMaxHeight(),
-                ) {
-                    AdviceDescription(advice)
-                }
 
-                Row(
-                    verticalAlignment = Alignment.Bottom,
+                Sc
+
+                Box(
                     modifier = Modifier
-                        .fillMaxHeight(),
-                ) {
-                    HourlyDisplay(weather, hourlyAdvice)
+                        .fillMaxHeight()
+                ){
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+//                            .height(170.dp)
+                            .wrapContentHeight()
+                    ) {
+                        Box(
+                            modifier = Modifier
+//                                .offset(y = (-20).dp)
+                        ) {
+                            AdviceDescription(advice)
+                        }
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                        ) {
+                            HourlyDisplay(weather, hourlyAdvice)
+                        }
+                    }
                 }
             }
         }
@@ -285,7 +298,7 @@ class MainActivity : ComponentActivity() {
                     orientation = Orientation.Vertical,
                     state = rememberDraggableState { delta ->
                         offsetY += delta
-                        val maxOffset = -100f;
+                        val maxOffset = -150f
                         offsetY = when {
                             offsetY < maxOffset -> maxOffset
                             offsetY > 0f -> 0f
@@ -342,7 +355,7 @@ class MainActivity : ComponentActivity() {
                             painter = painterResource(id = icon),
                             contentDescription = "Weather Icon",
                             modifier = Modifier
-                                .offset(x = 15.dp, y = -10.dp)
+                                .offset(x = 15.dp, y = (-10).dp)
                                 .scale(0.75f)
                                 .wrapContentSize(),
                         )
