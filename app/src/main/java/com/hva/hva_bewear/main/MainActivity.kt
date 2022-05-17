@@ -26,27 +26,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
-import androidx.compose.ui.window.PopupProperties
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hva.hva_bewear.R
 import com.hva.hva_bewear.domain.avatar_type.model.AvatarType
-import com.hva.hva_bewear.domain.weather.model.Weather
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
 import com.hva.hva_bewear.presentation.main.model.AdviceUIModel
 import com.hva.hva_bewear.presentation.main.model.UIStates
 import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
 
@@ -129,7 +122,7 @@ class MainActivity : ComponentActivity() {
             Row()
             {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_action_thermometer),
+                    painter = painterResource(id = R.drawable.ic_thermometer),
                     contentDescription = "Temperature image",
                     modifier = Modifier
                         .size(38.dp)
