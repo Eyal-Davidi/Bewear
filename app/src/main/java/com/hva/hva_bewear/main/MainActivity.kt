@@ -8,9 +8,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -21,17 +19,16 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.hva.hva_bewear.R
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
@@ -40,11 +37,15 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.hva.hva_bewear.R
 import com.hva.hva_bewear.domain.avatar_type.model.AvatarType
+import com.hva.hva_bewear.domain.weather.model.Weather
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
+import com.hva.hva_bewear.presentation.main.model.AdviceUIModel
+import com.hva.hva_bewear.presentation.main.model.UIStates
+import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import com.hva.hva_bewear.presentation.main.model.*
 import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
@@ -91,33 +92,8 @@ class MainActivity : ComponentActivity() {
                     ) {
                         WindDisplay(weather)
                     }
-
                 }
-
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                ){
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .height(170.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .offset(y = (-20).dp)
-                        ) {
-                            AdviceDescription(advice)
-                        }
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                        ) {
-                            HourlyDisplay(weather, hourlyAdvice)
-                        }
-                    }
-                }
+                BottomDisplay(advice, weather, hourlyAdvice)
             }
         }
     }
@@ -325,55 +301,89 @@ class MainActivity : ComponentActivity() {
 //    }
 
     @Composable
-    fun AdviceDescription(advice: AdviceUIModel) {
-
+    fun BottomDisplay(advice: AdviceUIModel, weather: WeatherUIModel, hourlyAdvice: List<AdviceUIModel>){
         var offsetY by remember { mutableStateOf(0f) }
-        Card(
-            shape = RoundedCornerShape(topEnd = 10.dp, topStart = 10.dp),
+        val maxOffset = -110f
+        val multiplier = 0.4f
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .requiredHeightIn(170.dp, 300.dp)
-                .offset(y = offsetY.roundToInt().dp)
+                .fillMaxHeight()
                 .draggable(
                     orientation = Orientation.Vertical,
                     state = rememberDraggableState { delta ->
-                        offsetY += delta
-                        val maxOffset = -127f
+                        offsetY += (delta * multiplier)
                         offsetY = when {
                             offsetY < maxOffset -> maxOffset
                             offsetY > 0f -> 0f
                             else -> offsetY
                         }
                     }
-                ),
+                )
+        ) {
+            val height = 150
+            val descriptionOffset = 29
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .height(height.dp)
+            ) {
+                AdviceDescription(
+                    advice = advice,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .requiredHeightIn((height + descriptionOffset).dp, 300.dp)
+                        .align(Alignment.TopCenter)
+                        .offset(y = (-descriptionOffset + offsetY).dp),
+                    dragAmount = offsetY / maxOffset,
+                )
+                HourlyDisplay(
+                    weather, hourlyAdvice, modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun AdviceDescription(advice: AdviceUIModel, modifier: Modifier = Modifier, dragAmount: Float = 1f) {
+        val titleMinSize = 20
+        val titleMaxSize = 30
+        Card(
+            shape = RoundedCornerShape(topEnd = 10.dp, topStart = 10.dp),
+            modifier = modifier,
             backgroundColor = MaterialTheme.colors.primaryVariant,
         ) {
             Column {
+                Box(
+                    modifier = Modifier
+                        .offset(y = 6.dp)
+                        .clip(RoundedCornerShape(3.dp))
+                        .background(Color.Gray)
+                        .align(Alignment.CenterHorizontally)
+                        .width(100.dp)
+                        .height(6.dp),
+                )
                 Text(
                     text = "Clothing Description",
                     color = Color.Black,
                     modifier = Modifier
-                        .align(CenterHorizontally)
-                        .padding(16.dp, 16.dp, 16.dp, 0.dp),
-                    fontSize = 30.sp
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = 5.dp, bottom = 0.dp, start = 16.dp, end = 16.dp),
+                    fontSize = (titleMinSize + ((titleMaxSize - titleMinSize) * dragAmount)).sp
                 )
                 AdviceText(advice = advice)
             }
         }
-        Column(
-            modifier = Modifier
-                .offset(x = 145.dp, y = (5 + offsetY.roundToInt()).dp)
-                .clip(RoundedCornerShape(3.dp))
-                .background(Color.Gray)
-                .requiredWidth(100.dp)
-                .requiredHeight(5.dp),
-        ){}
     }
 
     @Composable
-    fun HourlyDisplay(weather: WeatherUIModel, hourlyAdvice: List<AdviceUIModel>) {
+    fun HourlyDisplay(
+        weather: WeatherUIModel,
+        hourlyAdvice: List<AdviceUIModel>,
+        modifier: Modifier = Modifier,
+    ) {
         Row(
-            modifier = Modifier
+            modifier = modifier
                 .horizontalScroll(rememberScrollState())
                 .wrapContentWidth()
         ) {
@@ -554,7 +564,7 @@ class MainActivity : ComponentActivity() {
             text = advice.textAdvice,
             color = Color.Black,
             modifier = Modifier
-                .padding(horizontal = 10.dp, vertical = 16.dp),
+                .padding(start = 10.dp, end = 10.dp, top = 10.dp, bottom = 16.dp),
             textAlign = TextAlign.Start,
         )
     }
