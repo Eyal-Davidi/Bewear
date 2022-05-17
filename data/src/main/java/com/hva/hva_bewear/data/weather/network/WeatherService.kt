@@ -2,9 +2,10 @@ package com.hva.hva_bewear.data.weather.network
 
 import android.content.Context
 import android.util.Log
+import com.hva.hva_bewear.data.BuildConfig
+import com.hva.hva_bewear.data.weather.network.mapper.WeatherMapper.instantToDate
+import com.hva.hva_bewear.data.weather.network.mapper.WeatherMapper.instantToDateTime
 import com.hva.hva_bewear.data.weather.network.response.WeatherResponse
-import com.hva.hva_bewear.domain.weather.LocationPicker
-import com.hva.hva_bewear.domain.weather.model.Locations
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
@@ -16,10 +17,11 @@ import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.PrintWriter
-import java.time.Instant
+import java.lang.Exception
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 
 class WeatherService {
     private val client = HttpClient(CIO) {
@@ -32,60 +34,73 @@ class WeatherService {
                 listOf(ContentType.Application.Json, ContentType.Application.FormUrlEncoded)
         }
     }
-    private val locationPicker: LocationPicker = LocationPicker()
 
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
     private lateinit var location: Locations
 
-    suspend fun getWeather(context: Context): WeatherResponse {
-        location = locationPicker.calLocation()
+    private var timeZoneOffset = 0
+
+    suspend fun getWeather(context: Context, cityName: String): WeatherResponse {
+        location = Locations.CityName(cityName)
         // Directly call from the api
 //        return client.get(url.replace(lat, location.lat.toString()).replace(lon, location.lon.toString()))
 
         // Use locally stored files to cache the api data
         val fileName = "${location.cityName.lowercase().replace(" ", "")}.json"
         var file = File(context.filesDir, fileName)
-        // If the file does not yet exists a new file is created
-        if (!file.exists()) file = createNewFile(file)
 
-        var weather: WeatherResponse = json.decodeFromString(file.readText())
-        // If the date in the file is before the current date the file is refreshed
-        if (dateIsBeforeCurrentDay(weather.daily[0].date)) {
-            writeApiDataToFile(file)
-            weather = json.decodeFromString(file.readText())
+        // If the file does not yet exists a new file is created
+        if (!file.exists()) {
+            file = createNewFile(file)
+            return writeApiDataToFile(file)
         }
-        return weather
+
+        val weather: WeatherResponse =
+            if (file.isJson()) json.decodeFromString(file.readText())
+            else writeApiDataToFile(file)
+
+        timeZoneOffset = weather.timeZoneOffset
+        // If the date in the file is before the current date the file is refreshed
+        return if (dateIsBeforeCurrentHour(weather.hourly[0].date)) {
+            writeApiDataToFile(file)
+        } else weather
     }
 
-    private suspend fun createNewFile(file: File): File {
+    private fun createNewFile(file: File): File {
         kotlin.runCatching {
             file.createNewFile()
-            writeApiDataToFile(file)
         }
         if (!file.exists()) throw FileNotFoundException()
         return file
     }
 
-    private suspend fun writeApiDataToFile(file: File): File {
-        Log.e("API_CALL", "writeApiDataToFile: An Api call has been made!")
+    private suspend fun writeApiDataToFile(file: File): WeatherResponse {
+        Log.e(
+            "API_CALL",
+            "writeApiDataToFile: An Api call has been made! Location: ${location.cityName}"
+        )
+        val jsonFromApi: String = client.get(url) {
+            parameter("lat", location.lat)
+            parameter("lon", location.lon)
+            parameter("exclude", "minutely,current")
+            parameter("units", "metric")
+            parameter("appid", BuildConfig.OPENWEATHERMAP_KEY)
+        }
         kotlin.runCatching {
             val printWriter = PrintWriter(file)
-            val jsonFromApi: String = client.get(
-                url.replace(lat, location.lat.toString()).replace(lon, location.lon.toString())
-            )
             printWriter.write(jsonFromApi)
             printWriter.close()
         }
-        return file
+        return json.decodeFromString(jsonFromApi)
     }
 
     /**
      * Calculates if the provided dateInt is before the current hour
      */
     private fun dateIsBeforeCurrentHour(dateInt: Int): Boolean {
-        val dateTime = dateInt.instantToDateTime()
-        val now = LocalDateTime.now()
+        val dateTime = dateInt.instantToDateTime(timeZoneOffset)
+        val now = LocalDateTime.now(ZoneId.ofOffset("UTC", ZoneOffset.ofTotalSeconds(timeZoneOffset)))
         return dateIsBeforeCurrentDay(dateInt) ||
                 dateTime.hour < now.hour
     }
@@ -98,22 +113,17 @@ class WeatherService {
         return date.isBefore(LocalDate.now())
     }
 
-    private fun Int.instantToDate(): LocalDate {
-        return Instant.ofEpochSecond(toLong())
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate()
-    }
-
-    private fun Int.instantToDateTime(): LocalDateTime {
-        return Instant.ofEpochSecond(toLong())
-            .atZone(ZoneId.systemDefault())
-            .toLocalDateTime()
+    private fun File.isJson(): Boolean {
+        return try {
+            json.decodeFromString<WeatherResponse>(readText())
+            true
+        } catch (exception: Exception) {
+            false
+        }
     }
 
     companion object {
-        private const val lat = "100000"
-        private const val lon = "20000"
         private const val url =
-            "https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=minutely,current&units=metric&appid=***REMOVED***"
+            "https://api.openweathermap.org/data/2.5/onecall"
     }
 }
