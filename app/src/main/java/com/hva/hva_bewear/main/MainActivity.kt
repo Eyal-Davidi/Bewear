@@ -412,7 +412,7 @@ class MainActivity : ComponentActivity() {
 
                     Column(horizontalAlignment = Alignment.Start) {
                         Text(
-                            text = weather.hourlyWeather[i].date.hour.toString() + ":00",
+                            text = if (i == 0) "Now" else weather.hourlyWeather[i].date.hour.toString() + ":00",
                             color = Color.Black,
                             modifier = Modifier
                                 .padding(start = 5.dp, top = 5.dp),
