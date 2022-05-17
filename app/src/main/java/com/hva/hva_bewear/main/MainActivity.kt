@@ -124,7 +124,7 @@ class MainActivity : ComponentActivity() {
             Row()
             {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_action_thermometer),
+                    painter = painterResource(id = R.drawable.ic_thermometer),
                     contentDescription = "Temperature image",
                     modifier = Modifier
                         .size(38.dp)
@@ -442,7 +442,7 @@ class MainActivity : ComponentActivity() {
 
                     Column(horizontalAlignment = Alignment.Start) {
                         Text(
-                            text = weather.hourlyWeather[i].date.hour.toString() + ":00",
+                            text = if (i == 0) "Now" else weather.hourlyWeather[i].date.hour.toString() + ":00",
                             color = Color.Black,
                             modifier = Modifier
                                 .padding(start = 5.dp, top = 5.dp),
