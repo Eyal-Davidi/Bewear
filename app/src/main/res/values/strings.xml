@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">bewear</string>
+    <string name="app_name">Bewear</string>
 
     <string name="winter_jacket_long_pants_base_string">Today will be a very cold%d day. You should wear a winter coat and long pants.</string>
     <string name="sweater_long_pants_base_string">Today will be a cold%d day. You should wear a sweater, jacket and long pants.</string>
