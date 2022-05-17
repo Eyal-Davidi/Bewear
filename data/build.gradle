@@ -5,6 +5,10 @@ plugins {
     id 'kotlin-kapt'
 }
 
+def apikeyPropertiesFile = rootProject.file("data/apikey.properties")
+def apikeyProperties = new Properties()
+apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
+
 android {
     flavorDimensions "default"
     compileSdkVersion compile_sdk_version
@@ -12,6 +16,7 @@ android {
     defaultConfig {
         minSdkVersion min_sdk_version
         targetSdkVersion compile_sdk_version
+        buildConfigField("String", "OPENWEATHERMAP_KEY", apikeyProperties['OPENWEATHERMAP_KEY'])
     }
 
     compileOptions {
