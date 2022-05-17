@@ -128,10 +128,11 @@ class MainViewModel(
 
             getAvatarType().let(_typeOfAvatar::tryEmit)
             _currentLocation.tryEmit(location)
-            getWeather(location)
+            val weatherResponse = getWeather(location)
+            weatherResponse
                 .uiModel(idProvider = idWeatherIconProvider)
                 .let(_weather::tryEmit)
-            getClothingAdvice(location = location)
+            getClothingAdvice.invoke(weather = weatherResponse)
                 .uiModel(
                     idProvider,
                     stringProvider,
@@ -140,10 +141,14 @@ class MainViewModel(
             List(
                 size = AMOUNT_OF_HOURS_IN_HOURLY,
                 init = {
-                    getClothingAdvice(isHourly = true, index = it, location = location).uiModel(
+                    getClothingAdvice.invoke(
+                        isHourly = true,
+                        index = it,
+                        weather = weatherResponse
+                    ).uiModel(
                         idProvider,
                         stringProvider,
-                        avatarType.value
+                        avatarType.value,
                     )
                 }
             ).let(_hourlyAdvice::tryEmit)

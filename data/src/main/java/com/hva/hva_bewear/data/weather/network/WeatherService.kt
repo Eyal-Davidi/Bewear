@@ -43,8 +43,14 @@ class WeatherService {
 
     suspend fun getWeather(context: Context, cityName: String): WeatherResponse {
         location = Locations.CityName(cityName)
-        // Directly call from the api
-//        return client.get(url.replace(lat, location.lat.toString()).replace(lon, location.lon.toString()))
+        // Directly call to the api
+//        return client.get(url) {
+//            parameter("lat", location.lat)
+//            parameter("lon", location.lon)
+//            parameter("exclude", "minutely,current")
+//            parameter("units", "metric")
+//            parameter("appid", BuildConfig.OPENWEATHERMAP_KEY)
+//        }
 
         // Use locally stored files to cache the api data
         val fileName = "${location.cityName.lowercase().replace(" ", "")}.json"
@@ -53,17 +59,17 @@ class WeatherService {
         // If the file does not yet exists a new file is created
         if (!file.exists()) {
             file = createNewFile(file)
-            return writeApiDataToFile(file)
+            return writeApiDataToFile(file, "File did not exist")
         }
 
         val weather: WeatherResponse =
             if (file.isJson()) json.decodeFromString(file.readText())
-            else writeApiDataToFile(file)
+            else writeApiDataToFile(file, "File was not json")
 
         timeZoneOffset = weather.timeZoneOffset
         // If the date in the file is before the current date the file is refreshed
         return if (dateIsBeforeCurrentHour(weather.hourly[0].date)) {
-            writeApiDataToFile(file)
+            writeApiDataToFile(file, "File contained outdated data")
         } else weather
     }
 
@@ -75,10 +81,11 @@ class WeatherService {
         return file
     }
 
-    private suspend fun writeApiDataToFile(file: File): WeatherResponse {
+    private suspend fun writeApiDataToFile(file: File, reason: String): WeatherResponse {
         Log.e(
             "API_CALL",
-            "writeApiDataToFile: An Api call has been made! Location: ${location.cityName}"
+            "writeApiDataToFile: An Api call has been made! " +
+                    "Location: ${location.cityName} because: $reason"
         )
         val jsonFromApi: String = client.get(url) {
             parameter("lat", location.lat)
@@ -100,7 +107,8 @@ class WeatherService {
      */
     private fun dateIsBeforeCurrentHour(dateInt: Int): Boolean {
         val dateTime = dateInt.instantToDateTime(timeZoneOffset)
-        val now = LocalDateTime.now(ZoneId.ofOffset("UTC", ZoneOffset.ofTotalSeconds(timeZoneOffset)))
+        val now =
+            LocalDateTime.now(ZoneId.ofOffset("UTC", ZoneOffset.ofTotalSeconds(timeZoneOffset)))
         return dateIsBeforeCurrentDay(dateInt) ||
                 dateTime.hour < now.hour
     }

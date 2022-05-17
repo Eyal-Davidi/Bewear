@@ -6,12 +6,15 @@ import com.hva.hva_bewear.domain.weather.GetWeather
 import com.hva.hva_bewear.domain.weather.data.WeatherRepository
 import com.hva.hva_bewear.domain.weather.model.DailyWeather
 import com.hva.hva_bewear.domain.weather.model.HourlyWeather
+import com.hva.hva_bewear.domain.weather.model.Weather
 
-class GetClothingAdvice(private val getWeather: GetWeather) {
+class GetClothingAdvice {
 
-    suspend operator fun invoke(isHourly: Boolean = false, index: Int = 0, location: String): ClothingAdvice {
-        val weather = getWeather(location)
-
+    operator fun invoke(
+        isHourly: Boolean = false,
+        index: Int = 0,
+        weather: Weather
+    ): ClothingAdvice {
         fun DailyWeather.toAdvice(): AdviceWeather{
             return AdviceWeather(
                 feelsLike = feelsLike.day,

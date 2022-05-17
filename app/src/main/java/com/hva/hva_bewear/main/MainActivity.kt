@@ -13,6 +13,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
@@ -24,8 +27,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -95,7 +102,7 @@ class MainActivity : ComponentActivity() {
     fun TitleDisplay() {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = CenterHorizontally,
         ) {
             Text(
                 text = "Today's Advice",
@@ -179,6 +186,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun TopBar(locations: List<String>) {
         var expanded by remember { mutableStateOf(false) }
+        var showPopup by remember { mutableStateOf(false)}
         Card(
             modifier = Modifier
                 .padding(5.dp, 5.dp)
@@ -193,17 +201,22 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Image(
-                        painter = painterResource(R.drawable.logo),
+                        painter = painterResource(R.drawable.ic_settings),
                         contentDescription = null,
                         modifier = Modifier
-                            .size(30.dp)
+                            .size(27.dp)
+                            .align(CenterVertically)
+                            .clickable { showPopup = true }
                     )
+//                    if(showPopup) CommonDialog(title = "test", state = showPopup){
+//                        Text("Testing!")
+//                    }
                     Text(
                         locations[selectedIndex],
                         color = Color.Black,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.align(Alignment.CenterVertically)
+                        modifier = Modifier.align(CenterVertically)
                     )
                     Image(
                         painter = if (expanded)
@@ -251,6 +264,41 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+//    @Composable
+//    fun CommonDialog(
+//        title: String?,
+//        state: Boolean,
+//        content: @Composable (() -> Unit)? = null
+//    ) {
+//        AlertDialog(
+//            onDismissRequest = {
+//                state = false
+//            },
+//            title = title?.let {
+//                {
+//                    Column(
+//                        Modifier.fillMaxWidth(),
+//                        verticalArrangement = Arrangement.spacedBy(8.dp)
+//                    ) {
+//                        Text(text = title)
+//                        Divider(modifier = Modifier.padding(bottom = 8.dp))
+//                    }
+//                }
+//            },
+//            text = content,
+//            dismissButton = {
+//                Button(onClick = { state = false }) {
+//                    Text("Cancel")
+//                }
+//            },
+//            confirmButton = {
+//                Button(onClick = { state = false }) {
+//                    Text("Ok")
+//                }
+//            }, modifier = Modifier.padding(vertical = 8.dp)
+//        )
+//    }
 
     @Composable
     fun BottomDisplay(advice: AdviceUIModel, weather: WeatherUIModel, hourlyAdvice: List<AdviceUIModel>){
@@ -348,7 +396,7 @@ class MainActivity : ComponentActivity() {
                         .height(150.dp),
                     backgroundColor = MaterialTheme.colors.primaryVariant,
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column(horizontalAlignment = CenterHorizontally) {
                         Image(
                             painter = painterResource(hourlyAdvice[i].avatar),
                             contentDescription = "Avatar",
@@ -466,8 +514,8 @@ class MainActivity : ComponentActivity() {
     fun LoadingScreen() {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
-                modifier = Modifier.align(Alignment.Center),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.align(Center),
+                horizontalAlignment = CenterHorizontally
             ) {
                 val composition by rememberLottieComposition(
                     LottieCompositionSpec.RawRes(R.raw.day_night_loading)
@@ -489,8 +537,8 @@ class MainActivity : ComponentActivity() {
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
-                modifier = Modifier.align(Alignment.Center),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.align(Center),
+                horizontalAlignment = CenterHorizontally
             ) {
                 Text(
                     text = errorState.errorText,
