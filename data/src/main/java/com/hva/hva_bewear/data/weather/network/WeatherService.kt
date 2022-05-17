@@ -2,6 +2,7 @@ package com.hva.hva_bewear.data.weather.network
 
 import android.content.Context
 import android.util.Log
+import com.hva.hva_bewear.data.BuildConfig
 import com.hva.hva_bewear.data.weather.network.mapper.WeatherMapper.instantToDate
 import com.hva.hva_bewear.data.weather.network.mapper.WeatherMapper.instantToDateTime
 import com.hva.hva_bewear.data.weather.network.response.WeatherResponse
@@ -84,7 +85,7 @@ class WeatherService {
             parameter("lon", location.lon)
             parameter("exclude", "minutely,current")
             parameter("units", "metric")
-            parameter("appid", "***REMOVED***")
+            parameter("appid", BuildConfig.OPENWEATHERMAP_KEY)
         }
         kotlin.runCatching {
             val printWriter = PrintWriter(file)
