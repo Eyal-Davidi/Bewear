@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.compose.LottieAnimation
@@ -254,14 +255,14 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun BottomDisplay(advice: AdviceUIModel, weather: WeatherUIModel, hourlyAdvice: List<AdviceUIModel>){
         var offsetY by remember { mutableStateOf(0f) }
+        val maxOffset = -110f
+        val multiplier = 0.4f
         Box(
             modifier = Modifier
                 .fillMaxHeight()
                 .draggable(
                     orientation = Orientation.Vertical,
                     state = rememberDraggableState { delta ->
-                        val maxOffset = -110f
-                        val multiplier = 0.4f
                         offsetY += (delta * multiplier)
                         offsetY = when {
                             offsetY < maxOffset -> maxOffset
@@ -272,18 +273,20 @@ class MainActivity : ComponentActivity() {
                 )
         ) {
             val height = 150
-            val descriptionOffset = 34
+            val descriptionOffset = 29
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .height(height.dp)
             ) {
                 AdviceDescription(
-                    advice, Modifier
+                    advice = advice,
+                    modifier = Modifier
                         .fillMaxWidth()
                         .requiredHeightIn((height + descriptionOffset).dp, 300.dp)
                         .align(Alignment.TopCenter)
-                        .offset(y = (-descriptionOffset + offsetY).dp)
+                        .offset(y = (-descriptionOffset + offsetY).dp),
+                    dragAmount = offsetY / maxOffset,
                 )
                 HourlyDisplay(
                     weather, hourlyAdvice, modifier = Modifier
@@ -294,8 +297,9 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun AdviceDescription(advice: AdviceUIModel, modifier: Modifier = Modifier) {
-
+    fun AdviceDescription(advice: AdviceUIModel, modifier: Modifier = Modifier, dragAmount: Float = 1f) {
+        val titleMinSize = 20
+        val titleMaxSize = 30
         Card(
             shape = RoundedCornerShape(topEnd = 10.dp, topStart = 10.dp),
             modifier = modifier,
@@ -316,8 +320,8 @@ class MainActivity : ComponentActivity() {
                     color = Color.Black,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
-                        .padding(top = 3.dp, bottom = 0.dp, start = 16.dp, end = 16.dp),
-                    fontSize = 30.sp
+                        .padding(top = 5.dp, bottom = 0.dp, start = 16.dp, end = 16.dp),
+                    fontSize = (titleMinSize + ((titleMaxSize - titleMinSize) * dragAmount)).sp
                 )
                 AdviceText(advice = advice)
             }
