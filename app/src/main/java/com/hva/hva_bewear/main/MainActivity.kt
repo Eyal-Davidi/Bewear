@@ -26,26 +26,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
-import androidx.compose.ui.window.PopupProperties
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.hva.hva_bewear.R
 import com.hva.hva_bewear.domain.avatar_type.model.AvatarType
-import com.hva.hva_bewear.domain.weather.model.Weather
 import com.hva.hva_bewear.main.theme.M2Mobi_HvATheme
 import com.hva.hva_bewear.presentation.main.MainViewModel
 import com.hva.hva_bewear.presentation.main.model.AdviceUIModel
 import com.hva.hva_bewear.presentation.main.model.UIStates
 import com.hva.hva_bewear.presentation.main.model.WeatherUIModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.qualifier.qualifier
 import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
@@ -186,7 +181,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun TopBar(locations: List<String>) {
         var expanded by remember { mutableStateOf(false) }
-        var showPopup by remember { mutableStateOf(false)}
+        var showPopup by remember { mutableStateOf(false) }
         Card(
             modifier = Modifier
                 .padding(5.dp, 5.dp)
@@ -208,9 +203,7 @@ class MainActivity : ComponentActivity() {
                             .align(CenterVertically)
                             .clickable { showPopup = true }
                     )
-//                    if(showPopup) CommonDialog(title = "test", state = showPopup){
-//                        Text("Testing!")
-//                    }
+                    if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
                     Text(
                         locations[selectedIndex],
                         color = Color.Black,
@@ -265,40 +258,67 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-//    @Composable
-//    fun CommonDialog(
-//        title: String?,
-//        state: Boolean,
-//        content: @Composable (() -> Unit)? = null
-//    ) {
-//        AlertDialog(
-//            onDismissRequest = {
-//                state = false
-//            },
-//            title = title?.let {
-//                {
-//                    Column(
-//                        Modifier.fillMaxWidth(),
-//                        verticalArrangement = Arrangement.spacedBy(8.dp)
-//                    ) {
-//                        Text(text = title)
-//                        Divider(modifier = Modifier.padding(bottom = 8.dp))
-//                    }
-//                }
-//            },
-//            text = content,
-//            dismissButton = {
-//                Button(onClick = { state = false }) {
-//                    Text("Cancel")
-//                }
-//            },
-//            confirmButton = {
-//                Button(onClick = { state = false }) {
-//                    Text("Ok")
-//                }
-//            }, modifier = Modifier.padding(vertical = 8.dp)
-//        )
-//    }
+    @Composable
+    fun SettingsDialog(onShownChange: (Boolean) -> Unit) {
+        var avatarType by remember { mutableStateOf(viewModel.avatarType.value.ordinal.toFloat()) }
+        CommonDialog(
+            title = "Avatar Settings",
+            onShownChange = onShownChange,
+            onClickOkBtn = {viewModel.updateTypeOfAvatar(AvatarType.values()[avatarType.toInt()])}
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Text("Male")
+                Text("Both")
+                Text("Female")
+            }
+            Slider(
+                value = avatarType,
+                onValueChange = {avatarType = it},
+                steps = 1,
+                valueRange = 0f..2f,
+                onValueChangeFinished = {avatarType = avatarType.roundToInt().toFloat()},
+                modifier = Modifier.padding(top = 16.dp)
+            )
+        }
+    }
+
+    @Composable
+    fun CommonDialog(
+        title: String?,
+        onShownChange: (Boolean) -> Unit,
+        onClickOkBtn: () -> Unit,
+        content: @Composable (() -> Unit)? = null
+    ) {
+        AlertDialog(
+            onDismissRequest = { onShownChange(false) },
+            title = title?.let {
+                {
+                    Column(
+                        Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(text = title)
+                        Divider(modifier = Modifier.padding(bottom = 8.dp))
+                    }
+                }
+            },
+            text = content,
+            dismissButton = {
+                Button(onClick = { onShownChange(false) }) {
+                    Text("Cancel")
+                }
+            },
+            confirmButton = {
+                Button(onClick = { onShownChange(false); onClickOkBtn() }) {
+                    Text("Save")
+                }
+            }, modifier = Modifier.padding(vertical = 8.dp)
+        )
+    }
 
     @Composable
     fun BottomDisplay(advice: AdviceUIModel, weather: WeatherUIModel, hourlyAdvice: List<AdviceUIModel>){
@@ -359,7 +379,7 @@ class MainActivity : ComponentActivity() {
                         .offset(y = 6.dp)
                         .clip(RoundedCornerShape(3.dp))
                         .background(Color.Gray)
-                        .align(Alignment.CenterHorizontally)
+                        .align(CenterHorizontally)
                         .width(100.dp)
                         .height(6.dp),
                 )
@@ -367,7 +387,7 @@ class MainActivity : ComponentActivity() {
                     text = "Clothing Description",
                     color = Color.Black,
                     modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
+                        .align(CenterHorizontally)
                         .padding(top = 5.dp, bottom = 0.dp, start = 16.dp, end = 16.dp),
                     fontSize = (titleMinSize + ((titleMaxSize - titleMinSize) * dragAmount)).sp
                 )
@@ -403,7 +423,7 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier
                                 .offset(y = 30.dp)
                                 .scale(1f),
-                            )
+                        )
                     }
 
                     Column(horizontalAlignment = Alignment.End) {
@@ -450,26 +470,6 @@ class MainActivity : ComponentActivity() {
             modifier = Modifier
                 .offset(y = 100.dp)
                 .scale(1f)
-                .clickable {
-                    //TODO: Make an actual settings space to set this
-                    val text = when (viewModel.avatarType.value) {
-                        AvatarType.MALE -> {
-                            viewModel.updateTypeOfAvatar(AvatarType.FEMALE)
-                            "Avatar type: Female"
-                        }
-                        AvatarType.FEMALE -> {
-                            viewModel.updateTypeOfAvatar(AvatarType.BOTH)
-                            "Avatar type: Both"
-                        }
-                        else -> {
-                            viewModel.updateTypeOfAvatar(AvatarType.MALE)
-                            "Avatar type: Male"
-                        }
-                    }
-                    Toast
-                        .makeText(applicationContext, text, Toast.LENGTH_SHORT)
-                        .show()
-                }
         )
     }
 
@@ -506,7 +506,7 @@ class MainActivity : ComponentActivity() {
             composition,
             iterations = LottieConstants.IterateForever,
             speed = 0.33f,
-            contentScale =  ContentScale.FillBounds,
+            contentScale = ContentScale.FillBounds,
         )
     }
 
