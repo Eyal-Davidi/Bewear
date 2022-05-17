@@ -11,7 +11,7 @@ val domainModule = module {
     // Use cases
     factory { GetText(get()) }
     factory { GetWeather(get()) }
-    factory { GetClothingAdvice(get()) }
+    factory { GetClothingAdvice() }
     factory { GetAvatarType(get()) }
     factory { SetTypeOfAvatar(get()) }
 }
