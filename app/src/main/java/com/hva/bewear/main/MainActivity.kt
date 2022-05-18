@@ -100,6 +100,7 @@ class MainActivity : ComponentActivity() {
         task.addOnSuccessListener {
             if(it != null){
                 Toast.makeText(applicationContext, "${it.latitude} ${it.longitude}", Toast.LENGTH_SHORT).show()
+                //            viewModel.refresh(coordinates = Coordinates(it.latitude, it.longitude))
             }
 
         }

@@ -6,6 +6,7 @@ import com.hva.bewear.data.BuildConfig
 import com.hva.bewear.data.weather.network.mapper.WeatherMapper.instantToDate
 import com.hva.bewear.data.weather.network.mapper.WeatherMapper.instantToDateTime
 import com.hva.bewear.data.weather.network.response.WeatherResponse
+import com.hva.bewear.domain.location.Coordinates
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
@@ -38,10 +39,13 @@ class WeatherService {
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
     private lateinit var location: Locations
+    private lateinit var c: Coordinates
 
     private var timeZoneOffset = 0
 
-    suspend fun getWeather(context: Context, cityName: String): WeatherResponse {
+    suspend fun getWeather(context: Context, cityName: String, coordinates: Coordinates): WeatherResponse {
+        this.c = coordinates
+
         location = Locations.CityName(cityName)
         // Directly call to the api
 //        return client.get(url) {
@@ -87,9 +91,10 @@ class WeatherService {
             "writeApiDataToFile: An Api call has been made! " +
                     "Location: ${location.cityName} because: $reason"
         )
+        val useCoords = c.lat == 0.0 || c.lon == 0.0
         val jsonFromApi: String = client.get(url) {
-            parameter("lat", location.lat)
-            parameter("lon", location.lon)
+            parameter("lat", if(useCoords) location.lat else c.lat)
+            parameter("lon", if(useCoords) location.lon else c.lon)
             parameter("exclude", "minutely,current")
             parameter("units", "metric")
             parameter("appid", BuildConfig.OPENWEATHERMAP_KEY)

@@ -10,6 +10,7 @@ import com.hva.bewear.domain.avatar_type.SetTypeOfAvatar
 import com.hva.bewear.domain.location.LocationPicker
 import com.hva.bewear.domain.weather.GetWeather
 import com.hva.bewear.domain.avatar_type.model.AvatarType
+import com.hva.bewear.domain.location.Coordinates
 import com.hva.bewear.domain.weather.model.Weather
 import com.hva.bewear.presentation.generic.launchOnIO
 import com.hva.bewear.presentation.main.AdviceUIMapper.uiModel
@@ -109,17 +110,18 @@ class MainViewModel(
         Log.e("AppERR", throwable.stackTraceToString())
     }
 
-    fun refresh(location: String = currentLocation.value) {
-        fetchData(location)
+    fun refresh(location: String = currentLocation.value, coordinates: Coordinates = Coordinates(0.0,0.0)) {
+        fetchData(location, coordinates)
+
     }
 
-    private fun fetchData(location: String) {
+    private fun fetchData(location: String, coordinates: Coordinates) {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
             _uiState.tryEmit(UIStates.Loading)
             getAvatarType().let { _typeOfAvatar.value = it }
             _currentLocation.value = (location)
-            val weather = fetchWeather(location)
-            getClothingAdvice(weather = weather)
+            val weather = fetchWeather(location, coordinates)
+            getClothingAdvice(weather = weather, coordinates = coordinates)
                 .uiModel(idProvider, stringProvider, avatarType.value).let(_advice::tryEmit)
             List(
                 size = AMOUNT_OF_HOURS_IN_HOURLY,
@@ -127,7 +129,8 @@ class MainViewModel(
                     getClothingAdvice(
                         isHourly = true,
                         index = it,
-                        weather = weather
+                        weather = weather,
+                        coordinates = coordinates
                     ).uiModel(
                         idProvider,
                         stringProvider,
@@ -139,8 +142,8 @@ class MainViewModel(
         }
     }
 
-    private suspend fun fetchWeather(location: String):Weather  {
-        val weather = getWeather(location)
+    private suspend fun fetchWeather(location: String, coordinates: Coordinates):Weather  {
+        val weather = getWeather(location, coordinates)
         _weather.value = weather.uiModel(idProvider = idWeatherIconProvider)
         return weather
     }
