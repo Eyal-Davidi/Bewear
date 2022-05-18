@@ -1,10 +1,10 @@
 package com.hva.bewear.main.provider
 
 import androidx.annotation.DrawableRes
-import com.hva.bewear.R
 import com.hva.bewear.domain.advice.model.ClothingAdvice
 import com.hva.bewear.domain.avatar_type.model.AvatarType
 import com.hva.bewear.presentation.main.provider.AvatarIdProvider
+import com.hva_bewear.R
 
 class AppAvatarIdProvider : AvatarIdProvider {
     @DrawableRes

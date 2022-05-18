@@ -6,6 +6,7 @@ import com.hva.bewear.data.BuildConfig
 import com.hva.bewear.data.weather.network.mapper.WeatherMapper.instantToDate
 import com.hva.bewear.data.weather.network.mapper.WeatherMapper.instantToDateTime
 import com.hva.bewear.data.weather.network.response.WeatherResponse
+import com.hva.bewear.domain.location.Coordinates
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
@@ -41,8 +42,14 @@ class WeatherService {
 
     private var timeZoneOffset = 0
 
-    suspend fun getWeather(context: Context, cityName: String): WeatherResponse {
-        location = Locations.CityName(cityName)
+    suspend fun getWeather(context: Context, cityName: String, coordinates: Coordinates): WeatherResponse {
+        if(coordinates.lat != 0.0 && coordinates.lon != 0.0) {
+            location.cityName = cityName
+            location.lat = coordinates.lat
+            location.lon = coordinates.lon
+        } else {
+            location = Locations.CityName(cityName)
+        }
         // Directly call to the api
 //        return client.get(url) {
 //            parameter("lat", location.lat)

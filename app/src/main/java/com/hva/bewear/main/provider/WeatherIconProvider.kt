@@ -1,8 +1,8 @@
 package com.hva.bewear.main.provider
 
 import androidx.annotation.DrawableRes
-import com.hva.bewear.R
 import com.hva.bewear.presentation.main.provider.WeatherIconProvider
+import com.hva_bewear.R
 
 class AppWeatherIconProvider : WeatherIconProvider {
     @DrawableRes

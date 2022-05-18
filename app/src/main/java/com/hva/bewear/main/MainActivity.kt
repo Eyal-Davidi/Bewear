@@ -1,5 +1,8 @@
 package com.hva.bewear.main
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -28,28 +31,33 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.hva.bewear.R
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.hva.bewear.domain.avatar_type.model.AvatarType
+import com.hva.bewear.domain.location.Coordinates
 import com.hva.bewear.main.theme.M2Mobi_HvATheme
 import com.hva.bewear.presentation.main.MainViewModel
 import com.hva.bewear.presentation.main.model.AdviceUIModel
 import com.hva.bewear.presentation.main.model.UIStates
 import com.hva.bewear.presentation.main.model.WeatherUIModel
+import com.hva_bewear.R
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.util.*
 import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModel()
-    //TODO: fix this to use viewModel
-    private var selectedIndex = 0
+    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         setContent {
             M2Mobi_HvATheme {
                 // A surface container using the 'background' color from the theme
@@ -182,6 +190,7 @@ class MainActivity : ComponentActivity() {
     private fun TopBar(locations: List<String>) {
         var expanded by remember { mutableStateOf(false) }
         var showPopup by remember { mutableStateOf(false) }
+        val currentLocation by viewModel.currentLocation.collectAsState()
         Card(
             modifier = Modifier
                 .padding(5.dp, 5.dp)
@@ -205,7 +214,7 @@ class MainActivity : ComponentActivity() {
                     )
                     if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
                     Text(
-                        locations[selectedIndex],
+                        currentLocation,
                         color = Color.Black,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
@@ -232,18 +241,18 @@ class MainActivity : ComponentActivity() {
                         ),
                 ) {
                     Divider()
-                    locations.forEachIndexed { index, s ->
+                    locations.forEachIndexed { index, location ->
                         DropdownMenuItem(
                             onClick = {
-                                if (index != selectedIndex) {
-                                    selectedIndex = index
+                                if (location != currentLocation) {
                                     expanded = false
-                                    viewModel.refresh(s)
+                                    if(index == 0)fetchLocation()
+                                    else viewModel.refresh(location)
                                 }
                             }
                         ) {
                             Text(
-                                text = s,
+                                text = location,
                                 color = Color.Black,
                                 textAlign = TextAlign.Center,
                                 fontWeight = FontWeight.Bold,
@@ -326,20 +335,20 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun BottomDisplay(advice: AdviceUIModel, weather: WeatherUIModel, hourlyAdvice: List<AdviceUIModel>){
-        var offsetY by remember { mutableStateOf(0f) }
-        val maxOffset = -110f
-        val multiplier = 0.4f
+        var descriptionOffsetY by remember { mutableStateOf(0f) }
+        val maxDescriptionOffset = -110f
+        val dragMultiplier = 0.4f
         Box(
             modifier = Modifier
                 .fillMaxHeight()
                 .draggable(
                     orientation = Orientation.Vertical,
                     state = rememberDraggableState { delta ->
-                        offsetY += (delta * multiplier)
-                        offsetY = when {
-                            offsetY < maxOffset -> maxOffset
-                            offsetY > 0f -> 0f
-                            else -> offsetY
+                        descriptionOffsetY += (delta * dragMultiplier)
+                        descriptionOffsetY = when {
+                            descriptionOffsetY < maxDescriptionOffset -> maxDescriptionOffset
+                            descriptionOffsetY > 0f -> 0f
+                            else -> descriptionOffsetY
                         }
                     }
                 )
@@ -357,8 +366,8 @@ class MainActivity : ComponentActivity() {
                         .fillMaxWidth()
                         .requiredHeightIn((height + descriptionOffset).dp, 300.dp)
                         .align(Alignment.TopCenter)
-                        .offset(y = (-descriptionOffset + offsetY).dp),
-                    dragAmount = offsetY / maxOffset,
+                        .offset(y = (-descriptionOffset + descriptionOffsetY).dp),
+                    dragAmount = descriptionOffsetY / maxDescriptionOffset,
                 )
                 HourlyDisplay(
                     weather, hourlyAdvice, modifier = Modifier
@@ -573,6 +582,31 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    private fun fetchLocation() {
+        val task = fusedLocationProviderClient.lastLocation
+
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED && ActivityCompat
+                .checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        ){
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 101)
+            return
+        }
+//        task.addOnCanceledListener {
+//            val cancelled = "hi"
+//        }
+//        task.addOnFailureListener {
+//            val exception = it
+//        }
+        task.addOnSuccessListener {
+            if(it != null){
+                val geocoder = Geocoder(this, Locale.getDefault())
+                val addresses = geocoder.getFromLocation(it.latitude, it.longitude,1)
+                val city: String = addresses[0].locality
+                viewModel.refresh(location = city, coordinates = Coordinates(it.latitude, it.longitude))
+            }
+        }
+    }
 
     @Preview(showBackground = true)
     @Composable

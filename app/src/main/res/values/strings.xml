@@ -7,4 +7,20 @@
     <string name="short_shirt_long_pants_base_string">Today will be a warm%d day. You should wear a short-sleeved shirt and long pants.</string>
     <string name="short_shirt_short_pants_base_string">Today will be a very warm%d day. You should wear a short-sleeved shirt and short pants.</string>
     <string name="default_base_string">No advice for today</string>
+
+    <string name="extra_text_wind_highuvi_rain">, windy, rainy and sunny</string>
+    <string name="extra_text_wind_highuvi">, windy and sunny</string>
+    <string name="extra_text_wind_rain">, windy and rainy</string>
+    <string name="extra_text_highuvi_rain">, rainy and sunny</string>
+    <string name="extra_text_wind">\ and windy</string>
+    <string name="extra_text_highuvi">\ and sunny</string>
+    <string name="extra_text_rain">\ and rainy</string>
+
+    <string name="extra_advice_wind_highuvi_rain"> It will be rainy, windy and sunny! Take some sunscreen and an umbrella with you but be careful with the wind.</string>
+    <string name="extra_advice_wind_highuvi"> You should use some sunscreen and put on your hat and sunglasses, but be careful of the wind.</string>
+    <string name="extra_advice_wind_rain"> Bring an umbrella but don\'t lose it to the wind!</string>
+    <string name="extra_advice_highuvi_rain"> It will be both rainy and sunny, take some sunscreen and an umbrella with you.</string>
+    <string name="extra_advice_wind"></string>
+    <string name="extra_advice_highuvi"> You should use some sunscreen and put on your hat and sunglasses.</string>
+    <string name="extra_advice_rain"> Make sure to bring an umbrella.</string>
 </resources>
