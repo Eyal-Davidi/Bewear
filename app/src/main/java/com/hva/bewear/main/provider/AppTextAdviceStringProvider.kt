@@ -1,10 +1,10 @@
 package com.hva.bewear.main.provider
 
 import android.content.Context
-import com.hva.bewear.R
 import com.hva.bewear.domain.advice.model.ClothingAdvice
 import com.hva.bewear.domain.advice.model.ClothingAdvice.*
 import com.hva.bewear.presentation.main.provider.TextAdviceStringProvider
+import com.hva_bewear.R
 
 class AppTextAdviceStringProvider(
     private val context: Context

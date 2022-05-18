@@ -37,13 +37,14 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.hva.bewear.R
+
 import com.hva.bewear.domain.avatar_type.model.AvatarType
 import com.hva.bewear.main.theme.M2Mobi_HvATheme
 import com.hva.bewear.presentation.main.MainViewModel
 import com.hva.bewear.presentation.main.model.AdviceUIModel
 import com.hva.bewear.presentation.main.model.UIStates
 import com.hva.bewear.presentation.main.model.WeatherUIModel
+import com.hva_bewear.R
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.math.roundToInt
 
@@ -83,9 +84,19 @@ class MainActivity : ComponentActivity() {
             != PackageManager.PERMISSION_GRANTED && ActivityCompat
                 .checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
         ){
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 101)
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 101)
             return
         }
+
+//        task.addOnCanceledListener {
+//            val cancelled = "hi"
+//        }
+//
+//        task.addOnFailureListener {
+//            val exception = it
+//        }
+
+
         task.addOnSuccessListener {
             if(it != null){
                 Toast.makeText(applicationContext, "${it.latitude} ${it.longitude}", Toast.LENGTH_SHORT).show()

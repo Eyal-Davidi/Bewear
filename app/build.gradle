@@ -38,6 +38,9 @@ android {
 
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
+        resources {
+            excludes += ['META-INF/DEPENDENCIES']
+        }
     }
 
     buildFeatures {
@@ -56,6 +59,7 @@ android {
 
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        namespace 'com.hva_bewear'
     }
 }
 
