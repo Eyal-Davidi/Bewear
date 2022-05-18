@@ -107,6 +107,7 @@ class MainActivity : ComponentActivity() {
             Column {
                 TopBar(locations)
                 TitleDisplay()
+                LocationButton()
                 Spacer(modifier = Modifier.height(1.dp))
                 Row {
                     TemperatureDisplay(weather)
@@ -600,8 +601,17 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-
-
+    @Composable
+    fun LocationButton() {
+        Button(
+            onClick = { fetchLocation() },
+            modifier = Modifier
+                .height(40.dp)
+                .width(500.dp),
+        ) {
+            Text(text = "Location")
+        }
+    }
 
     @Preview(showBackground = true)
     @Composable
