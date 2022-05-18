@@ -295,20 +295,20 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun BottomDisplay(advice: AdviceUIModel, weather: WeatherUIModel, hourlyAdvice: List<AdviceUIModel>){
-        var offsetY by remember { mutableStateOf(0f) }
-        val maxOffset = -110f
-        val multiplier = 0.4f
+        var descriptionOffsetY by remember { mutableStateOf(0f) }
+        val maxDescriptionOffset = -110f
+        val dragMultiplier = 0.4f
         Box(
             modifier = Modifier
                 .fillMaxHeight()
                 .draggable(
                     orientation = Orientation.Vertical,
                     state = rememberDraggableState { delta ->
-                        offsetY += (delta * multiplier)
-                        offsetY = when {
-                            offsetY < maxOffset -> maxOffset
-                            offsetY > 0f -> 0f
-                            else -> offsetY
+                        descriptionOffsetY += (delta * dragMultiplier)
+                        descriptionOffsetY = when {
+                            descriptionOffsetY < maxDescriptionOffset -> maxDescriptionOffset
+                            descriptionOffsetY > 0f -> 0f
+                            else -> descriptionOffsetY
                         }
                     }
                 )
@@ -326,8 +326,8 @@ class MainActivity : ComponentActivity() {
                         .fillMaxWidth()
                         .requiredHeightIn((height + descriptionOffset).dp, 300.dp)
                         .align(Alignment.TopCenter)
-                        .offset(y = (-descriptionOffset + offsetY).dp),
-                    dragAmount = offsetY / maxOffset,
+                        .offset(y = (-descriptionOffset + descriptionOffsetY).dp),
+                    dragAmount = descriptionOffsetY / maxDescriptionOffset,
                 )
                 HourlyDisplay(
                     weather, hourlyAdvice, modifier = Modifier
@@ -352,7 +352,7 @@ class MainActivity : ComponentActivity() {
                         .offset(y = 6.dp)
                         .clip(RoundedCornerShape(3.dp))
                         .background(Color.Gray)
-                        .align(Alignment.CenterHorizontally)
+                        .align(CenterHorizontally)
                         .width(100.dp)
                         .height(6.dp),
                 )
@@ -360,7 +360,7 @@ class MainActivity : ComponentActivity() {
                     text = "Clothing Description",
                     color = Color.Black,
                     modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
+                        .align(CenterHorizontally)
                         .padding(top = 5.dp, bottom = 0.dp, start = 16.dp, end = 16.dp),
                     fontSize = (titleMinSize + ((titleMaxSize - titleMinSize) * dragAmount)).sp
                 )
