@@ -3,6 +3,7 @@ package com.hva.bewear.main.provider
 import android.content.Context
 import com.hva.bewear.R
 import com.hva.bewear.domain.advice.model.ClothingAdvice
+import com.hva.bewear.domain.advice.model.ClothingAdvice.*
 import com.hva.bewear.presentation.main.provider.TextAdviceStringProvider
 
 class AppTextAdviceStringProvider(
