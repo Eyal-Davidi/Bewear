@@ -7,6 +7,8 @@ buildscript {
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.appdistribution'
 
 android {
     flavorDimensions "default"
@@ -107,4 +109,8 @@ dependencies {
     //Lottie
     def lottieVersion = "5.0.3"
     implementation "com.airbnb.android:lottie-compose:$lottieVersion"
+
+    //Firebase
+    implementation platform('com.google.firebase:firebase-bom:30.0.1')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 }
