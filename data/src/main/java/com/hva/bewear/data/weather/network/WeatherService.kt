@@ -46,11 +46,13 @@ class WeatherService {
     suspend fun getWeather(context: Context, cityName: String, coordinates: Coordinates): WeatherResponse {
         this.coordinates = coordinates
 
-        location = Locations.CityName(cityName)
-        if(coordinates.lat != 0.0 && coordinates.lon != 0.0)
-            {location.lat = coordinates.lat
-                location.lon = coordinates.lon
-            }
+        if(coordinates.lat != 0.0 && coordinates.lon != 0.0) {
+            location.cityName = cityName
+            location.lat = coordinates.lat
+            location.lon = coordinates.lon
+        } else {
+            location = Locations.CityName(cityName)
+        }
         // Directly call to the api
 //        return client.get(url) {
 //            parameter("lat", location.lat)

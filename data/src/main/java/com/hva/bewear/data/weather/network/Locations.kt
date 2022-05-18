@@ -1,6 +1,6 @@
 package com.hva.bewear.data.weather.network
 
-enum class Locations(val cityName: String, var lat : Double, var lon : Double) {
+enum class Locations(var cityName: String, var lat : Double, var lon : Double) {
     CURRENT_LOCATION("Current Location", 0.0, 0.0),
 //    CURRENT_LOCATION("${city}", lat = latitude, lang = longitude),
     AMSTERDAM("Amsterdam",52.3676,4.9041),

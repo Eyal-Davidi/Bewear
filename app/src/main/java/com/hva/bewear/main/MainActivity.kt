@@ -56,12 +56,12 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModel()
     //TODO: fix this to use viewModel
-    private var selectedIndex = 0
 
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         setContent {
             M2Mobi_HvATheme {
                 // A surface container using the 'background' color from the theme
@@ -72,12 +72,6 @@ class MainActivity : ComponentActivity() {
                     MainScreen()
                 }
             }
-
-            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-
-            fetchLocation()
-
-
         }
     }
 
@@ -104,7 +98,6 @@ class MainActivity : ComponentActivity() {
         task.addOnSuccessListener {
             if(it != null){
                 Toast.makeText(applicationContext, "${it.latitude} ${it.longitude}", Toast.LENGTH_SHORT).show()
-                            viewModel.refresh(coordinates = Coordinates(it.latitude, it.longitude))
                 val geocoder: Geocoder
                 val addresses: List<Address>
                 geocoder = Geocoder(this, Locale.getDefault())
@@ -122,12 +115,9 @@ class MainActivity : ComponentActivity() {
                 val knownName: String =
                     addresses[0].getFeatureName() // Only if available else return NULL
 
-                Toast.makeText(applicationContext, "${city}", Toast.LENGTH_SHORT).show()
-
+                Toast.makeText(applicationContext, city, Toast.LENGTH_SHORT).show()
+                viewModel.refresh(location = city, coordinates = Coordinates(it.latitude, it.longitude))
             }
-
-            viewModel.refresh(coordinates = Coordinates(it.latitude, it.longitude))
-
         }
     }
 
@@ -251,6 +241,7 @@ class MainActivity : ComponentActivity() {
     private fun TopBar(locations: List<String>) {
         var expanded by remember { mutableStateOf(false) }
         var showPopup by remember { mutableStateOf(false) }
+        val currentLocation by viewModel.currentLocation.collectAsState()
         Card(
             modifier = Modifier
                 .padding(5.dp, 5.dp)
@@ -274,7 +265,7 @@ class MainActivity : ComponentActivity() {
                     )
                     if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
                     Text(
-                        locations[selectedIndex],
+                        currentLocation,
                         color = Color.Black,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
@@ -304,8 +295,7 @@ class MainActivity : ComponentActivity() {
                     locations.forEachIndexed { index, s ->
                         DropdownMenuItem(
                             onClick = {
-                                if (index != selectedIndex) {
-                                    selectedIndex = index
+                                if (s != currentLocation) {
                                     expanded = false
                                     if(index == 0){
                                         fetchLocation()

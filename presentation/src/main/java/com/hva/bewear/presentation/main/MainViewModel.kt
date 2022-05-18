@@ -67,7 +67,7 @@ class MainViewModel(
     )
     val locations: StateFlow<List<String>> = _locations
 
-    private val _currentLocation: MutableStateFlow<String> = MutableStateFlow(locations.value[0])
+    private val _currentLocation: MutableStateFlow<String> = MutableStateFlow(locations.value[1])
     val currentLocation: StateFlow<String> = _currentLocation
 
     private val _hourlyAdvice = MutableStateFlow(
