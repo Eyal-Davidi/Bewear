@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "728708850871",
+    "project_id": "hva-bewear",
+    "storage_bucket": "hva-bewear.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:728708850871:android:6629818ba91f46d8861932",
+        "android_client_info": {
+          "package_name": "com.hva.bewear"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "728708850871-vp93ss6of8v1m5g017ik2o6lfff7jqtk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "***REMOVED***"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "728708850871-vp93ss6of8v1m5g017ik2o6lfff7jqtk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
