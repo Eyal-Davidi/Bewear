@@ -39,14 +39,18 @@ class WeatherService {
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
     private lateinit var location: Locations
-    private lateinit var c: Coordinates
+    private lateinit var coordinates: Coordinates
 
     private var timeZoneOffset = 0
 
     suspend fun getWeather(context: Context, cityName: String, coordinates: Coordinates): WeatherResponse {
-        this.c = coordinates
+        this.coordinates = coordinates
 
         location = Locations.CityName(cityName)
+        if(coordinates.lat != 0.0 && coordinates.lon != 0.0)
+            {location.lat = coordinates.lat
+                location.lon = coordinates.lon
+            }
         // Directly call to the api
 //        return client.get(url) {
 //            parameter("lat", location.lat)
@@ -91,10 +95,10 @@ class WeatherService {
             "writeApiDataToFile: An Api call has been made! " +
                     "Location: ${location.cityName} because: $reason"
         )
-        val useCoords = c.lat == 0.0 || c.lon == 0.0
+        val useCoords = coordinates.lat == 0.0 || coordinates.lon == 0.0
         val jsonFromApi: String = client.get(url) {
-            parameter("lat", if(useCoords) location.lat else c.lat)
-            parameter("lon", if(useCoords) location.lon else c.lon)
+            parameter("lat", if(useCoords) location.lat else coordinates.lat)
+            parameter("lon", if(useCoords) location.lon else coordinates.lon)
             parameter("exclude", "minutely,current")
             parameter("units", "metric")
             parameter("appid", BuildConfig.OPENWEATHERMAP_KEY)

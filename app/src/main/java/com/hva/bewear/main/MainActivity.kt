@@ -2,6 +2,8 @@ package com.hva.bewear.main
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -37,8 +39,8 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-
 import com.hva.bewear.domain.avatar_type.model.AvatarType
+import com.hva.bewear.domain.location.Coordinates
 import com.hva.bewear.main.theme.M2Mobi_HvATheme
 import com.hva.bewear.presentation.main.MainViewModel
 import com.hva.bewear.presentation.main.model.AdviceUIModel
@@ -46,7 +48,9 @@ import com.hva.bewear.presentation.main.model.UIStates
 import com.hva.bewear.presentation.main.model.WeatherUIModel
 import com.hva_bewear.R
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.util.*
 import kotlin.math.roundToInt
+
 
 class MainActivity : ComponentActivity() {
 
@@ -100,8 +104,29 @@ class MainActivity : ComponentActivity() {
         task.addOnSuccessListener {
             if(it != null){
                 Toast.makeText(applicationContext, "${it.latitude} ${it.longitude}", Toast.LENGTH_SHORT).show()
-                //            viewModel.refresh(coordinates = Coordinates(it.latitude, it.longitude))
+                            viewModel.refresh(coordinates = Coordinates(it.latitude, it.longitude))
+                val geocoder: Geocoder
+                val addresses: List<Address>
+                geocoder = Geocoder(this, Locale.getDefault())
+
+                addresses = geocoder.getFromLocation(
+                    it.latitude,
+                    it.longitude,
+                    1
+                ) // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+
+                val address: String =
+                    addresses[0].getAddressLine(0) // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+
+                val city: String = addresses[0].getLocality()
+                val knownName: String =
+                    addresses[0].getFeatureName() // Only if available else return NULL
+
+                Toast.makeText(applicationContext, "${city}", Toast.LENGTH_SHORT).show()
+
             }
+
+            viewModel.refresh(coordinates = Coordinates(it.latitude, it.longitude))
 
         }
     }
@@ -282,7 +307,12 @@ class MainActivity : ComponentActivity() {
                                 if (index != selectedIndex) {
                                     selectedIndex = index
                                     expanded = false
-                                    viewModel.refresh(s)
+                                    if(index == 0){
+                                        fetchLocation()
+                                    }
+                                    else {
+                                        viewModel.refresh(s)
+                                    }
                                 }
                             }
                         ) {
