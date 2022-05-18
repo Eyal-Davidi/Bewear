@@ -2,6 +2,7 @@ package com.hva.bewear.domain.advice
 
 import com.hva.bewear.domain.advice.model.AdviceWeather
 import com.hva.bewear.domain.advice.model.ClothingAdvice
+import com.hva.bewear.domain.location.Coordinates
 import com.hva.bewear.domain.weather.model.DailyWeather
 import com.hva.bewear.domain.weather.model.HourlyWeather
 import com.hva.bewear.domain.weather.model.Weather
@@ -11,8 +12,11 @@ class GetClothingAdvice {
     operator fun invoke(
         isHourly: Boolean = false,
         index: Int = 0,
-        weather: Weather
+        weather: Weather,
+        coordinates: Coordinates
     ): ClothingAdvice {
+//        val weather = getWeather(location, coordinates)
+
         fun DailyWeather.toAdvice(): AdviceWeather{
             return AdviceWeather(
                 feelsLike = feelsLike.day,

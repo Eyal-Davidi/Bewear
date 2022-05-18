@@ -40,6 +40,9 @@ android {
 
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
+        resources {
+            excludes += ['META-INF/DEPENDENCIES']
+        }
     }
 
     buildFeatures {
@@ -58,6 +61,7 @@ android {
 
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        namespace 'com.hva_bewear'
     }
 }
 
@@ -109,6 +113,9 @@ dependencies {
     //Lottie
     def lottieVersion = "5.0.3"
     implementation "com.airbnb.android:lottie-compose:$lottieVersion"
+
+    //FusedLocationProvider
+    implementation 'com.google.android.gms:play-services-location:19.0.1'
 
     //Firebase
     implementation platform('com.google.firebase:firebase-bom:30.0.1')
