@@ -107,4 +107,8 @@ dependencies {
     //Lottie
     def lottieVersion = "5.0.3"
     implementation "com.airbnb.android:lottie-compose:$lottieVersion"
+
+    //FusedLocationProvider
+    implementation 'com.google.android.gms:play-services-location:19.0.1'
+
 }
