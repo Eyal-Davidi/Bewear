@@ -260,29 +260,33 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun SettingsDialog(onShownChange: (Boolean) -> Unit) {
-        var avatarType by remember { mutableStateOf(viewModel.avatarType.value.ordinal.toFloat()) }
+        var avatarType by remember { mutableStateOf(viewModel.avatarType.value.ordinal) }
         CommonDialog(
             title = "Avatar Settings",
             onShownChange = onShownChange,
-            onClickOkBtn = {viewModel.updateTypeOfAvatar(AvatarType.values()[avatarType.toInt()])}
+            onClickOkBtn = {viewModel.updateTypeOfAvatar(AvatarType.values()[avatarType])}
         ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Text("Male")
-                Text("Both")
-                Text("Female")
+            Column {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp)
+                ) {
+                    Text("Male")
+                    Text("Both")
+                    Text("Female")
+                }
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    RadioButton(selected = avatarType == 0, onClick = { avatarType = 0 })
+                    RadioButton(selected = avatarType == 1, onClick = { avatarType = 1 })
+                    RadioButton(selected = avatarType == 2, onClick = { avatarType = 2 })
+                }
             }
-            Slider(
-                value = avatarType,
-                onValueChange = {avatarType = it},
-                steps = 1,
-                valueRange = 0f..2f,
-                onValueChangeFinished = {avatarType = avatarType.roundToInt().toFloat()},
-                modifier = Modifier.padding(top = 16.dp)
-            )
         }
     }
 
@@ -302,7 +306,7 @@ class MainActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(text = title)
-                        Divider(modifier = Modifier.padding(bottom = 8.dp))
+                        Divider(modifier = Modifier.padding(bottom = 16.dp))
                     }
                 }
             },
@@ -574,6 +578,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun DefaultPreview() {
         M2Mobi_HvATheme {
+            SettingsDialog(onShownChange = {})
         }
     }
 }
