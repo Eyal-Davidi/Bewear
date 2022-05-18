@@ -2,7 +2,6 @@ package com.hva.bewear.main
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
 import android.widget.Toast
@@ -51,12 +50,9 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.*
 import kotlin.math.roundToInt
 
-
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModel()
-    //TODO: fix this to use viewModel
-
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,52 +71,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun fetchLocation() {
-        val task = fusedLocationProviderClient.lastLocation
-
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED && ActivityCompat
-                .checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
-        ){
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 101)
-            return
-        }
-
-//        task.addOnCanceledListener {
-//            val cancelled = "hi"
-//        }
-//
-//        task.addOnFailureListener {
-//            val exception = it
-//        }
-
-
-        task.addOnSuccessListener {
-            if(it != null){
-                Toast.makeText(applicationContext, "${it.latitude} ${it.longitude}", Toast.LENGTH_SHORT).show()
-                val geocoder: Geocoder
-                val addresses: List<Address>
-                geocoder = Geocoder(this, Locale.getDefault())
-
-                addresses = geocoder.getFromLocation(
-                    it.latitude,
-                    it.longitude,
-                    1
-                ) // Here 1 represent max location result to returned, by documents it recommended 1 to 5
-
-                val address: String =
-                    addresses[0].getAddressLine(0) // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-
-                val city: String = addresses[0].getLocality()
-                val knownName: String =
-                    addresses[0].getFeatureName() // Only if available else return NULL
-
-                Toast.makeText(applicationContext, city, Toast.LENGTH_SHORT).show()
-                viewModel.refresh(location = city, coordinates = Coordinates(it.latitude, it.longitude))
-            }
-        }
-    }
-
     @Composable
     fun MainScreen() {
         val locations by viewModel.locations.collectAsState()
@@ -134,7 +84,6 @@ class MainActivity : ComponentActivity() {
             Column {
                 TopBar(locations)
                 TitleDisplay()
-                LocationButton()
                 Spacer(modifier = Modifier.height(1.dp))
                 Row {
                     TemperatureDisplay(weather)
@@ -292,22 +241,18 @@ class MainActivity : ComponentActivity() {
                         ),
                 ) {
                     Divider()
-                    locations.forEachIndexed { index, s ->
+                    locations.forEachIndexed { index, location ->
                         DropdownMenuItem(
                             onClick = {
-                                if (s != currentLocation) {
+                                if (location != currentLocation) {
                                     expanded = false
-                                    if(index == 0){
-                                        fetchLocation()
-                                    }
-                                    else {
-                                        viewModel.refresh(s)
-                                    }
+                                    if(index == 0)fetchLocation()
+                                    else viewModel.refresh(location)
                                 }
                             }
                         ) {
                             Text(
-                                text = s,
+                                text = location,
                                 color = Color.Black,
                                 textAlign = TextAlign.Center,
                                 fontWeight = FontWeight.Bold,
@@ -633,15 +578,29 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    @Composable
-    fun LocationButton() {
-        Button(
-            onClick = { fetchLocation() },
-            modifier = Modifier
-                .height(40.dp)
-                .width(500.dp),
-        ) {
-            Text(text = "Location")
+    private fun fetchLocation() {
+        val task = fusedLocationProviderClient.lastLocation
+
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED && ActivityCompat
+                .checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        ){
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 101)
+            return
+        }
+//        task.addOnCanceledListener {
+//            val cancelled = "hi"
+//        }
+//        task.addOnFailureListener {
+//            val exception = it
+//        }
+        task.addOnSuccessListener {
+            if(it != null){
+                val geocoder = Geocoder(this, Locale.getDefault())
+                val addresses = geocoder.getFromLocation(it.latitude, it.longitude,1)
+                val city: String = addresses[0].locality
+                viewModel.refresh(location = city, coordinates = Coordinates(it.latitude, it.longitude))
+            }
         }
     }
 
