@@ -1,5 +1,7 @@
 package com.hva.bewear.main
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -28,10 +30,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.hva.bewear.R
 import com.hva.bewear.domain.avatar_type.model.AvatarType
 import com.hva.bewear.main.theme.M2Mobi_HvATheme
@@ -48,6 +53,8 @@ class MainActivity : ComponentActivity() {
     //TODO: fix this to use viewModel
     private var selectedIndex = 0
 
+    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -60,6 +67,30 @@ class MainActivity : ComponentActivity() {
                     MainScreen()
                 }
             }
+
+            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
+            fetchLocation()
+
+
+        }
+    }
+
+    private fun fetchLocation() {
+        val task = fusedLocationProviderClient.lastLocation
+
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED && ActivityCompat
+                .checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        ){
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 101)
+            return
+        }
+        task.addOnSuccessListener {
+            if(it != null){
+                Toast.makeText(applicationContext, "${it.latitude} ${it.longitude}", Toast.LENGTH_SHORT).show()
+            }
+
         }
     }
 
@@ -568,6 +599,8 @@ class MainActivity : ComponentActivity() {
             textAlign = TextAlign.Start,
         )
     }
+
+
 
 
     @Preview(showBackground = true)
