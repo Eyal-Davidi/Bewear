@@ -24,7 +24,7 @@ class AppTextAdviceStringProvider(
         return string
     }
 
-    override fun getAdviceExtraText(type: ClothingAdvice): String {
+    override fun getExtraText(type: ClothingAdvice): String {
         return context.getString(
             when{
                 type.wind && type.highUVI && type.rain -> R.string.extra_text_wind_highuvi_rain
@@ -38,7 +38,7 @@ class AppTextAdviceStringProvider(
             }
         )
     }
-    override fun getAdviceExtraAdvice(type: ClothingAdvice): String {
+    override fun getExtraAdvice(type: ClothingAdvice): String {
         return context.getString(
             when{
                 type.wind && type.highUVI && type.rain -> R.string.extra_advice_wind_highuvi_rain

@@ -17,8 +17,8 @@ object AdviceUIMapper {
 
     private fun generateTextAdvice(advice: ClothingAdvice, stringProvider: TextAdviceStringProvider) : String{
         var adviceString = stringProvider.getAdviceText(advice)
-        val extraAdvice = stringProvider.getAdviceExtraAdvice(advice)
-        val extraText = stringProvider.getAdviceExtraText(advice)
+        val extraAdvice = stringProvider.getExtraAdvice(advice)
+        val extraText = stringProvider.getExtraText(advice)
 
         adviceString = adviceString.replace("%d", extraText)
         adviceString = adviceString.plus(extraAdvice)

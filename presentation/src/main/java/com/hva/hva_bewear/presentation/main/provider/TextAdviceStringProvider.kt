@@ -4,6 +4,6 @@ import com.hva.hva_bewear.domain.advice.model.ClothingAdvice
 
 interface TextAdviceStringProvider {
     fun getAdviceText(type: ClothingAdvice): String
-    fun getAdviceExtraText(type: ClothingAdvice): String
-    fun getAdviceExtraAdvice(type: ClothingAdvice): String
+    fun getExtraText(type: ClothingAdvice): String
+    fun getExtraAdvice(type: ClothingAdvice): String
 }
