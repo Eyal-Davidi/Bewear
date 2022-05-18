@@ -32,13 +32,13 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.hva.bewear.R
 import com.hva.bewear.domain.avatar_type.model.AvatarType
 import com.hva.bewear.main.theme.M2Mobi_HvATheme
 import com.hva.bewear.presentation.main.MainViewModel
 import com.hva.bewear.presentation.main.model.AdviceUIModel
 import com.hva.bewear.presentation.main.model.UIStates
 import com.hva.bewear.presentation.main.model.WeatherUIModel
+import com.hva.hva_bewear.R
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.math.roundToInt
 
@@ -219,6 +219,7 @@ class MainActivity : ComponentActivity() {
                         contentDescription = null,
                         modifier = Modifier
                             .size(30.dp)
+                            .clickable { viewModel.getLocation("Amsterdam") }
                     )
                 }
                 DropdownMenu(
