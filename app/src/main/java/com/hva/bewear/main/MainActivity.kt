@@ -1,6 +1,7 @@
 package com.hva.bewear.main
 
 import android.os.Bundle
+import android.view.KeyEvent
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -21,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,7 +41,7 @@ import com.hva.bewear.presentation.main.MainViewModel
 import com.hva.bewear.presentation.main.model.AdviceUIModel
 import com.hva.bewear.presentation.main.model.UIStates
 import com.hva.bewear.presentation.main.model.WeatherUIModel
-import com.hva.hva_bewear.R
+import com.hva.bewear.R
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.math.roundToInt
 
@@ -182,6 +185,7 @@ class MainActivity : ComponentActivity() {
     private fun TopBar(locations: List<String>) {
         var expanded by remember { mutableStateOf(false) }
         var showPopup by remember { mutableStateOf(false) }
+        var text by rememberSaveable { mutableStateOf("") }
         Card(
             modifier = Modifier
                 .padding(5.dp, 5.dp)
@@ -219,9 +223,10 @@ class MainActivity : ComponentActivity() {
                         contentDescription = null,
                         modifier = Modifier
                             .size(30.dp)
-                            .clickable { viewModel.getLocation("Amsterdam") }
+
                     )
                 }
+
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
@@ -232,7 +237,25 @@ class MainActivity : ComponentActivity() {
                             MaterialTheme.colors.primaryVariant
                         ),
                 ) {
+
                     Divider()
+                    TextField(
+                        value = text,
+                        onValueChange = {
+                            text = it
+                        },
+                        modifier = Modifier.align(CenterHorizontally)
+                            .onKeyEvent {
+
+                            if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER){
+                                viewModel.getLocation(text)
+                                true
+                            }
+                                false
+                        },
+                        textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
+
+                    )
                     locations.forEachIndexed { index, s ->
                         DropdownMenuItem(
                             onClick = {

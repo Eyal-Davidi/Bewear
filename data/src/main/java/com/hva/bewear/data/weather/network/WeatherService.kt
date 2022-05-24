@@ -5,7 +5,7 @@ import android.util.Log
 import com.hva.bewear.data.weather.network.mapper.WeatherMapper.instantToDate
 import com.hva.bewear.data.weather.network.mapper.WeatherMapper.instantToDateTime
 import com.hva.bewear.data.weather.network.response.WeatherResponse
-import com.hva.hva_bewear.data.BuildConfig
+import com.hva.bewear.data.BuildConfig
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*

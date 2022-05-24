@@ -14,4 +14,5 @@ val domainModule = module {
     factory { GetClothingAdvice() }
     factory { GetAvatarType(get()) }
     factory { SetTypeOfAvatar(get()) }
+
 }
