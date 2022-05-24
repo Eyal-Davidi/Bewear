@@ -48,7 +48,6 @@ import com.hva.bewear.presentation.main.model.WeatherUIModel
 import com.hva_bewear.R
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.*
-import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
 
@@ -272,10 +271,13 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun SettingsDialog(onShownChange: (Boolean) -> Unit) {
         var avatarType by remember { mutableStateOf(viewModel.avatarType.value.ordinal) }
+        var isMetric by remember { mutableStateOf(viewModel.isMetric.value) }
         CommonDialog(
-            title = "Avatar Settings",
+            title = "Settings",
             onShownChange = onShownChange,
-            onClickOkBtn = {viewModel.updateTypeOfAvatar(AvatarType.values()[avatarType])}
+            onClickOkBtn = {
+                viewModel.updateSettings(AvatarType.values()[avatarType], isMetric)
+            }
         ) {
             Column {
                 Row(
@@ -296,6 +298,24 @@ class MainActivity : ComponentActivity() {
                     RadioButton(selected = avatarType == 0, onClick = { avatarType = 0 })
                     RadioButton(selected = avatarType == 1, onClick = { avatarType = 1 })
                     RadioButton(selected = avatarType == 2, onClick = { avatarType = 2 })
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp)
+                ){
+                    Text("Metric")
+                    Text("Imperial")
+                }
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ){
+                    RadioButton(selected = isMetric, onClick = { isMetric = true })
+                    RadioButton(selected = !isMetric, onClick = { isMetric = false })
                 }
             }
         }

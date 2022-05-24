@@ -12,7 +12,7 @@ import org.koin.dsl.module
 
 val presentationModule = module {
     // ViewModels
-    viewModel { MainViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { MainViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     factory<AvatarIdProvider> { AppAvatarIdProvider() }
     factory<TextAdviceStringProvider> { AppTextAdviceStringProvider(get()) }
     factory<WeatherIconProvider> { AppWeatherIconProvider() }
