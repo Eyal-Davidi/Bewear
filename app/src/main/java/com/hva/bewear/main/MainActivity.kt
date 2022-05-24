@@ -1,5 +1,8 @@
 package com.hva.bewear.main
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
@@ -22,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
@@ -38,11 +42,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.hva.bewear.domain.avatar_type.model.AvatarType
+import com.hva.bewear.domain.location.Coordinates
 import com.hva.bewear.main.theme.M2Mobi_HvATheme
 import com.hva.bewear.presentation.main.MainViewModel
 import com.hva.bewear.presentation.main.model.AdviceUIModel
@@ -50,16 +58,18 @@ import com.hva.bewear.presentation.main.model.UIStates
 import com.hva.bewear.presentation.main.model.WeatherUIModel
 import com.hva.bewear.R
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import kotlin.math.roundToInt
+import java.util.*
 
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModel()
-    //TODO: fix this to use viewModel
-    private var selectedIndex = 0
+    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
+    private var showCurrentLocationIcon = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         setContent {
             M2Mobi_HvATheme {
                 // A surface container using the 'background' color from the theme
@@ -89,13 +99,15 @@ class MainActivity : ComponentActivity() {
                 Spacer(modifier = Modifier.height(1.dp))
                 Row {
                     TemperatureDisplay(weather)
-                    Row(
-                        horizontalArrangement = Arrangement.End,
+                    Column(
+                        horizontalAlignment = End,
                         modifier = Modifier
                             .padding(end = 26.dp)
                             .fillMaxWidth(),
                     ) {
                         WindDisplay(weather)
+                        Spacer(Modifier.height(20.dp))
+                        ExtraAdviceIcons(advice)
                     }
                 }
                 BottomDisplay(advice, weather, hourlyAdvice)
@@ -194,6 +206,9 @@ class MainActivity : ComponentActivity() {
         var showPopup by remember { mutableStateOf(false) }
         var text by rememberSaveable { mutableStateOf("") }
         val selectedLocation by remember { mutableStateOf(viewModel.currentLocation.value)}
+        var showLocationPermission by remember { mutableStateOf(false) }
+        val currentLocation by viewModel.currentLocation.collectAsState()
+
         Card(
             modifier = Modifier
                 .padding(5.dp, 5.dp)
@@ -215,16 +230,7 @@ class MainActivity : ComponentActivity() {
                             .clickable { showPopup = true }
                     )
                     if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
-                   /*if(!expanded2) {
-                       Text(
-                           locations[selectedIndex],
-                           color = Color.Black,
-                           fontSize = 18.sp,
-                           fontWeight = FontWeight.Bold,
-                           modifier = Modifier.align(CenterVertically)
-                       )
-                   }
-                    else if(expanded2) {*/
+
                        OutlinedTextField(
                            value = text,
                            onValueChange = {
@@ -267,16 +273,25 @@ class MainActivity : ComponentActivity() {
                            singleLine = true,
                        )
                    //}
-                    Image(
-                        painter = if (expanded)
-                            painterResource(R.drawable.expand_less)
-                        else
-                            painterResource(R.drawable.expand_more),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(30.dp)
+                    Row {
+                        if (showCurrentLocationIcon) Image(
+                            painter = painterResource(R.drawable.ic_my_location),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(24.dp)
+                                .align(CenterVertically)
+                        )
+                        Image(
+                            painter = if (expanded)
+                                painterResource(R.drawable.expand_less)
+                            else
+                                painterResource(R.drawable.expand_more),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(30.dp)
 
-                    )
+                        )
+                    }
                 }
 
                 DropdownMenu(
@@ -292,23 +307,37 @@ class MainActivity : ComponentActivity() {
                 ) {
 
                     Divider()
-                    locations.forEachIndexed { index, s ->
+                    locations.forEachIndexed { index, location ->
                         DropdownMenuItem(
                             onClick = {
-                                if (s != viewModel.currentLocation.value) {
-                                    selectedIndex = index
+                                if (location != currentLocation) {
                                     expanded = false
-                                    viewModel.refresh(s)
+                                    if(index == 0) {
+                                        showCurrentLocationIcon = true
+                                        if(checkLocationPermission()) showLocationPermission = true
+                                        else fetchLocation()
+                                    } else {
+                                        showCurrentLocationIcon = false
+                                        viewModel.refresh(location)
+                                    }
                                 }
-                            }
+                            },
                         ) {
                             Text(
-                                text = s,
+                                text = location,
                                 color = Color.Black,
                                 textAlign = TextAlign.Center,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
                                     .wrapContentWidth()
+                            )
+                            if (index == 0) Image(
+                                painter = painterResource(R.drawable.ic_my_location),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .align(CenterVertically)
+                                    .offset(x = 200.dp)
                             )
                         }
                         Divider()
@@ -316,33 +345,52 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
+        if(showLocationPermission) LocationPermissionDialog { showLocationPermission = it }
+    }
+
+    @Composable
+    fun LocationPermissionDialog(onShownChange: (Boolean) -> Unit) {
+        CommonDialog(
+            title = "Location Permission",
+            onShownChange = onShownChange,
+            onClickOkBtn = { fetchLocation() },
+            okBtnText = "Ok",
+        ) {
+            Text(text = "To display the weather information of your current location Bewear needs access to your devices location." +
+                    "\nDo you want to grant this permission?")
+        }
     }
 
     @Composable
     fun SettingsDialog(onShownChange: (Boolean) -> Unit) {
-        var avatarType by remember { mutableStateOf(viewModel.avatarType.value.ordinal.toFloat()) }
+        var avatarType by remember { mutableStateOf(viewModel.avatarType.value.ordinal) }
         CommonDialog(
             title = "Avatar Settings",
             onShownChange = onShownChange,
-            onClickOkBtn = {viewModel.updateTypeOfAvatar(AvatarType.values()[avatarType.toInt()])}
+            onClickOkBtn = {viewModel.updateTypeOfAvatar(AvatarType.values()[avatarType])}
         ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Text("Male")
-                Text("Both")
-                Text("Female")
+            Column {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp)
+                ) {
+                    Text("Male")
+                    Text("Both")
+                    Text("Female")
+                }
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    RadioButton(selected = avatarType == 0, onClick = { avatarType = 0 })
+                    RadioButton(selected = avatarType == 1, onClick = { avatarType = 1 })
+                    RadioButton(selected = avatarType == 2, onClick = { avatarType = 2 })
+                }
             }
-            Slider(
-                value = avatarType,
-                onValueChange = {avatarType = it},
-                steps = 1,
-                valueRange = 0f..2f,
-                onValueChangeFinished = {avatarType = avatarType.roundToInt().toFloat()},
-                modifier = Modifier.padding(top = 16.dp)
-            )
         }
     }
 
@@ -351,6 +399,7 @@ class MainActivity : ComponentActivity() {
         title: String?,
         onShownChange: (Boolean) -> Unit,
         onClickOkBtn: () -> Unit,
+        okBtnText: String = "Save",
         content: @Composable (() -> Unit)? = null
     ) {
         AlertDialog(
@@ -362,7 +411,7 @@ class MainActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(text = title)
-                        Divider(modifier = Modifier.padding(bottom = 8.dp))
+                        Divider(modifier = Modifier.padding(bottom = 16.dp))
                     }
                 }
             },
@@ -374,16 +423,32 @@ class MainActivity : ComponentActivity() {
             },
             confirmButton = {
                 Button(onClick = { onShownChange(false); onClickOkBtn() }) {
-                    Text("Save")
+                    Text(okBtnText)
                 }
             }, modifier = Modifier.padding(vertical = 8.dp)
         )
     }
 
     @Composable
+    fun ExtraAdviceIcons(advice: AdviceUIModel){
+        val icons = advice.extraAdviceIcons
+        Column{
+            for (icon in icons) {
+                Image(
+                    painter = painterResource(icon),
+                    contentDescription = "Extra advice icon",
+                    modifier = Modifier
+                        .offset(x = 10.dp)
+                        .size(60.dp),
+                )
+            }
+        }
+    }
+
+    @Composable
     fun BottomDisplay(advice: AdviceUIModel, weather: WeatherUIModel, hourlyAdvice: List<AdviceUIModel>){
         var descriptionOffsetY by remember { mutableStateOf(0f) }
-        val maxDescriptionOffset = -110f
+        val maxDescriptionOffset = -126f
         val dragMultiplier = 0.4f
         Box(
             modifier = Modifier
@@ -486,7 +551,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    Column(horizontalAlignment = Alignment.End) {
+                    Column(horizontalAlignment = End) {
                         val icon =
                             if (weather.hourlyIcons.isEmpty()) R.drawable.ic_action_cloudy
                             else weather.hourlyIcons[i]
@@ -629,11 +694,38 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    private fun fetchLocation() {
+        val task = fusedLocationProviderClient.lastLocation
+
+        if(checkLocationPermission()) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), 101)
+        }
+
+//        task.addOnCanceledListener {
+//            val cancelled = "hi"
+//        }
+//        task.addOnFailureListener {
+//            val exception = it
+//        }
+        task.addOnSuccessListener {
+            if(it != null){
+                val geocoder = Geocoder(this, Locale.getDefault())
+                val addresses = geocoder.getFromLocation(it.latitude, it.longitude,1)
+                val city: String = addresses[0].locality
+                viewModel.refresh(location = city, coordinates = Coordinates(it.latitude, it.longitude))
+            }
+        }
+    }
+
+    private fun checkLocationPermission(): Boolean {
+        return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+    }
 
     @Preview(showBackground = true)
     @Composable
     fun DefaultPreview() {
         M2Mobi_HvATheme {
+            SettingsDialog(onShownChange = {})
         }
     }
 }

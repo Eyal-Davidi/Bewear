@@ -4,7 +4,6 @@ import com.hva.bewear.data.avatar_type.RemoteAvatarTypeRepository
 import com.hva.bewear.data.location.LocationService
 import com.hva.bewear.data.location.RemoteLocationRepository
 import com.hva.bewear.data.text.RemoteTextRepository
-import com.hva.bewear.data.text.network.TextService
 import com.hva.bewear.data.weather.RemoteWeatherRepository
 import com.hva.bewear.data.weather.network.ListOfLocations
 import com.hva.bewear.data.weather.network.WeatherService
@@ -23,7 +22,9 @@ val dataModule = module {
     single<LocationRepository>{RemoteLocationRepository(get())}
 
     // Services
-    single { TextService() }
+
+
+
     single { WeatherService(get()) }
     single {LocationService()}
     factory<LocationPicker> { ListOfLocations() }

@@ -10,6 +10,7 @@ import com.hva.bewear.domain.avatar_type.SetTypeOfAvatar
 import com.hva.bewear.domain.location.LocationPicker
 import com.hva.bewear.domain.weather.GetWeather
 import com.hva.bewear.domain.avatar_type.model.AvatarType
+import com.hva.bewear.domain.location.Coordinates
 import com.hva.bewear.domain.location.LocationRepository
 import com.hva.bewear.domain.weather.model.Weather
 import com.hva.bewear.presentation.generic.launchOnIO
@@ -54,12 +55,7 @@ class MainViewModel(
     val avatarType: StateFlow<AvatarType> = _typeOfAvatar
 
     private val _advice = MutableStateFlow(
-        AdviceUIModel(
-            avatar = idProvider.getAdviceLabel(
-                ClothingAdvice.DEFAULT,
-                avatarType.value,
-            )
-        )
+        AdviceUIModel(avatar = idProvider.getAdviceLabel(ClothingAdvice.DEFAULT, avatarType.value))
     )
     val advice: StateFlow<AdviceUIModel> = _advice
 
@@ -68,13 +64,59 @@ class MainViewModel(
     )
     val locations: StateFlow<List<String>> = _locations
 
-    private val _currentLocation: MutableStateFlow<String> = MutableStateFlow(locations.value[0])
+    private val _currentLocation: MutableStateFlow<String> = MutableStateFlow(locations.value[1])
     val currentLocation: StateFlow<String> = _currentLocation
 
-    private val _hourlyAdvice = MutableStateFlow(
-        generateDefaultAdvice()
-    )
+    private val _hourlyAdvice = MutableStateFlow(generateDefaultAdvice())
     val hourlyAdvice: StateFlow<List<AdviceUIModel>> = _hourlyAdvice
+
+    private val _uiState = MutableStateFlow<UIStates>(UIStates.Normal)
+    var uiState: StateFlow<UIStates> = _uiState
+
+    fun refresh(
+        location: String = currentLocation.value,
+        coordinates: Coordinates = Coordinates()
+    ) = fetchAllData(location, coordinates)
+
+    private fun fetchAllData(location: String, coordinates: Coordinates) {
+        viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
+            _uiState.value = UIStates.Loading
+            _typeOfAvatar.value = getAvatarType()
+            _currentLocation.value = location
+            val weather = fetchWeather(location, coordinates)
+            _advice.value = fetchAdvice(weather = weather)
+            _hourlyAdvice.value = List(
+                size = AMOUNT_OF_HOURS_IN_HOURLY,
+                init = { fetchAdvice(isHourly = true, index = it, weather = weather) }
+            )
+            _uiState.value = UIStates.Normal
+        }
+    }
+
+    private suspend fun fetchWeather(location: String, coordinates: Coordinates): Weather {
+        val weather = getWeather(location, coordinates)
+        _weather.value = weather.uiModel(idProvider = idWeatherIconProvider)
+        return weather
+    }
+
+    private fun fetchAdvice(
+        isHourly: Boolean? = null,
+        index: Int? = null,
+        weather: Weather,
+    ): AdviceUIModel {
+        return getClothingAdvice(isHourly = isHourly, index = index, weather = weather).uiModel(
+            idProvider,
+            stringProvider,
+            avatarType.value,
+        )
+    }
+
+    fun updateTypeOfAvatar(avatarType: AvatarType) {
+        viewModelScope.launch {
+            setTypeOfAvatar(avatarType)
+            refresh()
+        }
+    }
 
 
     private fun generateDefaultAdvice(): List<AdviceUIModel> {
@@ -102,9 +144,6 @@ class MainViewModel(
     }
 
 
-    private val _uiState = MutableStateFlow<UIStates>(UIStates.Normal)
-    var uiState: StateFlow<UIStates> = _uiState
-
     private val fetchWeatherExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         _uiState.tryEmit(
             when (throwable) {
@@ -120,49 +159,6 @@ class MainViewModel(
             }
         )
         Log.e("AppERR", throwable.stackTraceToString())
-    }
-
-    fun refresh(location: String = currentLocation.value) {
-        fetchData(location)
-    }
-
-    private fun fetchData(location: String) {
-        viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
-            _uiState.tryEmit(UIStates.Loading)
-            getAvatarType().let { _typeOfAvatar.value = it }
-            _currentLocation.value = (location)
-            val weather = fetchWeather(location)
-            getClothingAdvice(weather = weather)
-                .uiModel(idProvider, stringProvider, avatarType.value).let(_advice::tryEmit)
-            List(
-                size = AMOUNT_OF_HOURS_IN_HOURLY,
-                init = {
-                    getClothingAdvice(
-                        isHourly = true,
-                        index = it,
-                        weather = weather
-                    ).uiModel(
-                        idProvider,
-                        stringProvider,
-                        avatarType.value,
-                    )
-                }
-            ).let(_hourlyAdvice::tryEmit)
-            _uiState.tryEmit(UIStates.Normal)
-        }
-    }
-
-    private suspend fun fetchWeather(location: String):Weather  {
-        val weather = getWeather(location)
-        _weather.value = weather.uiModel(idProvider = idWeatherIconProvider)
-        return weather
-    }
-
-    fun updateTypeOfAvatar(avatarType: AvatarType) {
-        viewModelScope.launch {
-            setTypeOfAvatar(avatarType)
-            refresh()
-        }
     }
 
     companion object {

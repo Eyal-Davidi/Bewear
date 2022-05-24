@@ -1,10 +1,10 @@
 package com.hva.bewear.main.provider
 
 import androidx.annotation.DrawableRes
-import com.hva.bewear.R
 import com.hva.bewear.domain.advice.model.ClothingAdvice
 import com.hva.bewear.domain.avatar_type.model.AvatarType
 import com.hva.bewear.presentation.main.provider.AvatarIdProvider
+import com.hva_bewear.R
 
 class AppAvatarIdProvider : AvatarIdProvider {
     @DrawableRes
@@ -30,5 +30,15 @@ class AppAvatarIdProvider : AvatarIdProvider {
             ClothingAdvice.SHORT_SHIRT_SHORT_PANTS -> R.drawable.ava_f_short_sleeve_short_pants
             else -> R.drawable.default_placeholder
         }
+    }
+
+    @DrawableRes
+    override fun getExtraIcon(type: ClothingAdvice): List<Int> {
+        val list = ArrayList<Int>()
+        if (type.rain) list.add(R.drawable.rain)
+        if (type.wind) list.add(R.drawable.wind)
+        if (type.highUVI) list.add(R.drawable.sunscreen)
+
+        return list.toList()
     }
 }

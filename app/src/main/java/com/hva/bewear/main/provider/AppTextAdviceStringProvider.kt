@@ -1,10 +1,10 @@
 package com.hva.bewear.main.provider
 
 import android.content.Context
-import com.hva.bewear.R
 import com.hva.bewear.domain.advice.model.ClothingAdvice
 import com.hva.bewear.domain.advice.model.ClothingAdvice.*
 import com.hva.bewear.presentation.main.provider.TextAdviceStringProvider
+import com.hva_bewear.R
 
 class AppTextAdviceStringProvider(
     private val context: Context
@@ -20,7 +20,7 @@ class AppTextAdviceStringProvider(
                 SHORT_SHIRT_SHORT_PANTS -> R.string.short_shirt_short_pants_base_string
                 else -> R.string.default_base_string
             })
-        if (type == LONG_SHIRT_LONG_PANTS && !(type.wind || type.highUVI || type.rain)) string = string.replace("regular", "medium temperature")
+        if (type == LONG_SHIRT_LONG_PANTS && (type.wind || type.highUVI || type.rain)) string = string.replace("regular", "medium temperature")
         return string
     }
 
@@ -34,7 +34,7 @@ class AppTextAdviceStringProvider(
                 type.wind -> R.string.extra_text_wind
                 type.highUVI ->R.string.extra_text_highuvi
                 type.rain -> R.string.extra_text_rain
-                else -> R.string.extra_text_wind
+                else -> R.string.extra_text_default
             }
         )
     }
@@ -48,7 +48,7 @@ class AppTextAdviceStringProvider(
                 type.wind -> R.string.extra_advice_wind
                 type.highUVI ->R.string.extra_advice_highuvi
                 type.rain -> R.string.extra_advice_rain
-                else -> R.string.extra_advice_wind
+                else -> R.string.extra_advice_default
             }
         )
     }
