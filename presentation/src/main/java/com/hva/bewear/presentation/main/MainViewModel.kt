@@ -137,7 +137,7 @@ class MainViewModel(
     fun getLocation(text : String){
         viewModelScope.launchOnIO {
            _locations.value = locationRepository.getLocation(text)
-            if (_locations.value == emptyList<String>()){
+            if (locations.value == emptyList<String>()){
                 _locations.value = listOf("No Locations found, please type more accurately")
             }
         }

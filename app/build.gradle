@@ -4,12 +4,12 @@ buildscript {
         mavenCentral()
     }
 }
-//uwu
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.appdistribution'
-
+//uwu
 android {
     flavorDimensions "default"
     compileSdkVersion compile_sdk_version

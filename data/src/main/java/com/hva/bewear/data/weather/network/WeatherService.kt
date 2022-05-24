@@ -56,24 +56,7 @@ class WeatherService(private val locationService: LocationService) {
 
         // Use locally stored files to cache the api data
 
-        if (loc != Locations.EMPTY) {
-            location = LocationData(loc.cityName, loc.lat, loc.lon)
-        } else {
-            var done = false
-            locationService.places.forEach() {
-                if (it.name+ ", " + it.state+ ", " + it.country == cityName && !done) {
-                    location = LocationData(it.name, it.lat, it.lon)
-                    done = true
-                }
-            }
-            if (!done) {
-                location = LocationData(
-                    Locations.AMSTERDAM.cityName,
-                    Locations.AMSTERDAM.lat,
-                    Locations.AMSTERDAM.lon
-                )
-            }
-        }
+
 
 
         val fileName = "${location.cityName.lowercase().replace(" ", "")}.json"
@@ -102,7 +85,28 @@ class WeatherService(private val locationService: LocationService) {
             location.cityName = cityName
             location.lat = coordinates.lat
             location.lon = coordinates.lon
-        } else location = Locations.CityName(cityName)
+        } else {
+            val loc = Locations.CityName(cityName)
+
+            if (loc != Locations.EMPTY) {
+                location = LocationData(loc.cityName, loc.lat, loc.lon)
+            } else {
+                var done = false
+                locationService.places.forEach() {
+                    if (it.name + ", " + it.state + ", " + it.country == cityName && !done) {
+                        location = LocationData(it.name, it.lat, it.lon)
+                        done = true
+                    }
+                }
+                if (!done) {
+                    location = LocationData(
+                        Locations.AMSTERDAM.cityName,
+                        Locations.AMSTERDAM.lat,
+                        Locations.AMSTERDAM.lon
+                    )
+                }
+            }
+        }
     }
 
     private fun createNewFile(file: File): File {
