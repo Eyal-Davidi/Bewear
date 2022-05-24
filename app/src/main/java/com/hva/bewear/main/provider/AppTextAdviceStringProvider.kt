@@ -34,7 +34,7 @@ class AppTextAdviceStringProvider(
                 type.wind -> R.string.extra_text_wind
                 type.highUVI ->R.string.extra_text_highuvi
                 type.rain -> R.string.extra_text_rain
-                else -> R.string.extra_text_wind
+                else -> R.string.extra_text_default
             }
         )
     }
@@ -48,7 +48,7 @@ class AppTextAdviceStringProvider(
                 type.wind -> R.string.extra_advice_wind
                 type.highUVI ->R.string.extra_advice_highuvi
                 type.rain -> R.string.extra_advice_rain
-                else -> R.string.extra_advice_wind
+                else -> R.string.extra_advice_default
             }
         )
     }
