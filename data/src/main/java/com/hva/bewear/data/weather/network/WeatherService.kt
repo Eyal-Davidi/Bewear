@@ -60,9 +60,9 @@ class WeatherService(private val locationService: LocationService) {
         if (loc != Locations.EMPTY) {
             location = LocationData(loc.cityName, loc.lat, loc.lon)
         } else {
-            var done: Boolean = false
+            var done = false
             locationService.places.forEach() {
-                if (it.name == cityName && !done) {
+                if (it.name+ ", " + it.state+ ", " + it.country == cityName && !done) {
                     location = LocationData(it.name, it.lat, it.lon)
                     done = true
                 }

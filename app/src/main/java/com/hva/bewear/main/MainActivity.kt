@@ -1,7 +1,9 @@
 package com.hva.bewear.main
 
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
+import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,6 +13,8 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -27,7 +31,10 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -186,11 +193,11 @@ class MainActivity : ComponentActivity() {
         var expanded by remember { mutableStateOf(false) }
         var showPopup by remember { mutableStateOf(false) }
         var text by rememberSaveable { mutableStateOf("") }
+        val selectedLocation by remember { mutableStateOf(viewModel.currentLocation.value)}
         Card(
             modifier = Modifier
                 .padding(5.dp, 5.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .clickable(onClick = { expanded = true })
                 .fillMaxWidth(),
             backgroundColor = MaterialTheme.colors.primaryVariant,
         ) {
@@ -208,13 +215,58 @@ class MainActivity : ComponentActivity() {
                             .clickable { showPopup = true }
                     )
                     if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
-                    Text(
-                        locations[selectedIndex],
-                        color = Color.Black,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.align(CenterVertically)
-                    )
+                   /*if(!expanded2) {
+                       Text(
+                           locations[selectedIndex],
+                           color = Color.Black,
+                           fontSize = 18.sp,
+                           fontWeight = FontWeight.Bold,
+                           modifier = Modifier.align(CenterVertically)
+                       )
+                   }
+                    else if(expanded2) {*/
+                       OutlinedTextField(
+                           value = text,
+                           onValueChange = {
+                               text = it
+                           },
+                           placeholder = { Text(
+                               text = selectedLocation,
+                               modifier = Modifier.fillMaxWidth(),
+                               style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
+                                         },
+                           keyboardOptions = KeyboardOptions(
+                               keyboardType = KeyboardType.Ascii,
+                               imeAction = ImeAction.Done,
+                           ),
+                           keyboardActions = KeyboardActions(onDone = {
+                               viewModel.getLocation(text)
+                               expanded = true
+                               },
+                           ),
+
+                           modifier = Modifier
+                               .align(CenterVertically)
+                               .width(350.dp)
+                               .height(56.dp)
+                               .onKeyEvent {
+                                   if ((it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_INSERT) || (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_SEARCH)|| (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER)) {
+                                       viewModel.getLocation(text)
+                                       expanded = true
+                                       true
+                                   } else {
+                                       false
+                                   }
+                               },
+                           textStyle = LocalTextStyle.current.copy(
+                               textAlign = TextAlign.Center,
+                               fontSize = 18.sp,
+                               fontWeight = FontWeight.Bold,
+                               color = Color.Black,
+                           ),
+                           singleLine = true,
+                       )
+                   //}
                     Image(
                         painter = if (expanded)
                             painterResource(R.drawable.expand_less)
@@ -233,29 +285,13 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .width(382.dp)
                         .height(220.dp)
+                        .align(CenterHorizontally)
                         .background(
                             MaterialTheme.colors.primaryVariant
                         ),
                 ) {
 
                     Divider()
-                    TextField(
-                        value = text,
-                        onValueChange = {
-                            text = it
-                        },
-                        modifier = Modifier.align(CenterHorizontally)
-                            .onKeyEvent {
-
-                            if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER){
-                                viewModel.getLocation(text)
-                                true
-                            }
-                                false
-                        },
-                        textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
-                        singleLine = true,
-                    )
                     locations.forEachIndexed { index, s ->
                         DropdownMenuItem(
                             onClick = {
