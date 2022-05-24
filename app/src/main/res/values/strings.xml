@@ -16,11 +16,11 @@
     <string name="extra_text_highuvi">\ and sunny</string>
     <string name="extra_text_rain">\ and rainy</string>
 
-    <string name="extra_advice_wind_highuvi_rain"> It will be rainy, windy and sunny! Take some sunscreen and an umbrella with you but be careful with the wind.</string>
-    <string name="extra_advice_wind_highuvi"> You should use some sunscreen and put on your hat and sunglasses, but be careful of the wind.</string>
-    <string name="extra_advice_wind_rain"> Bring an umbrella but don\'t lose it to the wind!</string>
-    <string name="extra_advice_highuvi_rain"> It will be both rainy and sunny, take some sunscreen and an umbrella with you.</string>
+    <string name="extra_advice_wind_highuvi_rain">\ It will be rainy, windy and sunny! Take some sunscreen and an umbrella with you.</string>
+    <string name="extra_advice_wind_highuvi">\ You should use some sunscreen and put on sunglasses, but be careful of the wind.</string>
+    <string name="extra_advice_wind_rain">\ Bring an umbrella but don\'t lose it to the wind!</string>
+    <string name="extra_advice_highuvi_rain">\ It will be both rainy and sunny, take some sunscreen and an umbrella with you.</string>
     <string name="extra_advice_wind"></string>
-    <string name="extra_advice_highuvi"> You should use some sunscreen and put on your hat and sunglasses.</string>
-    <string name="extra_advice_rain"> Make sure to bring an umbrella.</string>
+    <string name="extra_advice_highuvi">\ You should use some sunscreen and put on your hat and sunglasses.</string>
+    <string name="extra_advice_rain">\ Make sure to bring an umbrella.</string>
 </resources>
