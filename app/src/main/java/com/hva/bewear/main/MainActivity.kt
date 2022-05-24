@@ -15,10 +15,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
@@ -48,12 +50,13 @@ import com.hva.bewear.presentation.main.model.WeatherUIModel
 import com.hva_bewear.R
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.*
-import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModel()
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
+    private var showCurrentLocationIcon = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,7 +91,7 @@ class MainActivity : ComponentActivity() {
                 Row {
                     TemperatureDisplay(weather)
                     Column(
-                        horizontalAlignment = Alignment.End,
+                        horizontalAlignment = End,
                         modifier = Modifier
                             .padding(end = 26.dp)
                             .fillMaxWidth(),
@@ -192,7 +195,9 @@ class MainActivity : ComponentActivity() {
     private fun TopBar(locations: List<String>) {
         var expanded by remember { mutableStateOf(false) }
         var showPopup by remember { mutableStateOf(false) }
+        var showLocationPermission by remember { mutableStateOf(false) }
         val currentLocation by viewModel.currentLocation.collectAsState()
+
         Card(
             modifier = Modifier
                 .padding(5.dp, 5.dp)
@@ -214,7 +219,6 @@ class MainActivity : ComponentActivity() {
                             .align(CenterVertically)
                             .clickable { showPopup = true }
                     )
-                    if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
                     Text(
                         currentLocation,
                         color = Color.Black,
@@ -222,15 +226,24 @@ class MainActivity : ComponentActivity() {
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.align(CenterVertically)
                     )
-                    Image(
-                        painter = if (expanded)
-                            painterResource(R.drawable.expand_less)
-                        else
-                            painterResource(R.drawable.expand_more),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(30.dp)
-                    )
+                    Row {
+                        if(showCurrentLocationIcon) Image(
+                            painter = painterResource(R.drawable.ic_my_location),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(24.dp)
+                                .align(CenterVertically)
+                        )
+                        Image(
+                            painter = if (expanded)
+                                painterResource(R.drawable.expand_less)
+                            else
+                                painterResource(R.drawable.expand_more),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(30.dp)
+                        )
+                    }
                 }
                 DropdownMenu(
                     expanded = expanded,
@@ -248,10 +261,16 @@ class MainActivity : ComponentActivity() {
                             onClick = {
                                 if (location != currentLocation) {
                                     expanded = false
-                                    if(index == 0)fetchLocation()
-                                    else viewModel.refresh(location)
+                                    if(index == 0) {
+                                        showCurrentLocationIcon = true
+                                        if(checkLocationPermission()) showLocationPermission = true
+                                        else fetchLocation()
+                                    } else {
+                                        showCurrentLocationIcon = false
+                                        viewModel.refresh(location)
+                                    }
                                 }
-                            }
+                            },
                         ) {
                             Text(
                                 text = location,
@@ -261,11 +280,34 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier
                                     .wrapContentWidth()
                             )
+                            if (index == 0) Image(
+                                painter = painterResource(R.drawable.ic_my_location),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .align(CenterVertically)
+                                    .offset(x = 200.dp)
+                            )
                         }
                         Divider()
                     }
                 }
             }
+        }
+        if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
+        if(showLocationPermission) LocationPermissionDialog { showLocationPermission = it }
+    }
+
+    @Composable
+    fun LocationPermissionDialog(onShownChange: (Boolean) -> Unit) {
+        CommonDialog(
+            title = "Location Permission",
+            onShownChange = onShownChange,
+            onClickOkBtn = { fetchLocation() },
+            okBtnText = "Ok",
+        ) {
+            Text(text = "To display the weather information of your current location Bewear needs access to your devices location." +
+                    "\nDo you want to grant this permission?")
         }
     }
 
@@ -306,6 +348,7 @@ class MainActivity : ComponentActivity() {
         title: String?,
         onShownChange: (Boolean) -> Unit,
         onClickOkBtn: () -> Unit,
+        okBtnText: String = "Save",
         content: @Composable (() -> Unit)? = null
     ) {
         AlertDialog(
@@ -329,7 +372,7 @@ class MainActivity : ComponentActivity() {
             },
             confirmButton = {
                 Button(onClick = { onShownChange(false); onClickOkBtn() }) {
-                    Text("Save")
+                    Text(okBtnText)
                 }
             }, modifier = Modifier.padding(vertical = 8.dp)
         )
@@ -457,7 +500,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    Column(horizontalAlignment = Alignment.End) {
+                    Column(horizontalAlignment = End) {
                         val icon =
                             if (weather.hourlyIcons.isEmpty()) R.drawable.ic_action_cloudy
                             else weather.hourlyIcons[i]
@@ -603,13 +646,10 @@ class MainActivity : ComponentActivity() {
     private fun fetchLocation() {
         val task = fusedLocationProviderClient.lastLocation
 
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED && ActivityCompat
-                .checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
-        ){
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 101)
-            return
+        if(checkLocationPermission()) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), 101)
         }
+
 //        task.addOnCanceledListener {
 //            val cancelled = "hi"
 //        }
@@ -624,6 +664,10 @@ class MainActivity : ComponentActivity() {
                 viewModel.refresh(location = city, coordinates = Coordinates(it.latitude, it.longitude))
             }
         }
+    }
+
+    private fun checkLocationPermission(): Boolean {
+        return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
     }
 
     @Preview(showBackground = true)
