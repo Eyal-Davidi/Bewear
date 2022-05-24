@@ -31,4 +31,14 @@ class AppAvatarIdProvider : AvatarIdProvider {
             else -> R.drawable.default_placeholder
         }
     }
+
+    @DrawableRes
+    override fun getExtraIcon(type: ClothingAdvice): List<Int> {
+        val list = ArrayList<Int>()
+        if (type.rain) list.add(R.drawable.rain)
+        if (type.wind) list.add(R.drawable.wind)
+        if (type.highUVI) list.add(R.drawable.sunscreen)
+
+        return list.toList()
+    }
 }
