@@ -1,13 +1,13 @@
 package com.hva.bewear.data.location
 
-import com.example.searchbar.Locations
+
+import com.hva.bewear.data.location.response.Locale
 import io.ktor.client.request.*
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.http.*
-import io.ktor.http.ContentType.Application.Json
 import kotlinx.serialization.decodeFromString
 
 class LocationService {
@@ -24,8 +24,8 @@ class LocationService {
                 listOf(ContentType.Application.Json, ContentType.Application.FormUrlEncoded)
         }
     }
-    lateinit var places: List<Locations>
-     suspend fun update(text: String): List<Locations> {
+    lateinit var places: List<Locale>
+     suspend fun update(text: String): List<Locale> {
 
         places =
             json.decodeFromString(

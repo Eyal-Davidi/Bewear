@@ -6,6 +6,8 @@ import com.hva.bewear.data.weather.network.mapper.WeatherMapper.instantToDate
 import com.hva.bewear.data.weather.network.mapper.WeatherMapper.instantToDateTime
 import com.hva.bewear.data.weather.network.response.WeatherResponse
 import com.hva.bewear.data.BuildConfig
+import com.hva.bewear.data.location.LocationService
+import com.hva.bewear.data.location.response.Locale
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
@@ -23,7 +25,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 
-class WeatherService {
+class WeatherService(private val locationService: LocationService) {
     private val client = HttpClient(CIO) {
         install(JsonFeature) {
             serializer = KotlinxSerializer(kotlinx.serialization.json.Json {
@@ -37,12 +39,13 @@ class WeatherService {
 
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
-    private lateinit var location: Locations
+    private lateinit var location: LocationData
 
     private var timeZoneOffset = 0
 
     suspend fun getWeather(context: Context, cityName: String): WeatherResponse {
-        location = Locations.CityName(cityName)
+        val loc = Locations.CityName(cityName)
+
         // Directly call to the api
 //        return client.get(url) {
 //            parameter("lat", location.lat)
@@ -53,6 +56,27 @@ class WeatherService {
 //        }
 
         // Use locally stored files to cache the api data
+
+        if (loc != Locations.EMPTY) {
+            location = LocationData(loc.cityName, loc.lat, loc.lon)
+        } else {
+            var done: Boolean = false
+            locationService.places.forEach() {
+                if (it.name == cityName && !done) {
+                    location = LocationData(it.name, it.lat, it.lon)
+                    done = true
+                }
+            }
+            if (!done) {
+                location = LocationData(
+                    Locations.AMSTERDAM.cityName,
+                    Locations.AMSTERDAM.lat,
+                    Locations.AMSTERDAM.lon
+                )
+            }
+        }
+
+
         val fileName = "${location.cityName.lowercase().replace(" ", "")}.json"
         var file = File(context.filesDir, fileName)
 
@@ -67,10 +91,13 @@ class WeatherService {
             else writeApiDataToFile(file, "File was not json")
 
         timeZoneOffset = weather.timeZoneOffset
+
         // If the date in the file is before the current date the file is refreshed
         return if (dateIsBeforeCurrentHour(weather.hourly[0].date)) {
             writeApiDataToFile(file, "File contained outdated data")
         } else weather
+
+
     }
 
     private fun createNewFile(file: File): File {

@@ -24,7 +24,7 @@ val dataModule = module {
 
     // Services
     single { TextService() }
-    single { WeatherService() }
+    single { WeatherService(get()) }
     single {LocationService()}
     factory<LocationPicker> { ListOfLocations() }
 }

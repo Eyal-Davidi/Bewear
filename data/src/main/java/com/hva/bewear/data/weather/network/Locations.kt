@@ -30,12 +30,13 @@ enum class Locations(val cityName: String, val lat : Double,val lon : Double) {
 //    UTRECHT("Utrecht", 52.09061, 5.12143),
     WASHINGTON_DC("Washington DC", 38.9071923, -77.0368707),
 //    ZWOLLE("Zwolle", 52.5167747, 6.0830219),
+EMPTY("", 0.0, 0.0 )
     ;
 
     companion object {
         fun CityName(city: String): Locations {
             enumValues<Locations>().forEach { if(it.cityName==city ) return it }
-            return AMSTERDAM
+            return EMPTY
         }
     }
 }

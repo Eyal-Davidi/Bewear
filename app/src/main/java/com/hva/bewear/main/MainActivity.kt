@@ -254,12 +254,12 @@ class MainActivity : ComponentActivity() {
                                 false
                         },
                         textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
-
+                        singleLine = true,
                     )
                     locations.forEachIndexed { index, s ->
                         DropdownMenuItem(
                             onClick = {
-                                if (index != selectedIndex) {
+                                if (s != viewModel.currentLocation.value) {
                                     selectedIndex = index
                                     expanded = false
                                     viewModel.refresh(s)

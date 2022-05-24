@@ -1,4 +1,4 @@
-package com.example.searchbar
+package com.hva.bewear.data.location.response
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

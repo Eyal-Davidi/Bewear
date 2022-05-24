@@ -1,4 +1,4 @@
-package com.example.searchbar
+package com.hva.bewear.data.location.response
 
 
 import kotlinx.serialization.SerialName
@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-data class Locations (
+data class Locale (
 
 	@SerialName("name") val name : String,
 	@SerialName("local_names") val local_names : Local_names? = null,

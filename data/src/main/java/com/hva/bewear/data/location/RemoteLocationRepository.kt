@@ -6,7 +6,7 @@ class RemoteLocationRepository(val locationService: LocationService) : LocationR
     override suspend fun getLocation(text: String): List<String> {
         val location = ArrayList<String>()
 
-            locationService.update(text).forEach { location.add(it.name) }
+            locationService.update(text).forEach { location.add(it.name+ ", " + it.state+ ", " + it.country) }
         return location
     }
 }
