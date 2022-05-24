@@ -323,7 +323,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun BottomDisplay(advice: AdviceUIModel, weather: WeatherUIModel, hourlyAdvice: List<AdviceUIModel>){
         var descriptionOffsetY by remember { mutableStateOf(0f) }
-        val maxDescriptionOffset = -110f
+        val maxDescriptionOffset = -126f
         val dragMultiplier = 0.4f
         Box(
             modifier = Modifier

@@ -20,7 +20,7 @@ class AppTextAdviceStringProvider(
                 SHORT_SHIRT_SHORT_PANTS -> R.string.short_shirt_short_pants_base_string
                 else -> R.string.default_base_string
             })
-        if (type == LONG_SHIRT_LONG_PANTS && !(type.wind || type.highUVI || type.rain)) string = string.replace("regular", "medium temperature")
+        if (type == LONG_SHIRT_LONG_PANTS && (type.wind || type.highUVI || type.rain)) string = string.replace("regular", "medium temperature")
         return string
     }
 
