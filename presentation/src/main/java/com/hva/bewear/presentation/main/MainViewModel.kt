@@ -95,8 +95,12 @@ class MainViewModel(
     fun getLocation(text : String){
         viewModelScope.launchOnIO {
            _locations.value = locationRepository.getLocation(text)
+            if (_locations.value == emptyList<String>()){
+                _locations.value = listOf("No Locations found, please type more accurately")
+            }
         }
     }
+
 
     private val _uiState = MutableStateFlow<UIStates>(UIStates.Normal)
     var uiState: StateFlow<UIStates> = _uiState
