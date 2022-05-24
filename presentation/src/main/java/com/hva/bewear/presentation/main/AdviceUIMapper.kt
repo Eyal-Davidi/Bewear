@@ -12,6 +12,7 @@ object AdviceUIMapper {
         return AdviceUIModel(
             textAdvice = generateTextAdvice(this, stringProvider),
             avatar = idProvider.getAdviceLabel(type = this, avatarType),
+            extraAdviceIcons = idProvider.getExtraIcon(this),
         )
     }
 

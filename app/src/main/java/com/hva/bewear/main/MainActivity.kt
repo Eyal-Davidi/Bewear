@@ -87,13 +87,15 @@ class MainActivity : ComponentActivity() {
                 Spacer(modifier = Modifier.height(1.dp))
                 Row {
                     TemperatureDisplay(weather)
-                    Row(
-                        horizontalArrangement = Arrangement.End,
+                    Column(
+                        horizontalAlignment = Alignment.End,
                         modifier = Modifier
                             .padding(end = 26.dp)
                             .fillMaxWidth(),
                     ) {
                         WindDisplay(weather)
+                        Spacer(Modifier.height(20.dp))
+                        ExtraAdviceIcons(advice)
                     }
                 }
                 BottomDisplay(advice, weather, hourlyAdvice)
@@ -331,6 +333,22 @@ class MainActivity : ComponentActivity() {
                 }
             }, modifier = Modifier.padding(vertical = 8.dp)
         )
+    }
+
+    @Composable
+    fun ExtraAdviceIcons(advice: AdviceUIModel){
+        val icons = advice.extraAdviceIcons
+        Column{
+            for (icon in icons) {
+                Image(
+                    painter = painterResource(icon),
+                    contentDescription = "Extra advice icon",
+                    modifier = Modifier
+                        .offset(x = 10.dp)
+                        .size(60.dp),
+                )
+            }
+        }
     }
 
     @Composable
