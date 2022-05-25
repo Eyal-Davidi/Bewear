@@ -7,7 +7,6 @@ import com.hva.bewear.data.weather.network.mapper.WeatherMapper.instantToDateTim
 import com.hva.bewear.data.weather.network.response.WeatherResponse
 import com.hva.bewear.data.BuildConfig
 import com.hva.bewear.data.location.LocationService
-import com.hva.bewear.data.location.response.Locale
 import com.hva.bewear.domain.location.Coordinates
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -53,6 +52,13 @@ class WeatherService(private val locationService: LocationService) {
         setCoordinates(coordinates, cityName)
         // Directly call to the api
 //        return getWeather(reason = "Api calls are always performed!")
+//        val fileDir = context.filesDir
+//        fileDir.isDirectory
+//        val files = fileDir.listFiles(FileFilter { it.isJson() })
+//        val recentWeather = arrayListOf<WeatherResponse>()
+//        files?.forEach {
+//            recentWeather.add(json.decodeFromString(it.readText()))
+//        }
 
         // Use locally stored files to cache the api data
 
@@ -92,7 +98,7 @@ class WeatherService(private val locationService: LocationService) {
                 location = LocationData(loc.cityName, loc.lat, loc.lon)
             } else {
                 var done = false
-                locationService.places.forEach() {
+                locationService.places.forEach {
                     if (it.name + ", " + it.state + ", " + it.country == cityName && !done) {
                         location = LocationData(it.name, it.lat, it.lon)
                         done = true

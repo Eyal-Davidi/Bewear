@@ -36,7 +36,7 @@ class MainViewModel(
     private val idProvider: AvatarIdProvider,
     private val stringProvider: TextAdviceStringProvider,
     private val idWeatherIconProvider: WeatherIconProvider,
-    private val locationPick: LocationPicker,
+    locationPick: LocationPicker,
     private val locationRepository: LocationRepository
 ) : ViewModel() {
 
@@ -64,7 +64,7 @@ class MainViewModel(
     )
     val locations: StateFlow<List<String>> = _locations
 
-    private val _currentLocation: MutableStateFlow<String> = MutableStateFlow(locations.value[1])
+    private val _currentLocation: MutableStateFlow<String> = MutableStateFlow(locations.value[0])
     val currentLocation: StateFlow<String> = _currentLocation
 
     private val _hourlyAdvice = MutableStateFlow(generateDefaultAdvice())
@@ -137,7 +137,7 @@ class MainViewModel(
     fun getLocation(text : String){
         viewModelScope.launchOnIO {
            _locations.value = locationRepository.getLocation(text)
-            if (locations.value == emptyList<String>()){
+            if (locations.value.isEmpty()){
                 _locations.value = listOf("No Locations found, please type more accurately")
             }
         }
