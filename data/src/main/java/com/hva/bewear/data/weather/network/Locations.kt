@@ -1,7 +1,7 @@
 package com.hva.bewear.data.weather.network
 
 enum class Locations(var cityName: String, var lat : Double, var lon : Double) {
-    CURRENT_LOCATION("Current Location", 0.0, 0.0),
+    //CURRENT_LOCATION("Current Location", 0.0, 0.0),
 //    CURRENT_LOCATION("${city}", lat = latitude, lang = longitude),
     AMSTERDAM("Amsterdam",52.3676,4.9041),
 //    ARNHEM("Arnhem", 51.9851034, 5.8987296),
@@ -32,12 +32,13 @@ enum class Locations(var cityName: String, var lat : Double, var lon : Double) {
 //    UTRECHT("Utrecht", 52.09061, 5.12143),
     WASHINGTON_DC("Washington DC", 38.9071923, -77.0368707),
 //    ZWOLLE("Zwolle", 52.5167747, 6.0830219),
+ EMPTY("", 0.0, 0.0 )
     ;
 
     companion object {
         fun CityName(city: String): Locations {
             enumValues<Locations>().forEach { if(it.cityName==city ) return it }
-            return AMSTERDAM
+            return EMPTY
         }
     }
 }

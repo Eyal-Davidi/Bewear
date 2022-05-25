@@ -8,7 +8,7 @@ class GetWeather(private val repository: WeatherRepository) {
 
     suspend operator fun invoke(
         location: String,
-        coordinates: Coordinates
+        coordinates: Coordinates,
     ): Weather {
         return repository.getWeather(location, coordinates)
     }

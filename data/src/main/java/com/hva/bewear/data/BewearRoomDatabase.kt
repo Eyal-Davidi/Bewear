@@ -7,14 +7,17 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.hva.bewear.data.avatar_type.network.AvatarTypeDao
 import com.hva.bewear.data.avatar_type.network.response.AvatarTypeResponse
+import com.hva.bewear.data.unit.network.UnitDao
+import com.hva.bewear.data.unit.network.response.UnitResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [AvatarTypeResponse::class], version = 1, exportSchema = false)
+@Database(entities = [AvatarTypeResponse::class, UnitResponse::class], version = 1, exportSchema = false)
 abstract class BewearRoomDatabase : RoomDatabase() {
 
     abstract fun avatarTypeDao(): AvatarTypeDao
+    abstract fun unitDao(): UnitDao
 
     companion object {
         private const val DATABASE_NAME = "HVA_BEWEAR_DATABASE"
@@ -37,6 +40,7 @@ abstract class BewearRoomDatabase : RoomDatabase() {
                                     INSTANCE?.let {database ->
                                         CoroutineScope(Dispatchers.IO).launch {
                                             database.avatarTypeDao().insert(AvatarTypeResponse("m"))
+                                            database.unitDao().insert(UnitResponse("metric"))
                                         }
                                     }
                                 }
