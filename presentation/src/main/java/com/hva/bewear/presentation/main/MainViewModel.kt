@@ -11,6 +11,9 @@ import com.hva.bewear.domain.location.LocationPicker
 import com.hva.bewear.domain.weather.GetWeather
 import com.hva.bewear.domain.avatar_type.model.AvatarType
 import com.hva.bewear.domain.location.Coordinates
+import com.hva.bewear.domain.unit.GetUnit
+import com.hva.bewear.domain.unit.SetUnit
+import com.hva.bewear.domain.unit.model.MeasurementUnit
 import com.hva.bewear.domain.location.LocationRepository
 import com.hva.bewear.domain.weather.model.Weather
 import com.hva.bewear.presentation.generic.launchOnIO
@@ -33,6 +36,8 @@ class MainViewModel(
     private val getClothingAdvice: GetClothingAdvice,
     private val getAvatarType: GetAvatarType,
     private val setTypeOfAvatar: SetTypeOfAvatar,
+    private val setUnit: SetUnit,
+    private val getUnit: GetUnit,
     private val idProvider: AvatarIdProvider,
     private val stringProvider: TextAdviceStringProvider,
     private val idWeatherIconProvider: WeatherIconProvider,
@@ -67,6 +72,9 @@ class MainViewModel(
     private val _currentLocation: MutableStateFlow<String> = MutableStateFlow(locations.value[0])
     val currentLocation: StateFlow<String> = _currentLocation
 
+    private val _isMetric: MutableStateFlow<Boolean> = MutableStateFlow(true)
+    val isMetric: StateFlow<Boolean> = _isMetric
+
     private val _hourlyAdvice = MutableStateFlow(generateDefaultAdvice())
     val hourlyAdvice: StateFlow<List<AdviceUIModel>> = _hourlyAdvice
 
@@ -75,7 +83,7 @@ class MainViewModel(
 
     fun refresh(
         location: String = currentLocation.value,
-        coordinates: Coordinates = Coordinates()
+        coordinates: Coordinates = Coordinates(),
     ) = fetchAllData(location, coordinates)
 
     private fun fetchAllData(location: String, coordinates: Coordinates) {
@@ -83,6 +91,7 @@ class MainViewModel(
             _uiState.value = UIStates.Loading
             _typeOfAvatar.value = getAvatarType()
             _currentLocation.value = location
+            _isMetric.value = getUnit() == MeasurementUnit.METRIC
             val weather = fetchWeather(location, coordinates)
             _advice.value = fetchAdvice(weather = weather)
             _hourlyAdvice.value = List(
@@ -95,7 +104,7 @@ class MainViewModel(
 
     private suspend fun fetchWeather(location: String, coordinates: Coordinates): Weather {
         val weather = getWeather(location, coordinates)
-        _weather.value = weather.uiModel(idProvider = idWeatherIconProvider)
+        _weather.value = weather.uiModel(idProvider = idWeatherIconProvider, getUnit = getUnit)
         return weather
     }
 
@@ -111,9 +120,10 @@ class MainViewModel(
         )
     }
 
-    fun updateTypeOfAvatar(avatarType: AvatarType) {
+    fun updateSettings(avatarType: AvatarType, isMetric: Boolean) {
         viewModelScope.launch {
             setTypeOfAvatar(avatarType)
+            setUnit(if (isMetric) MeasurementUnit.METRIC else MeasurementUnit.IMPERIAL)
             refresh()
         }
     }
