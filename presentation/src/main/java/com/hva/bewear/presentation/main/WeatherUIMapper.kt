@@ -1,5 +1,6 @@
 package com.hva.bewear.presentation.main
 
+import android.util.Log
 import com.hva.bewear.domain.unit.GetUnit
 import com.hva.bewear.domain.unit.model.MeasurementUnit
 import com.hva.bewear.domain.weather.model.DailyWeather
@@ -63,9 +64,7 @@ object WeatherUIMapper {
         else celsiusToFahrenheit(temperature).roundToInt()
     }°"
 
-    private fun celsiusToFahrenheit(temperature: Double): Double{
-        return (temperature * (9/5)) + 32
-    }
+    private fun celsiusToFahrenheit(temperature: Double) = ((temperature * (1.8f)) + 32)
 
     private fun setWindDirection(windDegree: Int): String {
         return when (windDegree) {
