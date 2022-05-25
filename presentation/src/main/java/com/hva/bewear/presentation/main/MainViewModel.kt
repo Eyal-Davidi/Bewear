@@ -103,7 +103,7 @@ locationPick: LocationPicker,
 
     private suspend fun fetchWeather(location: String, coordinates: Coordinates): Weather {
         val weather = getWeather(location, coordinates)
-        _weather.value = weather.uiModel(idProvider = idWeatherIconProvider)
+        _weather.value = weather.uiModel(idProvider = idWeatherIconProvider, getUnit = getUnit)
         return weather
     }
 
@@ -158,8 +158,6 @@ locationPick: LocationPicker,
         )
         Log.e("AppERR", throwable.stackTraceToString())
     }
-
-    private fun FahrenheitToCelsius(temperature: Double) = (temperature - 32) * (5/9)
 
     companion object {
         private const val AMOUNT_OF_HOURS_IN_HOURLY = 24

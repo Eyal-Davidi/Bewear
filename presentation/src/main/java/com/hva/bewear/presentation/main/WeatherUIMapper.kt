@@ -1,5 +1,7 @@
 package com.hva.bewear.presentation.main
 
+import com.hva.bewear.domain.unit.GetUnit
+import com.hva.bewear.domain.unit.model.MeasurementUnit
 import com.hva.bewear.domain.weather.model.DailyWeather
 import com.hva.bewear.domain.weather.model.HourlyWeather
 import com.hva.bewear.domain.weather.model.Weather
@@ -10,20 +12,41 @@ import kotlin.math.roundToInt
 
 object WeatherUIMapper {
 
-    fun Weather.uiModel(day: Int = 0, idProvider: WeatherIconProvider): WeatherUIModel = daily[day].uiModel(idProvider, hourly)
+    suspend fun Weather.uiModel(day: Int = 0, idProvider: WeatherIconProvider, getUnit: GetUnit): WeatherUIModel = daily[day].uiModel(idProvider, hourly, getUnit)
 
-    private fun DailyWeather.uiModel(idProvider: WeatherIconProvider, hourly: List<HourlyWeather>): WeatherUIModel {
+    private suspend fun DailyWeather.uiModel(idProvider: WeatherIconProvider, hourly: List<HourlyWeather>, getUnit: GetUnit): WeatherUIModel {
         return WeatherUIModel(
-            temperatureDisplay = parseTemperature(temperature.day),
-            minMaxDisplay = parseTemperature(temperature.min) + " / " + parseTemperature(temperature.max),
-            feelsLikeTemperatureDisplay = "Feels like: \n${parseTemperature(feelsLike.day)}",
+            temperatureDisplay = parseTemperature(temperature.day, getUnit),
+            minMaxDisplay = parseTemperature(temperature.min, getUnit) + " / " + parseTemperature(temperature.max, getUnit),
+            feelsLikeTemperatureDisplay = "Feels like: \n${parseTemperature(feelsLike.day, getUnit)}",
             windDisplay = "${setWindDirection(windDegree)} ${calculateBeaufortScale(windSpeed)}",
-            hourlyWeather = hourly,
+            hourlyWeather = if (getUnit() == MeasurementUnit.METRIC) hourly else hourly.map { it.toFahrenheit() },
             hourlyIcons = getHourlyIconList(hourly, idProvider),
             iconId = idProvider.getWeatherIcon(weather[0].icon),
             backgroundId = idProvider.getWeatherBackground(weather[0].icon),
             // Because we want the arrow to point towards the direction the wind is blowing we add 180° to it
             windDegrees = windDegree + 180,
+        )
+    }
+
+    private fun HourlyWeather.toFahrenheit() : HourlyWeather{
+        return HourlyWeather(
+            date = date,
+            temperature = celsiusToFahrenheit(temperature),
+            feelsLike = celsiusToFahrenheit(feelsLike),
+            pressure = pressure,
+            humidity = humidity,
+            dewPoint = dewPoint,
+            uvIndex = uvIndex,
+            clouds = clouds,
+            visibility = visibility,
+            windSpeed = windSpeed,
+            windDegree = windDegree,
+            windGust = windGust,
+            weather = weather,
+            percentageOfPrecipitation = percentageOfPrecipitation,
+            rain = rain,
+            snow = snow
         )
     }
 
@@ -35,7 +58,15 @@ object WeatherUIMapper {
         return list
     }
 
-    private fun parseTemperature(temperature: Double) = "${temperature.roundToInt()}°"
+    private suspend fun parseTemperature(temperature: Double, getUnit: GetUnit) = "${
+        if (getUnit() == MeasurementUnit.METRIC) temperature.roundToInt()
+        else celsiusToFahrenheit(temperature).roundToInt()
+    }°"
+
+    private fun celsiusToFahrenheit(temperature: Double): Double{
+        return (temperature * (9/5)) + 32
+    }
+
     private fun setWindDirection(windDegree: Int): String {
         return when (windDegree) {
             in 34..78 -> "NE"
