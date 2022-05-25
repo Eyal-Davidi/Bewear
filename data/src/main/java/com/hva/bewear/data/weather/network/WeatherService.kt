@@ -2,10 +2,12 @@ package com.hva.bewear.data.weather.network
 
 import android.content.Context
 import android.util.Log
-import com.hva.bewear.data.BuildConfig
 import com.hva.bewear.data.weather.network.mapper.WeatherMapper.instantToDate
 import com.hva.bewear.data.weather.network.mapper.WeatherMapper.instantToDateTime
 import com.hva.bewear.data.weather.network.response.WeatherResponse
+import com.hva.bewear.data.BuildConfig
+import com.hva.bewear.data.location.LocationService
+import com.hva.bewear.data.location.response.Locale
 import com.hva.bewear.domain.location.Coordinates
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -24,7 +26,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 
-class WeatherService {
+class WeatherService(private val locationService: LocationService) {
     private val client = HttpClient(CIO) {
         install(JsonFeature) {
             serializer = KotlinxSerializer(kotlinx.serialization.json.Json {
@@ -37,7 +39,7 @@ class WeatherService {
     }
 
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
-    private lateinit var location: Locations
+    private lateinit var location: LocationData
     private var timeZoneOffset = 0
 
     suspend fun getWeather(
@@ -46,12 +48,19 @@ class WeatherService {
         coordinates: Coordinates,
     ): WeatherResponse {
 
+        val loc = Locations.CityName(cityName)
+
         setCoordinates(coordinates, cityName)
         // Directly call to the api
 //        return getWeather(reason = "Api calls are always performed!")
 
         // Use locally stored files to cache the api data
-        var file = File(context.filesDir, "${location.cityName.lowercase().trim()}.json")
+
+
+
+
+        val fileName = "${location.cityName.lowercase().replace(" ", "")}.json"
+        var file = File(context.filesDir, fileName)
 
         // If the file does not yet exists a new file is created
         if (!file.exists()) {
@@ -76,7 +85,28 @@ class WeatherService {
             location.cityName = cityName
             location.lat = coordinates.lat
             location.lon = coordinates.lon
-        } else location = Locations.CityName(cityName)
+        } else {
+            val loc = Locations.CityName(cityName)
+
+            if (loc != Locations.EMPTY) {
+                location = LocationData(loc.cityName, loc.lat, loc.lon)
+            } else {
+                var done = false
+                locationService.places.forEach() {
+                    if (it.name + ", " + it.state + ", " + it.country == cityName && !done) {
+                        location = LocationData(it.name, it.lat, it.lon)
+                        done = true
+                    }
+                }
+                if (!done) {
+                    location = LocationData(
+                        Locations.AMSTERDAM.cityName,
+                        Locations.AMSTERDAM.lat,
+                        Locations.AMSTERDAM.lon
+                    )
+                }
+            }
+        }
     }
 
     private fun createNewFile(file: File): File {

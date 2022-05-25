@@ -11,6 +11,7 @@ import com.hva.bewear.domain.location.LocationPicker
 import com.hva.bewear.domain.weather.GetWeather
 import com.hva.bewear.domain.avatar_type.model.AvatarType
 import com.hva.bewear.domain.location.Coordinates
+import com.hva.bewear.domain.location.LocationRepository
 import com.hva.bewear.domain.weather.model.Weather
 import com.hva.bewear.presentation.generic.launchOnIO
 import com.hva.bewear.presentation.main.AdviceUIMapper.uiModel
@@ -35,7 +36,8 @@ class MainViewModel(
     private val idProvider: AvatarIdProvider,
     private val stringProvider: TextAdviceStringProvider,
     private val idWeatherIconProvider: WeatherIconProvider,
-    locationPick: LocationPicker,
+    private val locationPick: LocationPicker,
+    private val locationRepository: LocationRepository
 ) : ViewModel() {
 
     private val _weather = MutableStateFlow(
@@ -116,6 +118,7 @@ class MainViewModel(
         }
     }
 
+
     private fun generateDefaultAdvice(): List<AdviceUIModel> {
         val list = arrayListOf<AdviceUIModel>()
         for (i in 1..AMOUNT_OF_HOURS_IN_HOURLY) {
@@ -130,6 +133,16 @@ class MainViewModel(
         }
         return list
     }
+
+    fun getLocation(text : String){
+        viewModelScope.launchOnIO {
+           _locations.value = locationRepository.getLocation(text)
+            if (locations.value == emptyList<String>()){
+                _locations.value = listOf("No Locations found, please type more accurately")
+            }
+        }
+    }
+
 
     private val fetchWeatherExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         _uiState.tryEmit(
