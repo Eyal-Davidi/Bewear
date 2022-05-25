@@ -199,7 +199,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun TopBar(locations: List<String>) {
-        var expanded by remember { mutableStateOf(true) }
+        var expanded by remember { mutableStateOf(false) }
         var showPopup by remember { mutableStateOf(false) }
         var text by rememberSaveable { mutableStateOf("") }
         val selectedLocation by remember { mutableStateOf(viewModel.currentLocation.value) }
