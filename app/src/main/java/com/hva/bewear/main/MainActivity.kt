@@ -289,6 +289,10 @@ class MainActivity : ComponentActivity() {
                             contentDescription = null,
                             modifier = Modifier
                                 .size(30.dp)
+                                .clickable {
+                                        expanded = !expanded
+
+                                }
 
                         )
                     }

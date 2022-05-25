@@ -32,7 +32,7 @@ enum class Locations(var cityName: String, var lat : Double, var lon : Double) {
 //    UTRECHT("Utrecht", 52.09061, 5.12143),
     WASHINGTON_DC("Washington DC", 38.9071923, -77.0368707),
 //    ZWOLLE("Zwolle", 52.5167747, 6.0830219),
-EMPTY("", 0.0, 0.0 )
+ EMPTY("", 0.0, 0.0 )
     ;
 
     companion object {
