@@ -14,6 +14,7 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -202,7 +203,6 @@ class MainActivity : ComponentActivity() {
         var expanded by remember { mutableStateOf(false) }
         var showPopup by remember { mutableStateOf(false) }
         var text by rememberSaveable { mutableStateOf("") }
-        val selectedLocation by remember { mutableStateOf(viewModel.currentLocation.value) }
         var showLocationPermission by remember { mutableStateOf(false) }
         val currentLocation by viewModel.currentLocation.collectAsState()
 
@@ -210,7 +210,8 @@ class MainActivity : ComponentActivity() {
             modifier = Modifier
                 .padding(5.dp, 5.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .height(40.dp),
             backgroundColor = MaterialTheme.colors.primaryVariant,
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
@@ -226,8 +227,6 @@ class MainActivity : ComponentActivity() {
                             .align(CenterVertically)
                             .clickable { showPopup = true }
                     )
-                    if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
-
                     OutlinedTextField(
                         value = text,
                         onValueChange = {
@@ -235,7 +234,7 @@ class MainActivity : ComponentActivity() {
                         },
                         placeholder = {
                             Text(
-                                text = selectedLocation,
+                                text = currentLocation,
                                 modifier = Modifier.fillMaxWidth(),
                                 style = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
                             )
@@ -250,11 +249,10 @@ class MainActivity : ComponentActivity() {
                                 expanded = true
                             },
                         ),
-
                         modifier = Modifier
                             .align(CenterVertically)
-                            .width(350.dp)
-                            .height(56.dp)
+                            .width(300.dp)
+                            .requiredHeight(56.dp)
                             .onKeyEvent {
                                 if ((it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_INSERT) || (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_SEARCH) || (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER)) {
                                     viewModel.getLocation(text)
@@ -272,30 +270,26 @@ class MainActivity : ComponentActivity() {
                         ),
                         singleLine = true,
                     )
-                    //}
-                    Row {
-                        if (showCurrentLocationIcon) Image(
-                            painter = painterResource(R.drawable.ic_my_location),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(24.dp)
-                                .align(CenterVertically)
-                        )
-                        Image(
-                            painter = if (expanded)
-                                painterResource(R.drawable.expand_less)
-                            else
-                                painterResource(R.drawable.expand_more),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(30.dp)
-                                .clickable {
-                                        expanded = !expanded
-
-                                }
-
-                        )
-                    }
+                    if (showCurrentLocationIcon) Image(
+                        painter = painterResource(R.drawable.ic_my_location),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .align(CenterVertically)
+                    )
+                    Image(
+                        painter = if (expanded)
+                            painterResource(R.drawable.expand_less)
+                        else
+                            painterResource(R.drawable.expand_more),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(30.dp)
+                            .align(CenterVertically)
+                            .clickable {
+                                expanded = !expanded
+                            }
+                    )
                 }
 
                 DropdownMenu(
@@ -309,7 +303,6 @@ class MainActivity : ComponentActivity() {
                             MaterialTheme.colors.primaryVariant
                         ),
                 ) {
-
                     DropdownMenuItem(
                         onClick = {
                             expanded = false
@@ -327,8 +320,6 @@ class MainActivity : ComponentActivity() {
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier
                                 .wrapContentWidth()
-
-
                         )
                         Image(
                             painter = painterResource(R.drawable.ic_my_location),
@@ -337,23 +328,19 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier
                                 .size(24.dp)
                                 .offset(230.dp)
-
                         )
                     }
                     Divider()
-                    locations.forEachIndexed { index, location ->
+                    locations.forEachIndexed { _, location ->
                         DropdownMenuItem(
                             onClick = {
                                 if (location != currentLocation) {
                                     expanded = false
-
                                     showCurrentLocationIcon = false
                                     viewModel.refresh(location)
-
                                 }
                             },
                         ) {
-
                             Text(
                                 text = location,
                                 color = Color.Black,
@@ -362,8 +349,6 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier
                                     .wrapContentWidth()
                             )
-
-
                         }
                         Divider()
                     }
@@ -683,7 +668,6 @@ class MainActivity : ComponentActivity() {
                 LottieAnimation(
                     composition,
                     iterations = LottieConstants.IterateForever,
-//                    speed = 0.33f,
                 )
                 Text(text = "Loading", modifier = Modifier.padding(10.dp))
             }
@@ -735,7 +719,7 @@ class MainActivity : ComponentActivity() {
         if (checkLocationPermission()) {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
+                arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
                 101
             )
         }
@@ -763,7 +747,11 @@ class MainActivity : ComponentActivity() {
         return ActivityCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_COARSE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED
+        ) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
     }
 
     @Preview(showBackground = true)
