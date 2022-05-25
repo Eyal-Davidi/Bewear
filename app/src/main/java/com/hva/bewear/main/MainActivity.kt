@@ -322,12 +322,6 @@ class MainActivity : ComponentActivity() {
                             textAlign = TextAlign.Center,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier
-                                .clickable {
-                                    expanded = false
-                                    showCurrentLocationIcon = true
-                                    if (checkLocationPermission()) showLocationPermission = true
-                                    else fetchLocation()
-                                }
                                 .wrapContentWidth()
 
 
