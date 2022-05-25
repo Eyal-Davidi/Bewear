@@ -6,6 +6,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class WeatherResponse(
+    @SerialName("dt")
+    var created: Int = 0,
+    @SerialName("city_name")
+    var cityName:String = "",
+
     @SerialName("timezone")
     val timeZone: String,
     @SerialName("timezone_offset")

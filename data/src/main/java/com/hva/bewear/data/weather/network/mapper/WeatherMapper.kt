@@ -9,6 +9,7 @@ import com.hva.bewear.domain.weather.model.HourlyWeather
 import com.hva.bewear.domain.weather.model.Weather
 import com.hva.bewear.domain.weather.model.WeatherDetails
 import java.time.*
+import java.util.*
 
 object WeatherMapper {
     fun WeatherResponse.toDomain(): Weather {
@@ -90,5 +91,18 @@ object WeatherMapper {
         return Instant.ofEpochSecond(toLong())
             .atZone(ZoneId.ofOffset("UTC", ZoneOffset.ofTotalSeconds(timezoneOffset)))
             .toLocalDateTime()
+    }
+
+    fun Instant.isBeforeCurrentDate(): Boolean {
+        val date = LocalDate.ofEpochDay(epochSecond)
+        return date.isBefore(LocalDate.now())
+    }
+
+    fun Instant.isBeforeCurrentHour(offset: ZoneOffset): Boolean {
+        val dateTime = LocalDateTime.ofInstant(this, offset)
+        val now = LocalDateTime.now(
+            ZoneId.ofOffset("UTC", offset)
+        )
+        return isBeforeCurrentDate() || dateTime.hour < now.hour
     }
 }
