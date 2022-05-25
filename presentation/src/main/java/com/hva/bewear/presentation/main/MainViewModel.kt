@@ -14,6 +14,7 @@ import com.hva.bewear.domain.location.Coordinates
 import com.hva.bewear.domain.unit.GetUnit
 import com.hva.bewear.domain.unit.SetUnit
 import com.hva.bewear.domain.unit.model.MeasurementUnit
+import com.hva.bewear.domain.location.LocationRepository
 import com.hva.bewear.domain.weather.model.Weather
 import com.hva.bewear.presentation.generic.launchOnIO
 import com.hva.bewear.presentation.main.AdviceUIMapper.uiModel
@@ -40,8 +41,8 @@ class MainViewModel(
     private val idProvider: AvatarIdProvider,
     private val stringProvider: TextAdviceStringProvider,
     private val idWeatherIconProvider: WeatherIconProvider,
-
-locationPick: LocationPicker,
+    locationPick: LocationPicker,
+    private val locationRepository: LocationRepository
 ) : ViewModel() {
 
     private val _weather = MutableStateFlow(
@@ -68,7 +69,7 @@ locationPick: LocationPicker,
     )
     val locations: StateFlow<List<String>> = _locations
 
-    private val _currentLocation: MutableStateFlow<String> = MutableStateFlow(locations.value[1])
+    private val _currentLocation: MutableStateFlow<String> = MutableStateFlow(locations.value[0])
     val currentLocation: StateFlow<String> = _currentLocation
 
     private val _isMetric: MutableStateFlow<Boolean> = MutableStateFlow(true)
@@ -127,6 +128,7 @@ locationPick: LocationPicker,
         }
     }
 
+
     private fun generateDefaultAdvice(): List<AdviceUIModel> {
         val list = arrayListOf<AdviceUIModel>()
         for (i in 1..AMOUNT_OF_HOURS_IN_HOURLY) {
@@ -141,6 +143,16 @@ locationPick: LocationPicker,
         }
         return list
     }
+
+    fun getLocation(text : String){
+        viewModelScope.launchOnIO {
+           _locations.value = locationRepository.getLocation(text)
+            if (locations.value.isEmpty()){
+                _locations.value = listOf("No Locations found, please type more accurately")
+            }
+        }
+    }
+
 
     private val fetchWeatherExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         _uiState.tryEmit(

@@ -8,7 +8,7 @@ class ListOfLocations : LocationPicker {
 
     override fun setOfLocations(): List<String> {
         enumValues<Locations>().forEach {
-            set.add(it.cityName)
+            if(it.cityName.isNotBlank()) set.add(it.cityName)
         }
         return set
     }
