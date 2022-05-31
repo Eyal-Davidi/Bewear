@@ -17,6 +17,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -54,6 +55,7 @@ import com.google.android.gms.location.LocationServices
 import com.hva.bewear.domain.avatar_type.model.AvatarType
 import com.hva.bewear.domain.location.Coordinates
 import com.hva.bewear.main.theme.M2Mobi_HvATheme
+import com.hva.bewear.main.theme.nunito
 import com.hva.bewear.presentation.main.MainViewModel
 import com.hva.bewear.presentation.main.model.AdviceUIModel
 import com.hva.bewear.presentation.main.model.UIStates
@@ -210,12 +212,9 @@ class MainActivity : ComponentActivity() {
         var expanded by remember { mutableStateOf(false) }
         var showPopup by remember { mutableStateOf(false) }
         var text by rememberSaveable { mutableStateOf("") }
-        val selectedLocation by remember { mutableStateOf(viewModel.currentLocation.value) }
         var showLocationPermission by remember { mutableStateOf(false) }
         val currentLocation by viewModel.currentLocation.collectAsState()
-       /* Scaffold(
-            Modifier.hoverable(MutableInteractionSource())
-        ){*/
+
         Box(
             modifier = Modifier.fillMaxSize()
         ){
@@ -227,7 +226,7 @@ class MainActivity : ComponentActivity() {
                     .padding(5.dp, 5.dp)
                     .clip(RoundedCornerShape(10.dp))
                     .fillMaxWidth()
-                    .wrapContentHeight()
+                    .height(40.dp)
                     .align(TopCenter),
                 backgroundColor = MaterialTheme.colors.primaryVariant,
             ) {
@@ -257,7 +256,7 @@ class MainActivity : ComponentActivity() {
                             },
                             placeholder = {
                                 Text(
-                                    text = selectedLocation,
+                                    text = currentLocation,
                                     modifier = Modifier.fillMaxWidth(),
                                     style = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
                                 )
@@ -276,7 +275,7 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier
                                 .align(CenterVertically)
                                 .width(300.dp)
-                                .height(56.dp)
+                                .requiredHeight(56.dp)
                                 .onKeyEvent {
                                     if ((it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_INSERT) || (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_SEARCH) || (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER)) {
                                         viewModel.getLocation(text)
@@ -311,6 +310,7 @@ class MainActivity : ComponentActivity() {
                                 contentDescription = null,
                                 modifier = Modifier
                                     .size(30.dp)
+                                    .align(CenterVertically)
                                     .clickable {
                                         expanded = !expanded
 
@@ -430,34 +430,102 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun SettingsDialog(onShownChange: (Boolean) -> Unit) {
         var avatarType by remember { mutableStateOf(viewModel.avatarType.value.ordinal) }
+        var isMetric by remember { mutableStateOf(viewModel.isMetric.value) }
         CommonDialog(
-            title = "Avatar Settings",
+            title = "Settings",
             onShownChange = onShownChange,
-            onClickOkBtn = { viewModel.updateTypeOfAvatar(AvatarType.values()[avatarType]) }
+            onClickOkBtn = { viewModel.updateSettings(AvatarType.values()[avatarType], isMetric) }
         ) {
             Column {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 8.dp)
-                ) {
-                    Text("Male")
-                    Text("Both")
-                    Text("Female")
+                Column {
+                    Text("Avatar Type",
+                        fontFamily = nunito,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        modifier = Modifier
+                            .align(CenterHorizontally)
+                            .padding(bottom = 4.dp))
+
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 8.dp)
+                    ) {
+                        Text("Male",
+                            fontFamily = nunito,
+                            fontWeight = FontWeight.Normal,)
+                        Text("Both",
+                            fontFamily = nunito,
+                            fontWeight = FontWeight.Normal,)
+                        Text("Female",
+                            fontFamily = nunito,
+                            fontWeight = FontWeight.Normal,)
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        RadioButton(selected = avatarType == 0, onClick = { avatarType = 0 })
+                        RadioButton(selected = avatarType == 1, onClick = { avatarType = 1 })
+                        RadioButton(selected = avatarType == 2, onClick = { avatarType = 2 })
+                    }
                 }
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    RadioButton(selected = avatarType == 0, onClick = { avatarType = 0 })
-                    RadioButton(selected = avatarType == 1, onClick = { avatarType = 1 })
-                    RadioButton(selected = avatarType == 2, onClick = { avatarType = 2 })
+
+                Divider()
+
+                Column {
+                    Text("Unit of Measurement",
+                        fontFamily = nunito,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .align(CenterHorizontally))
+
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 9.dp)
+                    ) {
+                        Column {
+                            Text(
+                                "°C",
+                                modifier = Modifier
+                                    .align(CenterHorizontally)
+                                    .offset((-2).dp),
+                                fontFamily = nunito,
+                                fontWeight = FontWeight.Normal,
+                            )
+                            RadioButton(
+                                selected = isMetric, onClick = { isMetric = true },
+                                modifier = Modifier.align(CenterHorizontally)
+                            )
+                        }
+                        Column {
+                            Text(
+                                "°F",
+                                modifier = Modifier
+                                    .align(CenterHorizontally)
+                                    .offset((-1).dp),
+                                fontFamily = nunito,
+                                fontWeight = FontWeight.Normal,
+                            )
+                            RadioButton(
+                                selected = !isMetric, onClick = { isMetric = false },
+                                modifier = Modifier.align(CenterHorizontally),
+                            )
+
+                        }
+                    }
                 }
+                Divider()
             }
         }
     }
+
 
     @Composable
     fun CommonDialog(
@@ -475,22 +543,29 @@ class MainActivity : ComponentActivity() {
                         Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(text = title)
-                        Divider(modifier = Modifier.padding(bottom = 16.dp))
+                        Text(text = title,
+                            fontFamily = nunito,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,)
+                        Divider()
                     }
                 }
             },
             text = content,
             dismissButton = {
                 Button(onClick = { onShownChange(false) }) {
-                    Text("Cancel")
+                    Text("Cancel",
+                        fontFamily = nunito,
+                        fontWeight = FontWeight.Normal,)
                 }
             },
             confirmButton = {
                 Button(onClick = { onShownChange(false); onClickOkBtn() }) {
-                    Text(okBtnText)
+                    Text(okBtnText,
+                        fontFamily = nunito,
+                        fontWeight = FontWeight.Normal,)
                 }
-            }, modifier = Modifier.padding(vertical = 8.dp)
+            }
         )
     }
 
@@ -721,7 +796,6 @@ class MainActivity : ComponentActivity() {
                 LottieAnimation(
                     composition,
                     iterations = LottieConstants.IterateForever,
-//                    speed = 0.33f,
                 )
                 Text(text = "Loading", modifier = Modifier.padding(10.dp))
             }
@@ -773,7 +847,7 @@ class MainActivity : ComponentActivity() {
         if (checkLocationPermission()) {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
+                arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
                 101
             )
         }
@@ -801,7 +875,11 @@ class MainActivity : ComponentActivity() {
         return ActivityCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_COARSE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED
+        ) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
     }
 
     @Preview(showBackground = true)
