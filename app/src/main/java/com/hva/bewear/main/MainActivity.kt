@@ -214,12 +214,25 @@ class MainActivity : ComponentActivity() {
         var text by rememberSaveable { mutableStateOf("") }
         var showLocationPermission by remember { mutableStateOf(false) }
         val currentLocation by viewModel.currentLocation.collectAsState()
-
+        val interactionSource = remember { MutableInteractionSource() }
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
 
+            if (expanded) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null) {
+                            expanded = false
+                        }
 
+                ) {
+
+                }
+            }
             Card(
 
                 modifier = Modifier
@@ -320,88 +333,91 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-                if (expanded) {
-                    Card(
-                        modifier = Modifier
+            }
+            if (expanded) {
+                Card(
+                    modifier = Modifier
 
-                            .padding(top = 70.dp)
-                            .width(400.dp)
-                            .height(220.dp)
-                            .verticalScroll(ScrollState(0)),
-                        backgroundColor = MaterialTheme.colors.primaryVariant,
+                        .padding(start = 4.dp, top = 45.dp)
+                        .width(400.dp)
+                        .height(220.dp)
+                        .verticalScroll(ScrollState(0)),
+                    backgroundColor = MaterialTheme.colors.primaryVariant,
 
-                        ) {
-                        Column {
-                            Column(modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp)
-                                .background(
-                                    MaterialTheme.colors.primaryVariant
+                    ) {
+                    Column {
+                        Column(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .background(
+                                MaterialTheme.colors.primaryVariant
+                            )
+                            .clickable {
+                                expanded = false
+                                showCurrentLocationIcon = true
+                                if (checkLocationPermission()) showLocationPermission = true
+                                else fetchLocation()
+                            }) {
+                            Row {
+                                Text(
+                                    text = "Current Location",
+                                    color = Color.Black,
+                                    textAlign = TextAlign.Center,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier
+                                        .wrapContentWidth()
+
+
                                 )
-                                .clickable {
-                                    expanded = false
-                                    showCurrentLocationIcon = true
-                                    if (checkLocationPermission()) showLocationPermission = true
-                                    else fetchLocation()
-                                }) {
-                                Row {
-                                    Text(
-                                        text = "Current Location",
-                                        color = Color.Black,
-                                        textAlign = TextAlign.Center,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier
-                                            .wrapContentWidth()
+                                Image(
+                                    painter = painterResource(R.drawable.ic_my_location),
+                                    contentDescription = null,
+                                    alignment = Alignment.CenterEnd,
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .offset(230.dp)
+
+                                )
+                            }
+                        }
+                        Divider()
+                        locations.forEachIndexed { _, location ->
+                            Column(
+                                Modifier
+                                    .clickable {
+                                        if (location != currentLocation) {
+                                            expanded = false
+
+                                            showCurrentLocationIcon = false
+                                            viewModel.refresh(location)
+
+                                        }
+                                    }
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
+                                    .background(
+                                        MaterialTheme.colors.primaryVariant
+                                    ),
+                            ) {
+
+                                Text(
+                                    text = location,
+                                    color = Color.Black,
+                                    textAlign = TextAlign.Center,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier
+                                        .wrapContentWidth()
+                                )
 
 
-                                    )
-                                    Image(
-                                        painter = painterResource(R.drawable.ic_my_location),
-                                        contentDescription = null,
-                                        alignment = Alignment.CenterEnd,
-                                        modifier = Modifier
-                                            .size(24.dp)
-                                            .offset(230.dp)
-
-                                    )
-                                }
                             }
                             Divider()
-                            locations.forEachIndexed { _, location ->
-                                Column(
-                                    Modifier
-                                        .clickable {
-                                            if (location != currentLocation) {
-                                                expanded = false
-
-                                                showCurrentLocationIcon = false
-                                                viewModel.refresh(location)
-
-                                            }
-                                        }
-                                        .fillMaxWidth()
-                                        .padding(8.dp)
-                                        .background(
-                                            MaterialTheme.colors.primaryVariant
-                                        ),
-                                ) {
-
-                                    Text(
-                                        text = location,
-                                        color = Color.Black,
-                                        textAlign = TextAlign.Center,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier
-                                            .wrapContentWidth()
-                                    )
-
-
-                                }
-                                Divider()
-                            }
                         }
                     }
                 }
+                //here
+
+
             }
 
 
