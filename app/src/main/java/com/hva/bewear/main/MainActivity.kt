@@ -250,7 +250,10 @@ class MainActivity : ComponentActivity() {
                             value = text,
                             onValueChange = {
                                 text = it
-
+                                /*if(text.length >= 3){
+                                    viewModel.getLocation(text)
+                                    expanded = true
+                                }*/
                             },
                             placeholder = {
                                 Text(
