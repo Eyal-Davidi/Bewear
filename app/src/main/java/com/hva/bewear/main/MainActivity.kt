@@ -169,13 +169,13 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun WeatherIconAndWindDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(start = 0.dp, top = 30.dp))
+        Column(Modifier.padding(start = 0.dp, top = 5.dp))
         {
             Image(
                 painter = painterResource(id = weather.iconId),
                 contentDescription = "Weather Icon",
                 modifier = Modifier
-                    .scale(1.5f)
+                    .scale(1.4f)
                     .wrapContentSize(),
             )
             Row {
@@ -183,14 +183,14 @@ class MainActivity : ComponentActivity() {
                     painter = painterResource(id = R.drawable.ic_baseline_navigation_24),
                     contentDescription = "Wind navigation image",
                     modifier = Modifier
-                        .size(30.dp)
+                        .size(22.dp)
                         .rotate(weather.windDegrees.toFloat())
                 )
                 Spacer(Modifier.width(5.dp))
                 Text(
                     text = weather.windDisplay,
                     color = Color.Black,
-                    fontSize = 20.sp,
+                    fontSize = 17.sp,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
                 )
