@@ -14,7 +14,6 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -104,7 +103,7 @@ class MainActivity : ComponentActivity() {
                             .padding(end = 26.dp)
                             .fillMaxWidth(),
                     ) {
-                        WindDisplay(weather)
+                        WeatherIconAndWindDisplay(weather)
                         Spacer(Modifier.height(20.dp))
                         ExtraAdviceIcons(advice)
                     }
@@ -169,7 +168,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun WindDisplay(weather: WeatherUIModel) {
+    fun WeatherIconAndWindDisplay(weather: WeatherUIModel) {
         Column(Modifier.padding(start = 0.dp, top = 30.dp))
         {
             Image(
