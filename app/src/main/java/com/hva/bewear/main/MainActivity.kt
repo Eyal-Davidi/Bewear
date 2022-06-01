@@ -188,44 +188,47 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun WeatherIconAndExtraAdviceIconsDisplay(weather: WeatherUIModel, advice: AdviceUIModel) {
         val icons = advice.extraAdviceIcons
-        Column(Modifier.padding(start = 0.dp, top = 0.dp))
+        Column(Modifier.padding(start = 0.dp, top = 0.dp) .width(100.dp))
         {
             Image(
                 painter = painterResource(id = weather.iconId),
                 contentDescription = "Weather Icon",
                 modifier = Modifier
                     .scale(1.4f)
-                    .wrapContentSize(),
+                    .wrapContentSize()
+                    .align(End)
+
             )
             Spacer(Modifier.height(15.dp))
-                Text(
+                Text(modifier = Modifier.align(End),
                     text = "Bring:",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.Center,
+                    textAlign = TextAlign.Left,
                     color = Color.Black,
                 )
-                Row {
+
+                Row(Modifier.align(End)){
                     for (icon in icons) {
-//                        if(icons.size>1)
-//                        {
+                        if(icons.size>1)
+                        {
                         Image(
                             painter = painterResource(icon),
                             contentDescription = "Extra advice icon",
                             modifier = Modifier
-                                .offset(x = -20.dp)
-                                .size(45.dp),
+                                .offset(x = 20.dp)
+                                .size(45.dp)
                         )
-//                        }
-//                        else{
-//                            Image(
-//                                painter = painterResource(icon),
-//                                contentDescription = "Extra advice icon",
-//                                modifier = Modifier
-//                                    .offset(x = 0.dp)
-//                                    .size(45.dp),
-//                            )
-//                        }
+                        }
+                        else{
+                            Image(
+                                painter = painterResource(icon),
+                                contentDescription = "Extra advice icon",
+                                modifier = Modifier
+                                    .offset(x = 0.dp)
+                                    .size(45.dp),
+                            )
+                        }
                     }
                 }
         }
