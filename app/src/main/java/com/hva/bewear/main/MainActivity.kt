@@ -96,16 +96,16 @@ class MainActivity : ComponentActivity() {
                 TitleDisplay()
                 Spacer(modifier = Modifier.height(1.dp))
                 Row {
-                    TemperatureDisplay(weather)
+                    TemperatureAndWindDisplay(weather)
                     Column(
                         horizontalAlignment = End,
                         modifier = Modifier
                             .padding(end = 26.dp)
                             .fillMaxWidth(),
                     ) {
-                        WeatherIconAndWindDisplay(weather)
-                        Spacer(Modifier.height(20.dp))
-                        ExtraAdviceIcons(advice)
+                        WeatherIconAndExtraAdviceIconsDisplay(weather, advice)
+//                        Spacer(Modifier.height(15.dp))
+//                        ExtraAdviceIcons(advice)
                     }
                 }
                 BottomDisplay(advice, weather, hourlyAdvice)
@@ -131,7 +131,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun TemperatureDisplay(weather: WeatherUIModel) {
+    fun TemperatureAndWindDisplay(weather: WeatherUIModel) {
         Column(Modifier.padding(start = 16.dp)) {
             Text(
                 text = "Average:",
@@ -186,8 +186,9 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun WeatherIconAndWindDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(start = 0.dp, top = 5.dp))
+    fun WeatherIconAndExtraAdviceIconsDisplay(weather: WeatherUIModel, advice: AdviceUIModel) {
+        val icons = advice.extraAdviceIcons
+        Column(Modifier.padding(start = 0.dp, top = 0.dp))
         {
             Image(
                 painter = painterResource(id = weather.iconId),
@@ -196,6 +197,38 @@ class MainActivity : ComponentActivity() {
                     .scale(1.4f)
                     .wrapContentSize(),
             )
+            Spacer(Modifier.height(15.dp))
+                Text(
+                    text = "Bring:",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
+                    color = Color.Black,
+                )
+                Row {
+                    for (icon in icons) {
+//                        if(icons.size>1)
+//                        {
+                        Image(
+                            painter = painterResource(icon),
+                            contentDescription = "Extra advice icon",
+                            modifier = Modifier
+                                .offset(x = -20.dp)
+                                .size(45.dp),
+                        )
+//                        }
+//                        else{
+//                            Image(
+//                                painter = painterResource(icon),
+//                                contentDescription = "Extra advice icon",
+//                                modifier = Modifier
+//                                    .offset(x = 0.dp)
+//                                    .size(45.dp),
+//                            )
+//                        }
+                    }
+                }
+        }
 //            Row {
 //                Image(
 //                    painter = painterResource(id = R.drawable.ic_baseline_navigation_24),
@@ -213,7 +246,7 @@ class MainActivity : ComponentActivity() {
 //                    textAlign = TextAlign.Center,
 //                )
 //            }
-        }
+//        }
     }
 
     @Composable
@@ -550,30 +583,43 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    @Composable
-    fun ExtraAdviceIcons(advice: AdviceUIModel) {
-        val icons = advice.extraAdviceIcons
-        Column {
-            Text(
-                text = "Today's needed:",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
-                color = Color.Black,
-            )
-            Row {
-                for (icon in icons) {
-                    Image(
-                        painter = painterResource(icon),
-                        contentDescription = "Extra advice icon",
-                        modifier = Modifier
-                            .offset(x = 30.dp)
-                            .size(45.dp),
-                    )
-                }
-            }
-        }
-    }
+//    @Composable
+//    fun ExtraAdviceIcons(advice: AdviceUIModel) {
+//        val icons = advice.extraAdviceIcons
+//        Column {
+//            Text(
+//                text = "Bring:",
+//                fontSize = 20.sp,
+//                fontWeight = FontWeight.SemiBold,
+//                textAlign = TextAlign.Center,
+//                color = Color.Black,
+//            )
+//            Row {
+//                for (icon in icons) {
+//                    if(icons.size>1)
+//                    {
+//                    Image(
+//                        painter = painterResource(icon),
+//                        contentDescription = "Extra advice icon",
+//                        modifier = Modifier
+//                            .offset(x = -20.dp)
+//                            .size(45.dp),
+//                    )
+//                    }
+//                    else{
+//                        Image(
+//                            painter = painterResource(icon),
+//                            contentDescription = "Extra advice icon",
+//                            modifier = Modifier
+//                                .offset(x = 0.dp)
+//                                .size(45.dp),
+//                        )
+//                    }
+//
+//                    }
+//            }
+//        }
+//    }
 
     @Composable
     fun BottomDisplay(
