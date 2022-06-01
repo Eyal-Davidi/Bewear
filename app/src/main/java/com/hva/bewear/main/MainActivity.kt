@@ -165,20 +165,20 @@ class MainActivity : ComponentActivity() {
                 textAlign = TextAlign.Center,
             )
 
+            Spacer(Modifier.height(5.dp))
             Row {
                 Image(
                     painter = painterResource(id = R.drawable.ic_baseline_navigation_24),
                     contentDescription = "Wind navigation image",
                     modifier = Modifier
-                        .size(22.dp)
+                        .size(24.dp)
                         .rotate(weather.windDegrees.toFloat())
                 )
-                Spacer(Modifier.width(5.dp))
                 Text(
                     text = weather.windDisplay,
                     color = Color.Black,
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -687,7 +687,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .offset(y = 6.dp)
                         .clip(RoundedCornerShape(3.dp))
-                        .background(Color.Gray)
+                        .background(Color.LightGray)
                         .align(CenterHorizontally)
                         .width(100.dp)
                         .height(6.dp),
@@ -718,7 +718,7 @@ class MainActivity : ComponentActivity() {
         ) {
             for (i in 0..23) {
                 Card(
-                    border = BorderStroke(3.dp, Color.Gray),
+                    border = BorderStroke(3.dp, Color.LightGray),
                     shape = RoundedCornerShape(topEnd = 5.dp, topStart = 5.dp),
                     modifier = Modifier
                         .width(100.dp)
