@@ -3,6 +3,7 @@ package com.hva.bewear.di
 import com.hva.bewear.domain.advice.GetClothingAdvice
 import com.hva.bewear.domain.avatar_type.GetAvatarType
 import com.hva.bewear.domain.avatar_type.SetTypeOfAvatar
+import com.hva.bewear.domain.location.GetRecentLocations
 import com.hva.bewear.domain.unit.GetUnit
 import com.hva.bewear.domain.unit.SetUnit
 import com.hva.bewear.domain.weather.GetWeather
@@ -17,4 +18,5 @@ val domainModule = module {
     factory { SetTypeOfAvatar(get()) }
     factory { GetUnit(get()) }
     factory { SetUnit(get()) }
+    factory { GetRecentLocations(get()) }
 }

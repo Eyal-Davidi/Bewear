@@ -35,19 +35,12 @@ object WeatherUIMapper {
             date = date,
             temperature = celsiusToFahrenheit(temperature),
             feelsLike = celsiusToFahrenheit(feelsLike),
-            pressure = pressure,
-            humidity = humidity,
-            dewPoint = dewPoint,
             uvIndex = uvIndex,
-            clouds = clouds,
-            visibility = visibility,
             windSpeed = windSpeed,
             windDegree = windDegree,
-            windGust = windGust,
             weather = weather,
             percentageOfPrecipitation = percentageOfPrecipitation,
             rain = rain,
-            snow = snow
         )
     }
 
