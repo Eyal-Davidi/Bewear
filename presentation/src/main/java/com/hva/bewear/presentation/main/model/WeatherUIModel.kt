@@ -1,6 +1,8 @@
 package com.hva.bewear.presentation.main.model
 
+import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import com.hva.bewear.domain.weather.model.HourlyWeather
 
 data class WeatherUIModel(
@@ -12,6 +14,7 @@ data class WeatherUIModel(
     val windDisplay: String = "_",
     @DrawableRes val iconId: Int,
     @DrawableRes val backgroundId: Int,
+    val useBlackText: Boolean = false,
     val windDegrees: Int = 0,
 ){
     companion object{

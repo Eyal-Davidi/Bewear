@@ -1,102 +1,65 @@
 package com.hva.bewear.data.weather.data
 
 import android.content.Context
-import com.hva.bewear.data.weather.network.LocationData
-import com.hva.bewear.data.weather.network.mapper.WeatherMapper.isBeforeCurrentHour
-import com.hva.bewear.data.weather.network.response.CachingResponse
-import com.hva.bewear.data.weather.network.response.WeatherResponse
-import com.hva.bewear.domain.weather.model.ApiCallReasons
+import android.util.Log
+import com.hva.bewear.data.weather.data.entity.CachingEntity
+import com.hva.bewear.data.weather.data.entity.WeatherEntity
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.encodeToJsonElement
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.PrintWriter
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 
 class DataStore(private val context: Context) {
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
     private var file = createFile()
-    private var cachedLocations = getCachedLocations()
 
-    fun shouldCallApi(location: LocationData): ApiCallReasons {
-        if (!file.exists()) return ApiCallReasons.LOCATION_DID_NOT_EXIST
-
-        val weather: WeatherResponse
-        if (!file.isJson()) return ApiCallReasons.FILE_WAS_NOT_JSON
-        else weather = getCachedData(location = location)
-            ?: return ApiCallReasons.LOCATION_DID_NOT_EXIST
-
-        return if (
-            Instant.ofEpochSecond(weather.hourly[0].date.toLong())
-                .isBeforeCurrentHour(ZoneOffset.ofTotalSeconds(weather.timeZoneOffset))
-        ) ApiCallReasons.LOCATION_WAS_OUTDATED
-        else ApiCallReasons.NORMAL
-    }
-
-    fun cacheData(weather: WeatherResponse, locationName: String): WeatherResponse {
-        weather.apply {
-            created = LocalDateTime.now().toEpochSecond(
-                    ZoneOffset.ofTotalSeconds(weather.timeZoneOffset)
-                ).toInt()
-            cityName = locationName
-        }
-
+    fun cacheData(weather: WeatherEntity) {
         val list = arrayListOf(weather)
-        list.addAll(cachedLocations.filter {
-            it.cityName != locationName
+        list.addAll(getCachedLocations().filter {
+            it.cityName != weather.cityName
         })
         list.sortBy { it.created }
-        file.writeDataToFile(
-            json.encodeToJsonElement(CachingResponse(list)).toString()
-        )
-        return weather
+        file.writeDataToFile(json.encodeToJsonElement(CachingEntity(list)))
     }
 
-    fun getCachedData(location: LocationData): WeatherResponse? {
-        cachedLocations = getCachedLocations()
-        return cachedLocations.find { it.cityName == location.cityName }
+    fun getCachedData(cityName: String): WeatherEntity? {
+        return getCachedLocations().find { it.cityName == cityName }
     }
 
-    private fun getCachedLocations(): List<WeatherResponse> {
+    private fun getCachedLocations(): List<WeatherEntity> {
         return try {
-            json.decodeFromString<CachingResponse>(file.readText()).cachedLocations
+            json.decodeFromString<CachingEntity>(file.readText()).cachedLocations
         } catch (e: Exception) {
             emptyList()
         }
     }
 
-    private fun File.writeDataToFile(jsonString: String): Boolean {
+    private fun File.writeDataToFile(json: JsonElement): Boolean {
         return try {
             val printWriter = PrintWriter(this)
-            printWriter.write(jsonString)
+            printWriter.write(json.toString())
             printWriter.close()
             true
         } catch (e: Exception) {
+            Log.e("CachingError", "writeDataToFile: $e", )
             false
         }
     }
 
     private fun createFile(): File {
-        val file = File(context.filesDir, "weather-location-cache.json")
+        val file = File(context.filesDir, CACHE_FILE_NAME)
         return if (file.exists()) file
-        else file.newFile()
-    }
-
-    private fun File.newFile(): File {
-        kotlin.runCatching { createNewFile() }
-        if (!exists()) throw FileNotFoundException()
-        return this
-    }
-
-    private fun File.isJson(): Boolean {
-        return try {
-            json.decodeFromString<CachingResponse>(readText())
-            true
-        } catch (exception: Exception) {
-            false
+        else {
+            kotlin.runCatching { file.createNewFile() }
+            if (!file.exists()) throw FileNotFoundException()
+            else file
         }
+    }
+
+    companion object {
+        private const val CACHE_FILE_NAME = "weather-location-cache.json"
     }
 }

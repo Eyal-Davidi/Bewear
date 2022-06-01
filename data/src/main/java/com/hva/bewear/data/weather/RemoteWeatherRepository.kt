@@ -1,15 +1,20 @@
 package com.hva.bewear.data.weather
 
 import android.content.Context
+import com.hva.bewear.data.generic.isBeforeCurrentHour
 import com.hva.bewear.data.location.LocationService
 import com.hva.bewear.data.weather.data.DataStore
 import com.hva.bewear.data.weather.network.LocationData
 import com.hva.bewear.data.weather.network.Locations
 import com.hva.bewear.data.weather.network.WeatherService
 import com.hva.bewear.data.weather.network.mapper.WeatherMapper.toDomain
+import com.hva.bewear.data.weather.network.mapper.WeatherMapper.toEntity
+import com.hva.bewear.data.weather.network.response.WeatherResponse
 import com.hva.bewear.domain.location.Coordinates
 import com.hva.bewear.domain.weather.data.WeatherRepository
+import com.hva.bewear.domain.weather.model.ApiCallReasons
 import com.hva.bewear.domain.weather.model.Weather
+import java.time.ZoneOffset
 
 class RemoteWeatherRepository(
     private val service: WeatherService,
@@ -20,14 +25,20 @@ class RemoteWeatherRepository(
 
     override suspend fun getWeather(cityName: String, coordinates: Coordinates): Weather {
         val location = setCoordinates(coordinates, cityName)
-        val reason = dataStore.shouldCallApi(location)
 
-        val response = if(reason.makeCall)
-            dataStore.cacheData(service.getWeather(location, reason), location.cityName)
-        else dataStore.getCachedData(location)
-            ?: service.getWeather(location, reason)
-        return response.toDomain()
+        return dataStore.getCachedData(cityName)?.takeIf {
+            !it.created.isBeforeCurrentHour(ZoneOffset.ofTotalSeconds(it.timeZoneOffset))
+        }?.toDomain() ?: service.getWeather(location).also {
+            dataStore.cacheData(it.toEntity(location))
+        }.toDomain(location)
     }
+
+
+
+
+
+
+
 
     private fun setCoordinates(coordinates: Coordinates, cityName: String): LocationData {
         var location = LocationData()
@@ -35,6 +46,7 @@ class RemoteWeatherRepository(
             location.cityName = cityName
             location.lat = coordinates.lat
             location.lon = coordinates.lon
+            location.isCurrent = true
         } else {
             val loc = Locations.CityName(cityName)
 

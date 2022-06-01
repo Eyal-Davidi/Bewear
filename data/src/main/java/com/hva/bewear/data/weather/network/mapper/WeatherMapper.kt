@@ -1,5 +1,11 @@
 package com.hva.bewear.data.weather.network.mapper
 
+import com.hva.bewear.data.generic.toDateTime
+import com.hva.bewear.data.weather.data.entity.DailyWeatherEntity
+import com.hva.bewear.data.weather.data.entity.HourlyWeatherEntity
+import com.hva.bewear.data.weather.data.entity.WeatherDetailsEntity
+import com.hva.bewear.data.weather.data.entity.WeatherEntity
+import com.hva.bewear.data.weather.network.LocationData
 import com.hva.bewear.data.weather.network.response.DailyWeatherResponse
 import com.hva.bewear.data.weather.network.response.HourlyWeatherResponse
 import com.hva.bewear.data.weather.network.response.WeatherDetailsResponse
@@ -8,101 +14,171 @@ import com.hva.bewear.domain.weather.model.DailyWeather
 import com.hva.bewear.domain.weather.model.HourlyWeather
 import com.hva.bewear.domain.weather.model.Weather
 import com.hva.bewear.domain.weather.model.WeatherDetails
-import java.time.*
-import java.util.*
 
 object WeatherMapper {
-    fun WeatherResponse.toDomain(): Weather {
+    fun WeatherResponse.toDomain(location: LocationData): Weather {
         return Weather(
-            daily = this.daily.map { it.toDomain() },
-            hourly = this.hourly.map { it.toDomain(timeZoneOffset) },
+            created = hourly.first().date,
+            cityName = location.cityName,
+            isCurrent = location.isCurrent,
+            timeZoneOffset = timeZoneOffset,
+            daily = daily.map { it.toDomain() },
+            hourly = hourly.map { it.toDomain(timeZoneOffset) },
         )
     }
 
     fun DailyWeatherResponse.toDomain(): DailyWeather {
         return DailyWeather(
-            date = this.date.instantToDateTime(),
-            sunrise = this.sunrise,
-            sunset = this.sunset,
-            moonrise = this.moonrise,
-            moonset = this.moonset,
-            moonPhase = this.moonPhase,
+            date = date.toDateTime(),
             temperature = DailyWeather.TemperatureDay(
-                this.temperature.day,
-                this.temperature.min,
-                this.temperature.max,
-                this.temperature.night,
-                this.temperature.evening,
-                this.temperature.morning
+                temperature.day,
+                temperature.min,
+                temperature.max,
+                temperature.night,
+                temperature.evening,
+                temperature.morning
             ),
             feelsLike = DailyWeather.FeelsLike(
-                this.feelsLike.day,
-                this.feelsLike.night,
-                this.feelsLike.evening,
-                this.feelsLike.morning
+                feelsLike.day,
+                feelsLike.night,
+                feelsLike.evening,
+                feelsLike.morning
             ),
-            pressure = this.pressure,
-            humidity = this.humidity,
-            dewPoint = this.dewPoint,
-            windSpeed = this.windSpeed,
-            windDegree = this.windDegree,
-            windGust = this.windGust,
-            weather = this.weather.map { it.toDomain() },
-            clouds = this.clouds,
-            percentageOfPrecipitation = this.percentageOfPrecipitation,
-            uvIndex = this.uvIndex,
-            rain = this.rain,
-            snow = this.snow,
+            windSpeed = windSpeed,
+            windDegree = windDegree,
+            weather = weather.map { it.toDomain() },
+            percentageOfPrecipitation = percentageOfPrecipitation,
+            uvIndex = uvIndex,
+            rain = rain,
         )
     }
 
     fun HourlyWeatherResponse.toDomain(timezoneOffset: Int): HourlyWeather {
         return HourlyWeather(
-            date = this.date.instantToDateTime(timezoneOffset),
-            temperature = this.temperature,
-            feelsLike = this.feelsLike,
-            pressure = this.pressure,
-            humidity = this.humidity,
-            dewPoint = this.dewPoint,
-            uvIndex = this.uvIndex,
-            clouds = this.clouds,
-            visibility = this.visibility,
-            windSpeed = this.windSpeed,
-            windDegree = this.windDegree,
-            windGust = this.windGust,
-            weather = this.weather.map { it.toDomain() },
-            percentageOfPrecipitation = this.percentageOfPrecipitation,
-            rain = HourlyWeather.HourlyPrecipitation(this.rain.hour),
-            snow = HourlyWeather.HourlyPrecipitation(this.snow.hour),
+            date = date.toDateTime(timezoneOffset),
+            temperature = temperature,
+            feelsLike = feelsLike,
+            uvIndex = uvIndex,
+            windSpeed = windSpeed,
+            windDegree = windDegree,
+            weather = weather.map { it.toDomain() },
+            percentageOfPrecipitation = percentageOfPrecipitation,
+            rain = HourlyWeather.HourlyPrecipitation(rain.hour),
         )
     }
 
     fun WeatherDetailsResponse.toDomain():WeatherDetails {
-        return WeatherDetails(this.id, this.main, this.description, this.icon)
+        return WeatherDetails(id, main, description, icon)
     }
 
-    fun Int.instantToDate(): LocalDate {
-        return Instant.ofEpochSecond(toLong())
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate()
-    }
-
-    fun Int.instantToDateTime(timezoneOffset: Int = 0): LocalDateTime {
-        return Instant.ofEpochSecond(toLong())
-            .atZone(ZoneId.ofOffset("UTC", ZoneOffset.ofTotalSeconds(timezoneOffset)))
-            .toLocalDateTime()
-    }
-
-    fun Instant.isBeforeCurrentDate(): Boolean {
-        val date = LocalDate.ofEpochDay(epochSecond)
-        return date.isBefore(LocalDate.now())
-    }
-
-    fun Instant.isBeforeCurrentHour(offset: ZoneOffset): Boolean {
-        val dateTime = LocalDateTime.ofInstant(this, offset)
-        val now = LocalDateTime.now(
-            ZoneId.ofOffset("UTC", offset)
+    fun WeatherEntity.toDomain(): Weather {
+        return Weather(
+            created = created,
+            cityName = cityName,
+            isCurrent = isCurrent,
+            timeZoneOffset = timeZoneOffset,
+            daily = daily.map { it.toDomain() },
+            hourly = hourly.map { it.toDomain(timeZoneOffset) },
         )
-        return isBeforeCurrentDate() || dateTime.hour < now.hour
     }
+
+    fun DailyWeatherEntity.toDomain(): DailyWeather {
+        return DailyWeather(
+            date = date.toDateTime(),
+            temperature = DailyWeather.TemperatureDay(
+                temperature.day,
+                temperature.min,
+                temperature.max,
+                temperature.night,
+                temperature.evening,
+                temperature.morning
+            ),
+            feelsLike = DailyWeather.FeelsLike(
+                feelsLike.day,
+                feelsLike.night,
+                feelsLike.evening,
+                feelsLike.morning
+            ),
+            windSpeed = windSpeed,
+            windDegree = windDegree,
+            weather = weather.map { it.toDomain() },
+            percentageOfPrecipitation = percentageOfPrecipitation,
+            uvIndex = uvIndex,
+            rain = rain,
+        )
+    }
+
+    fun HourlyWeatherEntity.toDomain(timezoneOffset: Int): HourlyWeather {
+        return HourlyWeather(
+            date = date.toDateTime(timezoneOffset),
+            temperature = temperature,
+            feelsLike = feelsLike,
+            uvIndex = uvIndex,
+            windSpeed = windSpeed,
+            windDegree = windDegree,
+            weather = weather.map { it.toDomain() },
+            percentageOfPrecipitation = percentageOfPrecipitation,
+            rain = HourlyWeather.HourlyPrecipitation(rain.hour),
+        )
+    }
+
+    fun WeatherDetailsEntity.toDomain():WeatherDetails {
+        return WeatherDetails(id, main, description, icon)
+    }
+
+    fun WeatherResponse.toEntity(location: LocationData): WeatherEntity {
+        return WeatherEntity(
+            created = hourly.first().date,
+            cityName = location.cityName,
+            isCurrent = location.isCurrent,
+            timeZoneOffset = timeZoneOffset,
+            daily = daily.map { it.toEntity() },
+            hourly = hourly.map { it.toEntity() },
+        )
+    }
+
+    fun DailyWeatherResponse.toEntity(): DailyWeatherEntity {
+        return DailyWeatherEntity(
+            date = date,
+            temperature = DailyWeatherEntity.TemperatureDay(
+                temperature.day,
+                temperature.min,
+                temperature.max,
+                temperature.night,
+                temperature.evening,
+                temperature.morning
+            ),
+            feelsLike = DailyWeatherEntity.FeelsLike(
+                feelsLike.day,
+                feelsLike.night,
+                feelsLike.evening,
+                feelsLike.morning
+            ),
+            windSpeed = windSpeed,
+            windDegree = windDegree,
+            weather = weather.map { it.toEntity() },
+            percentageOfPrecipitation = percentageOfPrecipitation,
+            uvIndex = uvIndex,
+            rain = rain,
+        )
+    }
+
+    fun HourlyWeatherResponse.toEntity(): HourlyWeatherEntity {
+        return HourlyWeatherEntity(
+            date = date,
+            temperature = temperature,
+            feelsLike = feelsLike,
+            uvIndex = uvIndex,
+            windSpeed = windSpeed,
+            windDegree = windDegree,
+            weather = weather.map { it.toEntity() },
+            percentageOfPrecipitation = percentageOfPrecipitation,
+            rain = HourlyWeatherEntity.HourlyPrecipitation(rain.hour),
+        )
+    }
+
+    fun WeatherDetailsResponse.toEntity():WeatherDetailsEntity {
+        return WeatherDetailsEntity(id, main, description, icon)
+    }
+
 }
