@@ -12,7 +12,10 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -25,11 +28,13 @@ import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Alignment.Companion.End
+import androidx.compose.ui.Alignment.Companion.TopCenter
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -92,8 +97,9 @@ class MainActivity : ComponentActivity() {
         BindStates {
             Loader(weather)
             Avatar(advice)
+
             Column {
-                TopBar(locations)
+                Spacer(modifier = Modifier.height(65.dp))
                 TitleDisplay()
                 Spacer(modifier = Modifier.height(1.dp))
                 Row {
@@ -111,6 +117,8 @@ class MainActivity : ComponentActivity() {
                 }
                 BottomDisplay(advice, weather, hourlyAdvice)
             }
+            TopBar(locations)
+
         }
     }
 
@@ -206,155 +214,215 @@ class MainActivity : ComponentActivity() {
         var text by rememberSaveable { mutableStateOf("") }
         var showLocationPermission by remember { mutableStateOf(false) }
         val currentLocation by viewModel.currentLocation.collectAsState()
-
-        Card(
-            modifier = Modifier
-                .padding(5.dp, 5.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .fillMaxWidth()
-                .height(40.dp),
-            backgroundColor = MaterialTheme.colors.primaryVariant,
+        val interactionSource = remember { MutableInteractionSource() }
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.ic_settings),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(27.dp)
-                            .align(CenterVertically)
-                            .clickable { showPopup = true }
-                    )
-                    OutlinedTextField(
-                        value = text,
-                        onValueChange = {
-                            text = it
-                        },
-                        placeholder = {
-                            Text(
-                                text = currentLocation,
-                                modifier = Modifier.fillMaxWidth(),
-                                style = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
-                            )
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Ascii,
-                            imeAction = ImeAction.Done,
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                viewModel.getLocation(text)
-                                expanded = true
-                            },
-                        ),
-                        modifier = Modifier
-                            .align(CenterVertically)
-                            .width(300.dp)
-                            .requiredHeight(56.dp)
-                            .onKeyEvent {
-                                if ((it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_INSERT) || (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_SEARCH) || (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER)) {
-                                    viewModel.getLocation(text)
-                                    expanded = true
-                                    true
-                                } else {
-                                    false
-                                }
-                            },
-                        textStyle = LocalTextStyle.current.copy(
-                            textAlign = TextAlign.Center,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
-                        ),
-                        singleLine = true,
-                    )
-                    if (showCurrentLocationIcon) Image(
-                        painter = painterResource(R.drawable.ic_my_location),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(24.dp)
-                            .align(CenterVertically)
-                    )
-                    Image(
-                        painter = if (expanded)
-                            painterResource(R.drawable.expand_less)
-                        else
-                            painterResource(R.drawable.expand_more),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(30.dp)
-                            .align(CenterVertically)
-                            .clickable {
-                                expanded = !expanded
-                            }
-                    )
-                }
 
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    modifier = Modifier
-                        .width(400.dp)
-                        .height(220.dp)
-                        .align(CenterHorizontally)
-                        .background(
-                            MaterialTheme.colors.primaryVariant
-                        ),
-                ) {
-                    DropdownMenuItem(
-                        onClick = {
+            if (expanded) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null) {
                             expanded = false
-                            showCurrentLocationIcon = true
-                            if (checkLocationPermission()) showLocationPermission = true
-                            else fetchLocation()
+                        }
 
-                        },
+                ) {
+
+                }
+            }
+            Card(
+
+                modifier = Modifier
+                    .padding(5.dp, 5.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .align(TopCenter),
+                backgroundColor = MaterialTheme.colors.primaryVariant,
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(
-                            text = "Current Location",
-                            color = Color.Black,
-                            textAlign = TextAlign.Center,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .wrapContentWidth()
-                        )
                         Image(
-                            painter = painterResource(R.drawable.ic_my_location),
+                            painter = painterResource(R.drawable.ic_settings),
                             contentDescription = null,
-                            alignment = Alignment.CenterEnd,
                             modifier = Modifier
-                                .size(24.dp)
-                                .offset(230.dp)
+                                .size(27.dp)
+                                .align(CenterVertically)
+                                .clickable { showPopup = true }
                         )
-                    }
-                    Divider()
-                    locations.forEachIndexed { _, location ->
-                        DropdownMenuItem(
-                            onClick = {
-                                if (location != currentLocation) {
-                                    expanded = false
-                                    showCurrentLocationIcon = false
-                                    viewModel.refresh(location)
-                                }
+                        if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
+
+                        OutlinedTextField(
+                            value = text,
+                            onValueChange = {
+                                text = it
+                                /*if(text.length >= 3){
+                                    viewModel.getLocation(text)
+                                    expanded = true
+                                }*/
                             },
-                        ) {
-                            Text(
-                                text = location,
-                                color = Color.Black,
+                            placeholder = {
+                                Text(
+                                    text = currentLocation,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    style = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
+                                )
+                            },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Ascii,
+                                imeAction = ImeAction.Done,
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    viewModel.getLocation(text)
+                                    expanded = true
+                                },
+                            ),
+
+                            modifier = Modifier
+                                .align(CenterVertically)
+                                .width(300.dp)
+                                .requiredHeight(56.dp)
+                                .onKeyEvent {
+                                    if ((it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_INSERT) || (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_SEARCH) || (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER)) {
+                                        viewModel.getLocation(text)
+                                        expanded = true
+                                        true
+                                    } else {
+                                        false
+                                    }
+                                },
+                            textStyle = LocalTextStyle.current.copy(
                                 textAlign = TextAlign.Center,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
+                                color = Color.Black,
+                            ),
+                            singleLine = true,
+                        )
+
+                        Row {
+                            if (showCurrentLocationIcon) Image(
+                                painter = painterResource(R.drawable.ic_my_location),
+                                contentDescription = null,
                                 modifier = Modifier
-                                    .wrapContentWidth()
+                                    .size(24.dp)
+                                    .align(CenterVertically)
+                            )
+                            Image(
+                                painter = if (expanded)
+                                    painterResource(R.drawable.expand_less)
+                                else
+                                    painterResource(R.drawable.expand_more),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .align(CenterVertically)
+                                    .clickable {
+                                        expanded = !expanded
+
+                                    }
+
                             )
                         }
-                        Divider()
                     }
                 }
             }
+            if (expanded) {
+                Card(
+                    modifier = Modifier
+
+                        .padding(start = 4.dp, top = 45.dp)
+                        .width(400.dp)
+                        .height(220.dp)
+                        .verticalScroll(ScrollState(0)),
+                    backgroundColor = MaterialTheme.colors.primaryVariant,
+
+                    ) {
+                    Column {
+                        Column(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .background(
+                                MaterialTheme.colors.primaryVariant
+                            )
+                            .clickable {
+                                expanded = false
+                                showCurrentLocationIcon = true
+                                if (checkLocationPermission()) showLocationPermission = true
+                                else fetchLocation()
+                            }) {
+                            Row {
+                                Text(
+                                    text = "Current Location",
+                                    color = Color.Black,
+                                    textAlign = TextAlign.Center,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier
+                                        .wrapContentWidth()
+
+
+                                )
+                                Image(
+                                    painter = painterResource(R.drawable.ic_my_location),
+                                    contentDescription = null,
+                                    alignment = Alignment.CenterEnd,
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .offset(230.dp)
+
+                                )
+                            }
+                        }
+                        Divider()
+                        locations.forEachIndexed { _, location ->
+                            Column(
+                                Modifier
+                                    .clickable {
+                                        if (location != currentLocation) {
+                                            expanded = false
+
+                                            showCurrentLocationIcon = false
+                                            viewModel.refresh(location)
+
+                                        }
+                                    }
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
+                                    .background(
+                                        MaterialTheme.colors.primaryVariant
+                                    ),
+                            ) {
+
+                                Text(
+                                    text = location,
+                                    color = Color.Black,
+                                    textAlign = TextAlign.Center,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier
+                                        .wrapContentWidth()
+                                )
+
+
+                            }
+                            Divider()
+                        }
+                    }
+                }
+                //here
+
+
+            }
+
+
+
+
             if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
             if (showLocationPermission) LocationPermissionDialog { showLocationPermission = it }
         }
@@ -386,13 +454,15 @@ class MainActivity : ComponentActivity() {
         ) {
             Column {
                 Column {
-                    Text("Avatar Type",
+                    Text(
+                        "Avatar Type",
                         fontFamily = nunito,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
                         modifier = Modifier
                             .align(CenterHorizontally)
-                            .padding(bottom = 4.dp))
+                            .padding(bottom = 4.dp)
+                    )
 
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -400,15 +470,21 @@ class MainActivity : ComponentActivity() {
                             .fillMaxWidth()
                             .padding(start = 8.dp)
                     ) {
-                        Text("Male",
+                        Text(
+                            "Male",
                             fontFamily = nunito,
-                            fontWeight = FontWeight.Normal,)
-                        Text("Both",
+                            fontWeight = FontWeight.Normal,
+                        )
+                        Text(
+                            "Both",
                             fontFamily = nunito,
-                            fontWeight = FontWeight.Normal,)
-                        Text("Female",
+                            fontWeight = FontWeight.Normal,
+                        )
+                        Text(
+                            "Female",
                             fontFamily = nunito,
-                            fontWeight = FontWeight.Normal,)
+                            fontWeight = FontWeight.Normal,
+                        )
                     }
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -424,13 +500,15 @@ class MainActivity : ComponentActivity() {
                 Divider()
 
                 Column {
-                    Text("Unit of Measurement",
+                    Text(
+                        "Unit of Measurement",
                         fontFamily = nunito,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
                         modifier = Modifier
                             .padding(top = 8.dp)
-                            .align(CenterHorizontally))
+                            .align(CenterHorizontally)
+                    )
 
                     Row(
                         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -491,10 +569,12 @@ class MainActivity : ComponentActivity() {
                         Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(text = title,
+                        Text(
+                            text = title,
                             fontFamily = nunito,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,)
+                            fontSize = 18.sp,
+                        )
                         Divider()
                     }
                 }
@@ -502,16 +582,20 @@ class MainActivity : ComponentActivity() {
             text = content,
             dismissButton = {
                 Button(onClick = { onShownChange(false) }) {
-                    Text("Cancel",
+                    Text(
+                        "Cancel",
                         fontFamily = nunito,
-                        fontWeight = FontWeight.Normal,)
+                        fontWeight = FontWeight.Normal,
+                    )
                 }
             },
             confirmButton = {
                 Button(onClick = { onShownChange(false); onClickOkBtn() }) {
-                    Text(okBtnText,
+                    Text(
+                        okBtnText,
                         fontFamily = nunito,
-                        fontWeight = FontWeight.Normal,)
+                        fontWeight = FontWeight.Normal,
+                    )
                 }
             }
         )
@@ -569,7 +653,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .requiredHeightIn((height + descriptionOffset).dp, 300.dp)
-                        .align(Alignment.TopCenter)
+                        .align(TopCenter)
                         .offset(y = (-descriptionOffset + descriptionOffsetY).dp),
                     dragAmount = descriptionOffsetY / maxDescriptionOffset,
                 )
@@ -795,7 +879,10 @@ class MainActivity : ComponentActivity() {
         if (checkLocationPermission()) {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ),
                 101
             )
         }
