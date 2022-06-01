@@ -17,7 +17,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -103,16 +102,16 @@ class MainActivity : ComponentActivity() {
                 TitleDisplay()
                 Spacer(modifier = Modifier.height(1.dp))
                 Row {
-                    TemperatureDisplay(weather)
+                    TemperatureAndWindDisplay(weather)
                     Column(
                         horizontalAlignment = End,
                         modifier = Modifier
                             .padding(end = 26.dp)
                             .fillMaxWidth(),
                     ) {
-                        WindDisplay(weather)
-                        Spacer(Modifier.height(20.dp))
-                        ExtraAdviceIcons(advice)
+                        WeatherIconAndExtraAdviceIconsDisplay(weather, advice)
+//                        Spacer(Modifier.height(15.dp))
+//                        ExtraAdviceIcons(advice)
                     }
                 }
                 BottomDisplay(advice, weather, hourlyAdvice)
@@ -140,7 +139,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun TemperatureDisplay(weather: WeatherUIModel) {
+    fun TemperatureAndWindDisplay(weather: WeatherUIModel) {
         Column(Modifier.padding(start = 16.dp)) {
             Text(
                 text = "Average:",
@@ -173,38 +172,92 @@ class MainActivity : ComponentActivity() {
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
             )
-        }
-    }
 
-    @Composable
-    fun WindDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(start = 0.dp, top = 30.dp))
-        {
-            Image(
-                painter = painterResource(id = weather.iconId),
-                contentDescription = "Weather Icon",
-                modifier = Modifier
-                    .scale(1.5f)
-                    .wrapContentSize(),
-            )
+            Spacer(Modifier.height(5.dp))
             Row {
                 Image(
                     painter = painterResource(id = R.drawable.ic_baseline_navigation_24),
                     contentDescription = "Wind navigation image",
                     modifier = Modifier
-                        .size(30.dp)
+                        .size(24.dp)
                         .rotate(weather.windDegrees.toFloat())
                 )
-                Spacer(Modifier.width(5.dp))
                 Text(
                     text = weather.windDisplay,
                     color = Color.Black,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                 )
             }
         }
+    }
+
+    @Composable
+    fun WeatherIconAndExtraAdviceIconsDisplay(weather: WeatherUIModel, advice: AdviceUIModel) {
+        val icons = advice.extraAdviceIcons
+        Column(Modifier.padding(start = 0.dp, top = 0.dp) .width(100.dp))
+        {
+            Image(
+                painter = painterResource(id = weather.iconId),
+                contentDescription = "Weather Icon",
+                modifier = Modifier
+                    .scale(1.4f)
+                    .wrapContentSize()
+                    .align(End)
+
+            )
+            Spacer(Modifier.height(15.dp))
+                Text(modifier = Modifier.align(End),
+                    text = "Bring:",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Left,
+                    color = Color.Black,
+                )
+
+                Row(Modifier.align(End)){
+                    for (icon in icons) {
+                        if(icons.size>1)
+                        {
+                        Image(
+                            painter = painterResource(icon),
+                            contentDescription = "Extra advice icon",
+                            modifier = Modifier
+                                .offset(x = 20.dp)
+                                .size(45.dp)
+                        )
+                        }
+                        else{
+                            Image(
+                                painter = painterResource(icon),
+                                contentDescription = "Extra advice icon",
+                                modifier = Modifier
+                                    .offset(x = 0.dp)
+                                    .size(45.dp),
+                            )
+                        }
+                    }
+                }
+        }
+//            Row {
+//                Image(
+//                    painter = painterResource(id = R.drawable.ic_baseline_navigation_24),
+//                    contentDescription = "Wind navigation image",
+//                    modifier = Modifier
+//                        .size(22.dp)
+//                        .rotate(weather.windDegrees.toFloat())
+//                )
+//                Spacer(Modifier.width(5.dp))
+//                Text(
+//                    text = weather.windDisplay,
+//                    color = Color.Black,
+//                    fontSize = 17.sp,
+//                    fontWeight = FontWeight.SemiBold,
+//                    textAlign = TextAlign.Center,
+//                )
+//            }
+//        }
     }
 
     @Composable
@@ -601,21 +654,43 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    @Composable
-    fun ExtraAdviceIcons(advice: AdviceUIModel) {
-        val icons = advice.extraAdviceIcons
-        Column {
-            for (icon in icons) {
-                Image(
-                    painter = painterResource(icon),
-                    contentDescription = "Extra advice icon",
-                    modifier = Modifier
-                        .offset(x = 10.dp)
-                        .size(60.dp),
-                )
-            }
-        }
-    }
+//    @Composable
+//    fun ExtraAdviceIcons(advice: AdviceUIModel) {
+//        val icons = advice.extraAdviceIcons
+//        Column {
+//            Text(
+//                text = "Bring:",
+//                fontSize = 20.sp,
+//                fontWeight = FontWeight.SemiBold,
+//                textAlign = TextAlign.Center,
+//                color = Color.Black,
+//            )
+//            Row {
+//                for (icon in icons) {
+//                    if(icons.size>1)
+//                    {
+//                    Image(
+//                        painter = painterResource(icon),
+//                        contentDescription = "Extra advice icon",
+//                        modifier = Modifier
+//                            .offset(x = -20.dp)
+//                            .size(45.dp),
+//                    )
+//                    }
+//                    else{
+//                        Image(
+//                            painter = painterResource(icon),
+//                            contentDescription = "Extra advice icon",
+//                            modifier = Modifier
+//                                .offset(x = 0.dp)
+//                                .size(45.dp),
+//                        )
+//                    }
+//
+//                    }
+//            }
+//        }
+//    }
 
     @Composable
     fun BottomDisplay(
@@ -683,7 +758,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .offset(y = 6.dp)
                         .clip(RoundedCornerShape(3.dp))
-                        .background(Color.Gray)
+                        .background(Color.LightGray)
                         .align(CenterHorizontally)
                         .width(100.dp)
                         .height(6.dp),
@@ -714,7 +789,7 @@ class MainActivity : ComponentActivity() {
         ) {
             for (i in 0..23) {
                 Card(
-                    border = BorderStroke(3.dp, Color.Gray),
+                    border = BorderStroke(3.dp, Color.LightGray),
                     shape = RoundedCornerShape(topEnd = 5.dp, topStart = 5.dp),
                     modifier = Modifier
                         .width(100.dp)
