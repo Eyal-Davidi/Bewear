@@ -385,13 +385,15 @@ class MainActivity : ComponentActivity() {
         ) {
             Column {
                 Column {
-                    Text("Avatar Type",
+                    Text(
+                        "Avatar Type",
                         fontFamily = nunito,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
                         modifier = Modifier
                             .align(CenterHorizontally)
-                            .padding(bottom = 4.dp))
+                            .padding(bottom = 4.dp)
+                    )
 
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -399,15 +401,21 @@ class MainActivity : ComponentActivity() {
                             .fillMaxWidth()
                             .padding(start = 8.dp)
                     ) {
-                        Text("Male",
+                        Text(
+                            "Male",
                             fontFamily = nunito,
-                            fontWeight = FontWeight.Normal,)
-                        Text("Both",
+                            fontWeight = FontWeight.Normal,
+                        )
+                        Text(
+                            "Both",
                             fontFamily = nunito,
-                            fontWeight = FontWeight.Normal,)
-                        Text("Female",
+                            fontWeight = FontWeight.Normal,
+                        )
+                        Text(
+                            "Female",
                             fontFamily = nunito,
-                            fontWeight = FontWeight.Normal,)
+                            fontWeight = FontWeight.Normal,
+                        )
                     }
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -423,13 +431,15 @@ class MainActivity : ComponentActivity() {
                 Divider()
 
                 Column {
-                    Text("Unit of Measurement",
+                    Text(
+                        "Unit of Measurement",
                         fontFamily = nunito,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
                         modifier = Modifier
                             .padding(top = 8.dp)
-                            .align(CenterHorizontally))
+                            .align(CenterHorizontally)
+                    )
 
                     Row(
                         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -490,10 +500,12 @@ class MainActivity : ComponentActivity() {
                         Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(text = title,
+                        Text(
+                            text = title,
                             fontFamily = nunito,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,)
+                            fontSize = 18.sp,
+                        )
                         Divider()
                     }
                 }
@@ -501,16 +513,20 @@ class MainActivity : ComponentActivity() {
             text = content,
             dismissButton = {
                 Button(onClick = { onShownChange(false) }) {
-                    Text("Cancel",
+                    Text(
+                        "Cancel",
                         fontFamily = nunito,
-                        fontWeight = FontWeight.Normal,)
+                        fontWeight = FontWeight.Normal,
+                    )
                 }
             },
             confirmButton = {
                 Button(onClick = { onShownChange(false); onClickOkBtn() }) {
-                    Text(okBtnText,
+                    Text(
+                        okBtnText,
                         fontFamily = nunito,
-                        fontWeight = FontWeight.Normal,)
+                        fontWeight = FontWeight.Normal,
+                    )
                 }
             }
         )
@@ -520,14 +536,23 @@ class MainActivity : ComponentActivity() {
     fun ExtraAdviceIcons(advice: AdviceUIModel) {
         val icons = advice.extraAdviceIcons
         Column {
-            for (icon in icons) {
-                Image(
-                    painter = painterResource(icon),
-                    contentDescription = "Extra advice icon",
-                    modifier = Modifier
-                        .offset(x = 10.dp)
-                        .size(60.dp),
-                )
+            Text(
+                text = "Today's needed:",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                color = Color.Black,
+            )
+            Row {
+                for (icon in icons) {
+                    Image(
+                        painter = painterResource(icon),
+                        contentDescription = "Extra advice icon",
+                        modifier = Modifier
+                            .offset(x = 30.dp)
+                            .size(45.dp),
+                    )
+                }
             }
         }
     }
@@ -794,7 +819,10 @@ class MainActivity : ComponentActivity() {
         if (checkLocationPermission()) {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ),
                 101
             )
         }
