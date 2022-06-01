@@ -3,7 +3,7 @@ package com.hva.bewear.domain.weather.model
 import java.time.Instant
 
 data class Weather(
-    val created: Instant,
+    val lastUsed: Instant,
     val cityName:String,
     val isCurrent: Boolean,
     val timeZoneOffset: Int,

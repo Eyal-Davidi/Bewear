@@ -17,12 +17,12 @@ class WeatherDataStore(private val context: Context) {
     private var file = createFile()
 
     fun cacheData(weather: WeatherEntity) {
-        val list = arrayListOf(weather)
-        list.addAll(getCachedLocations().filter {
-            it.cityName != weather.cityName
-        })
-        list.sortBy { it.created }
-        file.writeDataToFile(json.encodeToJsonElement(CachingEntity(list)))
+        val list = arrayListOf<WeatherEntity>()
+        list.addAll(
+            getCachedLocations().filter(weather.cityName)
+        )
+        list.add(weather)
+        file.writeDataToFile(json.encodeToJsonElement(CachingEntity(list.limit())))
     }
 
     fun getCachedWeather(cityName: String): WeatherEntity? {
@@ -36,6 +36,14 @@ class WeatherDataStore(private val context: Context) {
             Log.e("CachingError", "getCachedLocations: $e", )
             emptyList()
         }
+    }
+
+    private fun List<WeatherEntity>.filter(cityName: String): List<WeatherEntity> {
+        return this.filter { it.cityName != cityName }.sortedByDescending { it.lastUsed }
+    }
+
+    private fun List<WeatherEntity>.limit(): List<WeatherEntity> {
+        return subList(0, (if(size < MAX_CACHED) size else MAX_CACHED))
     }
 
     private fun File.writeDataToFile(json: JsonElement): Boolean {
@@ -62,5 +70,6 @@ class WeatherDataStore(private val context: Context) {
 
     companion object {
         private const val CACHE_FILE_NAME = "weather-location-cache.json"
+        private const val MAX_CACHED = 5
     }
 }

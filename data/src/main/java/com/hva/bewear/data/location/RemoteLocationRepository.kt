@@ -1,26 +1,33 @@
 package com.hva.bewear.data.location
 
 import com.hva.bewear.data.weather.data.WeatherDataStore
-import com.hva.bewear.data.weather.network.mapper.WeatherMapper.toLocation
-import com.hva.bewear.domain.location.model.LocationData
+import com.hva.bewear.data.weather.data.mapper.WeatherDataMapper.toLocation
+import com.hva.bewear.domain.location.model.Location
 import com.hva.bewear.domain.location.LocationRepository
+import java.time.Instant
 
 class RemoteLocationRepository(
     private val locationService: LocationService,
     private val dataStore: WeatherDataStore,
 ) : LocationRepository {
-    override suspend fun getLocation(text: String): List<LocationData> {
-        val location = ArrayList<LocationData>()
+    override suspend fun getLocation(text: String): List<Location> {
+        val location = ArrayList<Location>()
 
         locationService.update(text).forEach {
             location.add(
-                LocationData(it.name,it.lat, it.lon, false,it.state ?: "", it.country, )
+                Location(
+                    cityName = it.name,
+                    state = it.state ?: "",
+                    country = it.country,
+                    lat = it.lat,
+                    lon = it.lon,
+                )
             )
         }
         return location
     }
 
-    override suspend fun getRecentLocations(): List<LocationData> {
+    override suspend fun getRecentLocations(): List<Location> {
         return dataStore.getCachedLocations().map { it.toLocation() }
     }
 }

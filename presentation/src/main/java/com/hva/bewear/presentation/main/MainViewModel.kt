@@ -14,7 +14,7 @@ import com.hva.bewear.domain.unit.GetUnit
 import com.hva.bewear.domain.unit.SetUnit
 import com.hva.bewear.domain.unit.model.MeasurementUnit
 import com.hva.bewear.domain.location.LocationRepository
-import com.hva.bewear.domain.location.model.LocationData
+import com.hva.bewear.domain.location.model.Location
 import com.hva.bewear.domain.weather.model.Weather
 import com.hva.bewear.presentation.generic.launchOnIO
 import com.hva.bewear.presentation.main.AdviceUIMapper.uiModel
@@ -64,14 +64,14 @@ class MainViewModel(
     )
     val advice: StateFlow<AdviceUIModel> = _advice
 
-    private val _locations: MutableStateFlow<List<LocationData>> = MutableStateFlow(emptyList())
-    val locations: StateFlow<List<LocationData>> by lazy {
-        fetchRecentLocations()
+    private val _locations: MutableStateFlow<List<Location>> = MutableStateFlow(emptyList())
+    val locations: StateFlow<List<Location>> by lazy {
+        viewModelScope.launchOnIO { fetchRecentLocations() }
         _locations
     }
 
-    private val _currentLocation: MutableStateFlow<LocationData> = MutableStateFlow(LocationData())
-    val currentLocation: StateFlow<LocationData> = _currentLocation
+    private val _currentLocation: MutableStateFlow<Location> = MutableStateFlow(Location())
+    val currentLocation: StateFlow<Location> = _currentLocation
 
     private val _isMetric: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val isMetric: StateFlow<Boolean> = _isMetric
@@ -82,17 +82,14 @@ class MainViewModel(
     private val _uiState = MutableStateFlow<UIStates>(UIStates.Normal)
     var uiState: StateFlow<UIStates> = _uiState
 
-    fun refresh(
-        location: LocationData? = null,
-    ) = fetchAllData(location)
+    fun refresh(location: Location? = null) = fetchAllData(location)
 
-    private fun fetchAllData(location: LocationData?) {
+    private fun fetchAllData(location: Location?) {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
             _uiState.value = UIStates.Loading
-            _locations.value = getRecentLocations()
+            _locations.value = fetchRecentLocations()
             _typeOfAvatar.value = getAvatarType()
-            _currentLocation.value = location ?:
-            if(_locations.value.isEmpty()) LocationData("Amsterdam")
+            _currentLocation.value = location ?: if (_locations.value.isEmpty()) DEFAULT_LOCATION
             else _locations.value.first()
             _isMetric.value = getUnit() == MeasurementUnit.METRIC
             val weather = fetchWeather(location ?: _currentLocation.value)
@@ -101,11 +98,12 @@ class MainViewModel(
                 size = AMOUNT_OF_HOURS_IN_HOURLY,
                 init = { fetchAdvice(isHourly = true, index = it, weather = weather) }
             )
+            _locations.value = _locations.value.filterLocations()
             _uiState.value = UIStates.Normal
         }
     }
 
-    private suspend fun fetchWeather(location: LocationData): Weather {
+    private suspend fun fetchWeather(location: Location): Weather {
         val weather = getWeather(location)
         _weather.value = weather.uiModel(idProvider = idWeatherIconProvider, getUnit = getUnit)
         return weather
@@ -123,10 +121,12 @@ class MainViewModel(
         )
     }
 
-    private fun fetchRecentLocations() {
-        viewModelScope.launchOnIO {
-            _locations.value = getRecentLocations()
-        }
+    private suspend fun fetchRecentLocations(): List<Location> {
+        return getRecentLocations().sortedByDescending { it.lastUsed }
+    }
+
+    private fun List<Location>.filterLocations(): List<Location> {
+        return filter { it.cityName != _currentLocation.value.cityName }
     }
 
     fun updateSettings(avatarType: AvatarType, isMetric: Boolean) {
@@ -153,11 +153,12 @@ class MainViewModel(
         return list
     }
 
-    fun getLocation(text : String){
+    fun getLocation(text: String) {
         viewModelScope.launchOnIO {
-           _locations.value = locationRepository.getLocation(text)
-            if (locations.value.isEmpty()){
-                _locations.value = listOf(LocationData("No Locations found, please type more accurately"))
+            _locations.value = locationRepository.getLocation(text)
+            if (locations.value.isEmpty()) {
+                _locations.value =
+                    listOf(Location("No Locations found, please type more accurately"))
             }
         }
     }
@@ -182,6 +183,13 @@ class MainViewModel(
 
     companion object {
         private const val AMOUNT_OF_HOURS_IN_HOURLY = 24
+        private val DEFAULT_LOCATION = Location(
+            cityName = "Amsterdam",
+            state = "Noord-Holland",
+            country = "NL",
+            lat = 52.3676,
+            lon = 4.9041,
+        )
     }
 }
 
