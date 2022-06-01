@@ -12,12 +12,9 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -34,7 +31,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -53,7 +49,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.hva.bewear.domain.avatar_type.model.AvatarType
-import com.hva.bewear.domain.location.Coordinates
+import com.hva.bewear.domain.location.model.LocationData
 import com.hva.bewear.main.theme.M2Mobi_HvATheme
 import com.hva.bewear.main.theme.nunito
 import com.hva.bewear.presentation.main.MainViewModel
@@ -208,7 +204,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun TopBar(locations: List<String>) {
+    private fun TopBar(locations: List<LocationData>) {
         var expanded by remember { mutableStateOf(false) }
         var showPopup by remember { mutableStateOf(false) }
         var text by rememberSaveable { mutableStateOf("") }
@@ -269,7 +265,7 @@ class MainActivity : ComponentActivity() {
                             },
                             placeholder = {
                                 Text(
-                                    text = currentLocation,
+                                    text = currentLocation.cityName + ", " + currentLocation.state + ", " + currentLocation.country,
                                     modifier = Modifier.fillMaxWidth(),
                                     style = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
                                 )
@@ -390,7 +386,6 @@ class MainActivity : ComponentActivity() {
 
                                             showCurrentLocationIcon = false
                                             viewModel.refresh(location)
-
                                         }
                                     }
                                     .fillMaxWidth()
@@ -401,7 +396,7 @@ class MainActivity : ComponentActivity() {
                             ) {
 
                                 Text(
-                                    text = location,
+                                    text = location.cityName,
                                     color = Color.Black,
                                     textAlign = TextAlign.Center,
                                     fontWeight = FontWeight.Bold,
@@ -899,8 +894,7 @@ class MainActivity : ComponentActivity() {
                 val addresses = geocoder.getFromLocation(it.latitude, it.longitude, 1)
                 val city: String = addresses[0].locality
                 viewModel.refresh(
-                    location = city,
-                    coordinates = Coordinates(it.latitude, it.longitude)
+                    location = LocationData(cityName = city, lat = it.latitude, lon = it.longitude, isCurrent = true),
                 )
             }
         }

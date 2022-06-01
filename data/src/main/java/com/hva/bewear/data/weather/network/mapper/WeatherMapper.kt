@@ -5,7 +5,7 @@ import com.hva.bewear.data.weather.data.entity.DailyWeatherEntity
 import com.hva.bewear.data.weather.data.entity.HourlyWeatherEntity
 import com.hva.bewear.data.weather.data.entity.WeatherDetailsEntity
 import com.hva.bewear.data.weather.data.entity.WeatherEntity
-import com.hva.bewear.data.weather.network.LocationData
+import com.hva.bewear.domain.location.model.LocationData
 import com.hva.bewear.data.weather.network.response.DailyWeatherResponse
 import com.hva.bewear.data.weather.network.response.HourlyWeatherResponse
 import com.hva.bewear.data.weather.network.response.WeatherDetailsResponse
@@ -67,7 +67,7 @@ object WeatherMapper {
         )
     }
 
-    fun WeatherDetailsResponse.toDomain():WeatherDetails {
+    fun WeatherDetailsResponse.toDomain(): WeatherDetails {
         return WeatherDetails(id, main, description, icon)
     }
 
@@ -122,7 +122,7 @@ object WeatherMapper {
         )
     }
 
-    fun WeatherDetailsEntity.toDomain():WeatherDetails {
+    fun WeatherDetailsEntity.toDomain(): WeatherDetails {
         return WeatherDetails(id, main, description, icon)
     }
 
@@ -132,6 +132,8 @@ object WeatherMapper {
             cityName = location.cityName,
             isCurrent = location.isCurrent,
             timeZoneOffset = timeZoneOffset,
+            lat = lat,
+            lon = lon,
             daily = daily.map { it.toEntity() },
             hourly = hourly.map { it.toEntity() },
         )
@@ -177,8 +179,16 @@ object WeatherMapper {
         )
     }
 
-    fun WeatherDetailsResponse.toEntity():WeatherDetailsEntity {
+    fun WeatherDetailsResponse.toEntity(): WeatherDetailsEntity {
         return WeatherDetailsEntity(id, main, description, icon)
     }
 
+    fun WeatherEntity.toLocation(): LocationData {
+        return LocationData(
+            cityName = cityName,
+            lat = lat,
+            lon = lon,
+            isCurrent = isCurrent,
+        )
+    }
 }

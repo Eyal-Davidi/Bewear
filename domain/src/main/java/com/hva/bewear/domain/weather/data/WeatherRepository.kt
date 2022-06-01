@@ -1,8 +1,8 @@
 package com.hva.bewear.domain.weather.data
 
-import com.hva.bewear.domain.location.Coordinates
+import com.hva.bewear.domain.location.model.LocationData
 import com.hva.bewear.domain.weather.model.Weather
 
 interface WeatherRepository {
-    suspend fun getWeather(cityName: String, coordinates: Coordinates): Weather
+    suspend fun getWeather(location: LocationData): Weather
 }

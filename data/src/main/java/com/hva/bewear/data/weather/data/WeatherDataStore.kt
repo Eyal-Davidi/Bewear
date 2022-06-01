@@ -12,7 +12,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.PrintWriter
 
-class DataStore(private val context: Context) {
+class WeatherDataStore(private val context: Context) {
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
     private var file = createFile()
 
@@ -25,14 +25,15 @@ class DataStore(private val context: Context) {
         file.writeDataToFile(json.encodeToJsonElement(CachingEntity(list)))
     }
 
-    fun getCachedData(cityName: String): WeatherEntity? {
+    fun getCachedWeather(cityName: String): WeatherEntity? {
         return getCachedLocations().find { it.cityName == cityName }
     }
 
-    private fun getCachedLocations(): List<WeatherEntity> {
+    fun getCachedLocations(): List<WeatherEntity> {
         return try {
             json.decodeFromString<CachingEntity>(file.readText()).cachedLocations
         } catch (e: Exception) {
+            Log.e("CachingError", "getCachedLocations: $e", )
             emptyList()
         }
     }

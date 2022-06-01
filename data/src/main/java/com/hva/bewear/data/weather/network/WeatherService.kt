@@ -3,7 +3,7 @@ package com.hva.bewear.data.weather.network
 import android.util.Log
 import com.hva.bewear.data.weather.network.response.WeatherResponse
 import com.hva.bewear.data.BuildConfig
-import com.hva.bewear.domain.weather.model.ApiCallReasons
+import com.hva.bewear.domain.location.model.LocationData
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
@@ -25,7 +25,7 @@ class WeatherService {
         }
     }
 
-    suspend fun getWeather(location:LocationData): WeatherResponse {
+    suspend fun getWeather(location: LocationData): WeatherResponse {
         Log.e(
             API_LOG_TAG,
             "writeApiDataToFile: An Api call has been made! Location: ${location.cityName}"

@@ -18,6 +18,10 @@ data class WeatherEntity(
 
     @SerialName("timezone_offset")
     val timeZoneOffset: Int,
+    @SerialName("lat")
+    val lat: Double,
+    @SerialName("lon")
+    val lon: Double,
 
     @SerialName("daily")
     val daily: List<DailyWeatherEntity>,
