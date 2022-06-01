@@ -164,20 +164,7 @@ class MainActivity : ComponentActivity() {
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
             )
-        }
-    }
 
-    @Composable
-    fun WeatherIconAndWindDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(start = 0.dp, top = 5.dp))
-        {
-            Image(
-                painter = painterResource(id = weather.iconId),
-                contentDescription = "Weather Icon",
-                modifier = Modifier
-                    .scale(1.4f)
-                    .wrapContentSize(),
-            )
             Row {
                 Image(
                     painter = painterResource(id = R.drawable.ic_baseline_navigation_24),
@@ -195,6 +182,37 @@ class MainActivity : ComponentActivity() {
                     textAlign = TextAlign.Center,
                 )
             }
+        }
+    }
+
+    @Composable
+    fun WeatherIconAndWindDisplay(weather: WeatherUIModel) {
+        Column(Modifier.padding(start = 0.dp, top = 5.dp))
+        {
+            Image(
+                painter = painterResource(id = weather.iconId),
+                contentDescription = "Weather Icon",
+                modifier = Modifier
+                    .scale(1.4f)
+                    .wrapContentSize(),
+            )
+//            Row {
+//                Image(
+//                    painter = painterResource(id = R.drawable.ic_baseline_navigation_24),
+//                    contentDescription = "Wind navigation image",
+//                    modifier = Modifier
+//                        .size(22.dp)
+//                        .rotate(weather.windDegrees.toFloat())
+//                )
+//                Spacer(Modifier.width(5.dp))
+//                Text(
+//                    text = weather.windDisplay,
+//                    color = Color.Black,
+//                    fontSize = 17.sp,
+//                    fontWeight = FontWeight.SemiBold,
+//                    textAlign = TextAlign.Center,
+//                )
+//            }
         }
     }
 

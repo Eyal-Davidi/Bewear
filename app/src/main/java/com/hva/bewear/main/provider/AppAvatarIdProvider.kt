@@ -37,7 +37,8 @@ class AppAvatarIdProvider : AvatarIdProvider {
         val list = ArrayList<Int>()
         if (type.rain) list.add(R.drawable.umbrella)
 //        if (type.wind) list.add(R.drawable.wind)
-        if (type.highUVI) list.add(R.drawable.sunscreen)
+//        if (type.highUVI) list.add(R.drawable.sunscreen)
+        if (type.highUVI) list.add(R.drawable.uv_cream)
 
         return list.toList()
     }
