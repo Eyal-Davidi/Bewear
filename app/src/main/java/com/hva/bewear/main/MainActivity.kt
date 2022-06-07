@@ -239,9 +239,9 @@ class MainActivity : ComponentActivity() {
             if (expanded) {
                 Card(
                     modifier = Modifier
-                        .padding(start = 4.dp, top = 45.dp)
+                        .padding(start = 4.dp, top = 50.dp, end = 4.dp,)
                         .width(400.dp)
-                        .height(220.dp)
+                        .wrapContentHeight()
                         .verticalScroll(ScrollState(0)),
                     backgroundColor = MaterialTheme.colors.primary,
                 ) {
@@ -257,7 +257,7 @@ class MainActivity : ComponentActivity() {
                                 if (checkLocationPermission()) showLocationPermission = true
                                 else fetchLocation()
                             }) {
-                            Row {
+                            Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                                 Text(
                                     text = "Current Location",
                                     color = Color.Black,
@@ -272,7 +272,6 @@ class MainActivity : ComponentActivity() {
                                     alignment = Alignment.CenterEnd,
                                     modifier = Modifier
                                         .size(24.dp)
-                                        .offset(230.dp)
                                 )
                             }
                         }

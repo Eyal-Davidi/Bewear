@@ -135,7 +135,7 @@ object WeatherDataMapper {
     fun WeatherEntity.toLocation(): Location {
         return Location(
             cityName = cityName,
-            state = state,
+            state = state ?: "",
             country = country,
             lat = lat,
             lon = lon,
