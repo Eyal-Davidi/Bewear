@@ -1,5 +1,6 @@
 import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
 /*
 Copyright (c) 2022 Kotlin Data Classes Generated from JSON powered by http://www.json2kotlin.com
@@ -13,8 +14,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 For support, please feel free to contact me at https://www.linkedin.com/in/syedabsar */
 
 @Serializable
-data class Locale (
+data class Address_components (
 
-	@SerializedName("results") val results : List<Results?>?,
-	@SerializedName("status") val status : String
+	@SerializedName("long_name") val long_name : JsonElement?,
+	@SerializedName("short_name") val short_name : JsonElement?,
+	@SerializedName("types") val types : List<String>?
 )

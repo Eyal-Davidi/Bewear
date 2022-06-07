@@ -1,6 +1,10 @@
 package com.hva.bewear.data.weather
 
 import android.content.Context
+import android.graphics.Typeface
+import android.text.SpannableString
+import android.text.style.CharacterStyle
+import android.text.style.StyleSpan
 import com.hva.bewear.data.location.LocationService
 import com.hva.bewear.data.weather.data.DataStore
 import com.hva.bewear.data.weather.network.LocationData
@@ -29,7 +33,7 @@ class RemoteWeatherRepository(
         return response.toDomain()
     }
 
-    private fun setCoordinates(coordinates: Coordinates, cityName: String): LocationData {
+    private suspend fun setCoordinates(coordinates: Coordinates, cityName: String): LocationData {
         var location = LocationData()
         if (coordinates.lat != 0.0 && coordinates.lon != 0.0) {
             location.cityName = cityName
@@ -41,14 +45,30 @@ class RemoteWeatherRepository(
             if (loc != Locations.EMPTY) {
                 location = LocationData(loc.cityName, loc.lat, loc.lon)
             } else {
-                var done = false
-                locationService.places.forEach {
+
+                locationService.locs.forEach {
+                    val primarytext = it!!.getPrimaryText(StyleSpan(Typeface.BOLD)).toString()
+                    if( primarytext == cityName){
+
+                        locationService.returnLocation(primarytext).let{ locale ->
+                            locale?.results?.forEach {
+                                location =LocationData(primarytext, it!!.geometry.location.lat, it.geometry.location.lng)
+                            }
+
+                        }
+
+
+                    }
+
+                }
+
+                /*locationService.places.forEach {
                     if (it.name + ", " + it.state + ", " + it.country == cityName && !done) {
                         location = LocationData(it.name, it.lat, it.lon)
                         done = true
                     }
-                }
-                if (!done) {
+                }*/
+                if (location == LocationData()) {
                     location = LocationData(
                         Locations.AMSTERDAM.cityName,
                         Locations.AMSTERDAM.lat,

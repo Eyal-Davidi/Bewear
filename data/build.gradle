@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'org.jetbrains.kotlin.plugin.serialization'
     id 'kotlin-kapt'
+
 }
 
 android {
@@ -43,4 +44,6 @@ dependencies {
 
     // LiveData
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.4.1")
+    // google places
+    implementation 'com.google.android.libraries.places:places:2.6.0'
 }

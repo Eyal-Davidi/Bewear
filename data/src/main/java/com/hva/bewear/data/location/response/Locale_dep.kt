@@ -1,6 +1,20 @@
-import com.google.gson.annotations.SerializedName
+package com.hva.bewear.data.location.response
+
+
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+
+@Serializable
+data class Locale_dep (
+
+	@SerialName("name") val name : String,
+	@SerialName("local_names") val local_namesDep : Local_names_dep? = null,
+	@SerialName("lat") val lat : Double,
+	@SerialName("lon") val lon : Double,
+	@SerialName("country") val country : String,
+	@SerialName("state") val state : String? = null
+)
 /*
 Copyright (c) 2022 Kotlin Data Classes Generated from JSON powered by http://www.json2kotlin.com
 
@@ -11,10 +25,3 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 For support, please feel free to contact me at https://www.linkedin.com/in/syedabsar */
-
-@Serializable
-data class Locale (
-
-	@SerializedName("results") val results : List<Results?>?,
-	@SerializedName("status") val status : String
-)

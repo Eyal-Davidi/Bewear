@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 For support, please feel free to contact me at https://www.linkedin.com/in/syedabsar */
 
 @Serializable
-data class Locale (
+data class Plus_code (
 
-	@SerializedName("results") val results : List<Results?>?,
-	@SerializedName("status") val status : String
+	@SerializedName("compound_code") val compound_code : String?,
+	@SerializedName("global_code") val global_code : String?
 )
