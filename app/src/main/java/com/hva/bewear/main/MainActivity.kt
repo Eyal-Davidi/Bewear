@@ -128,7 +128,6 @@ class MainActivity : ComponentActivity() {
                 textAlign = TextAlign.Center,
                 color = Color.Black,
             )
-
         }
     }
 
@@ -213,7 +212,7 @@ class MainActivity : ComponentActivity() {
                 textAlign = TextAlign.Left,
                 color = Color.Black,
             )
-
+            Spacer(Modifier.height(5.dp))
             Row(Modifier.align(End)) {
                 for (icon in icons) {
                     if (icons.size > 1) {
@@ -627,44 +626,6 @@ class MainActivity : ComponentActivity() {
             }
         )
     }
-
-//    @Composable
-//    fun ExtraAdviceIcons(advice: AdviceUIModel) {
-//        val icons = advice.extraAdviceIcons
-//        Column {
-//            Text(
-//                text = "Bring:",
-//                fontSize = 20.sp,
-//                fontWeight = FontWeight.SemiBold,
-//                textAlign = TextAlign.Center,
-//                color = Color.Black,
-//            )
-//            Row {
-//                for (icon in icons) {
-//                    if(icons.size>1)
-//                    {
-//                    Image(
-//                        painter = painterResource(icon),
-//                        contentDescription = "Extra advice icon",
-//                        modifier = Modifier
-//                            .offset(x = -20.dp)
-//                            .size(45.dp),
-//                    )
-//                    }
-//                    else{
-//                        Image(
-//                            painter = painterResource(icon),
-//                            contentDescription = "Extra advice icon",
-//                            modifier = Modifier
-//                                .offset(x = 0.dp)
-//                                .size(45.dp),
-//                        )
-//                    }
-//
-//                    }
-//            }
-//        }
-//    }
 
     @Composable
     fun BottomDisplay(
