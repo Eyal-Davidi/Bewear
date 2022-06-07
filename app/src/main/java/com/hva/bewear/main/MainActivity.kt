@@ -776,7 +776,7 @@ class MainActivity : ComponentActivity() {
                             contentDescription = "Avatar",
                             modifier = Modifier
                                 .offset(y = 30.dp)
-                                .scale(1f),
+                                .scale(0.95f),
                         )
                     }
 
@@ -788,8 +788,9 @@ class MainActivity : ComponentActivity() {
                             painter = painterResource(id = icon),
                             contentDescription = "Weather Icon",
                             modifier = Modifier
-                                .offset(x = 15.dp, y = (-10).dp)
-                                .scale(0.75f)
+                                .offset(x = (-10).dp, y = (5).dp)
+//                                .scale(0.65f)
+                                .size(30.dp)
                                 .wrapContentSize(),
                         )
                     }
