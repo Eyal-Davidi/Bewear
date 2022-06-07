@@ -12,12 +12,9 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -34,7 +31,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -53,7 +49,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.hva.bewear.domain.avatar_type.model.AvatarType
-import com.hva.bewear.domain.location.Coordinates
+import com.hva.bewear.domain.location.model.Location
 import com.hva.bewear.main.theme.M2Mobi_HvATheme
 import com.hva.bewear.main.theme.nunito
 import com.hva.bewear.presentation.main.MainViewModel
@@ -69,28 +65,26 @@ class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModel()
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
-    private var showCurrentLocationIcon = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         setContent {
-            M2Mobi_HvATheme {
+            val weather by viewModel.weather.collectAsState()
+            M2Mobi_HvATheme(weather) {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    MainScreen()
+                    MainScreen(weather)
                 }
             }
         }
     }
 
     @Composable
-    fun MainScreen() {
+    fun MainScreen(weather: WeatherUIModel) {
         val locations by viewModel.locations.collectAsState()
-        val weather by viewModel.weather.collectAsState()
         val advice by viewModel.advice.collectAsState()
         val hourlyAdvice by viewModel.hourlyAdvice.collectAsState()
 
@@ -99,116 +93,30 @@ class MainActivity : ComponentActivity() {
             Avatar(advice)
 
             Column {
-                Spacer(modifier = Modifier.height(65.dp))
+                Spacer(modifier = Modifier.height(50.dp))
                 TitleDisplay()
                 Spacer(modifier = Modifier.height(1.dp))
                 Row {
-                    TemperatureDisplay(weather)
+                    TemperatureAndWindDisplay(weather)
                     Column(
                         horizontalAlignment = End,
                         modifier = Modifier
                             .padding(end = 26.dp)
                             .fillMaxWidth(),
                     ) {
-                        WindDisplay(weather)
-                        Spacer(Modifier.height(20.dp))
-                        ExtraAdviceIcons(advice)
+                        WeatherIconAndExtraAdviceIconsDisplay(weather, advice)
+//                        Spacer(Modifier.height(15.dp))
+//                        ExtraAdviceIcons(advice)
                     }
                 }
                 BottomDisplay(advice, weather, hourlyAdvice)
             }
             TopBar(locations)
-
         }
     }
 
     @Composable
-    fun TitleDisplay() {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = CenterHorizontally,
-        ) {
-            Text(
-                text = "Today's Advice",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                color = Color.Black,
-            )
-
-        }
-    }
-
-    @Composable
-    fun TemperatureDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(start = 16.dp)) {
-            Text(
-                text = "Average:",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Left,
-                color = Color.Black,
-            )
-//            Row(Modifier.padding(top = 45.dp))
-            Row()
-            {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_thermometer),
-                    contentDescription = "Temperature image",
-                    modifier = Modifier
-                        .size(38.dp)
-                )
-                Text(
-                    text = weather.temperatureDisplay,
-                    color = Color.Black,
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.Center,
-                )
-            }
-            Text(
-                text = weather.feelsLikeTemperatureDisplay,
-                color = Color.Black,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
-            )
-        }
-    }
-
-    @Composable
-    fun WindDisplay(weather: WeatherUIModel) {
-        Column(Modifier.padding(start = 0.dp, top = 30.dp))
-        {
-            Image(
-                painter = painterResource(id = weather.iconId),
-                contentDescription = "Weather Icon",
-                modifier = Modifier
-                    .scale(1.5f)
-                    .wrapContentSize(),
-            )
-            Row {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_baseline_navigation_24),
-                    contentDescription = "Wind navigation image",
-                    modifier = Modifier
-                        .size(30.dp)
-                        .rotate(weather.windDegrees.toFloat())
-                )
-                Spacer(Modifier.width(5.dp))
-                Text(
-                    text = weather.windDisplay,
-                    color = Color.Black,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.Center,
-                )
-            }
-        }
-    }
-
-    @Composable
-    private fun TopBar(locations: List<String>) {
+    private fun TopBar(locations: List<Location>) {
         var expanded by remember { mutableStateOf(false) }
         var showPopup by remember { mutableStateOf(false) }
         var text by rememberSaveable { mutableStateOf("") }
@@ -225,23 +133,21 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                         .clickable(
                             interactionSource = interactionSource,
-                            indication = null) {
+                            indication = null
+                        ) {
                             expanded = false
                         }
-
                 ) {
-
                 }
             }
             Card(
-
                 modifier = Modifier
                     .padding(5.dp, 5.dp)
                     .clip(RoundedCornerShape(10.dp))
                     .fillMaxWidth()
                     .height(40.dp)
                     .align(TopCenter),
-                backgroundColor = MaterialTheme.colors.primaryVariant,
+                backgroundColor = MaterialTheme.colors.primary,
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(
@@ -253,13 +159,19 @@ class MainActivity : ComponentActivity() {
                             contentDescription = null,
                             modifier = Modifier
                                 .size(27.dp)
+                                .offset(x = 4.dp)
                                 .align(CenterVertically)
                                 .clickable { showPopup = true }
                         )
                         if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
 
-                        OutlinedTextField(
+                        val textFieldColors = TextFieldDefaults.textFieldColors(
+                            backgroundColor = MaterialTheme.colors.primary,
+                            cursorColor = MaterialTheme.colors.primaryVariant
+                        )
+                        TextField(
                             value = text,
+                            colors = textFieldColors,
                             onValueChange = {
                                 text = it
                                 /*if(text.length >= 3){
@@ -269,9 +181,11 @@ class MainActivity : ComponentActivity() {
                             },
                             placeholder = {
                                 Text(
-                                    text = currentLocation,
+                                    text = currentLocation.cityName,
                                     modifier = Modifier.fillMaxWidth(),
-                                    style = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
+                                    style = MaterialTheme.typography.body1.copy(textAlign = TextAlign.Center),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp
                                 )
                             },
                             keyboardOptions = KeyboardOptions(
@@ -284,7 +198,6 @@ class MainActivity : ComponentActivity() {
                                     expanded = true
                                 },
                             ),
-
                             modifier = Modifier
                                 .align(CenterVertically)
                                 .width(300.dp)
@@ -298,7 +211,7 @@ class MainActivity : ComponentActivity() {
                                         false
                                     }
                                 },
-                            textStyle = LocalTextStyle.current.copy(
+                            textStyle = MaterialTheme.typography.body1.copy(
                                 textAlign = TextAlign.Center,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
@@ -306,59 +219,45 @@ class MainActivity : ComponentActivity() {
                             ),
                             singleLine = true,
                         )
-
-                        Row {
-                            if (showCurrentLocationIcon) Image(
-                                painter = painterResource(R.drawable.ic_my_location),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .align(CenterVertically)
-                            )
-                            Image(
-                                painter = if (expanded)
-                                    painterResource(R.drawable.expand_less)
-                                else
-                                    painterResource(R.drawable.expand_more),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(30.dp)
-                                    .align(CenterVertically)
-                                    .clickable {
-                                        expanded = !expanded
-
-                                    }
-
-                            )
-                        }
+                        Image(
+                            painter = if (currentLocation.isCurrent)
+                                painterResource(R.drawable.ic_my_location)
+                            else if (expanded) painterResource(R.drawable.expand_less)
+                            else painterResource(R.drawable.expand_more),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(if(currentLocation.isCurrent) 34.dp else 43.dp)
+                                .padding(end = if(currentLocation.isCurrent) 7.dp else 0.dp)
+                                .align(CenterVertically)
+                                .clickable {
+                                    expanded = !expanded
+                                }
+                        )
                     }
                 }
             }
             if (expanded) {
                 Card(
                     modifier = Modifier
-
-                        .padding(start = 4.dp, top = 45.dp)
+                        .padding(start = 4.dp, top = 50.dp, end = 4.dp,)
                         .width(400.dp)
-                        .height(220.dp)
+                        .wrapContentHeight()
                         .verticalScroll(ScrollState(0)),
-                    backgroundColor = MaterialTheme.colors.primaryVariant,
-
-                    ) {
+                    backgroundColor = MaterialTheme.colors.primary,
+                ) {
                     Column {
                         Column(modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
                             .background(
-                                MaterialTheme.colors.primaryVariant
+                                MaterialTheme.colors.primary
                             )
                             .clickable {
                                 expanded = false
-                                showCurrentLocationIcon = true
                                 if (checkLocationPermission()) showLocationPermission = true
                                 else fetchLocation()
                             }) {
-                            Row {
+                            Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                                 Text(
                                     text = "Current Location",
                                     color = Color.Black,
@@ -366,8 +265,6 @@ class MainActivity : ComponentActivity() {
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier
                                         .wrapContentWidth()
-
-
                                 )
                                 Image(
                                     painter = painterResource(R.drawable.ic_my_location),
@@ -375,54 +272,39 @@ class MainActivity : ComponentActivity() {
                                     alignment = Alignment.CenterEnd,
                                     modifier = Modifier
                                         .size(24.dp)
-                                        .offset(230.dp)
-
                                 )
                             }
                         }
                         Divider()
-                        locations.forEachIndexed { _, location ->
+                        locations.forEach { location ->
                             Column(
                                 Modifier
                                     .clickable {
                                         if (location != currentLocation) {
                                             expanded = false
-
-                                            showCurrentLocationIcon = false
                                             viewModel.refresh(location)
-
                                         }
                                     }
                                     .fillMaxWidth()
                                     .padding(8.dp)
                                     .background(
-                                        MaterialTheme.colors.primaryVariant
+                                        MaterialTheme.colors.primary
                                     ),
                             ) {
-
                                 Text(
-                                    text = location,
+                                    text = location.toString(),
                                     color = Color.Black,
                                     textAlign = TextAlign.Center,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier
                                         .wrapContentWidth()
                                 )
-
-
                             }
                             Divider()
                         }
                     }
                 }
-                //here
-
-
             }
-
-
-
-
             if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
             if (showLocationPermission) LocationPermissionDialog { showLocationPermission = it }
         }
@@ -543,7 +425,6 @@ class MainActivity : ComponentActivity() {
                                 selected = !isMetric, onClick = { isMetric = false },
                                 modifier = Modifier.align(CenterHorizontally),
                             )
-
                         }
                     }
                 }
@@ -551,7 +432,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
 
     @Composable
     fun CommonDialog(
@@ -602,191 +482,14 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun ExtraAdviceIcons(advice: AdviceUIModel) {
-        val icons = advice.extraAdviceIcons
-        Column {
-            for (icon in icons) {
-                Image(
-                    painter = painterResource(icon),
-                    contentDescription = "Extra advice icon",
-                    modifier = Modifier
-                        .offset(x = 10.dp)
-                        .size(60.dp),
-                )
-            }
-        }
-    }
-
-    @Composable
-    fun BottomDisplay(
-        advice: AdviceUIModel,
-        weather: WeatherUIModel,
-        hourlyAdvice: List<AdviceUIModel>
-    ) {
-        var descriptionOffsetY by remember { mutableStateOf(0f) }
-        val maxDescriptionOffset = -126f
-        val dragMultiplier = 0.4f
-        Box(
-            modifier = Modifier
-                .fillMaxHeight()
-                .draggable(
-                    orientation = Orientation.Vertical,
-                    state = rememberDraggableState { delta ->
-                        descriptionOffsetY += (delta * dragMultiplier)
-                        descriptionOffsetY = when {
-                            descriptionOffsetY < maxDescriptionOffset -> maxDescriptionOffset
-                            descriptionOffsetY > 0f -> 0f
-                            else -> descriptionOffsetY
-                        }
-                    }
-                )
-        ) {
-            val height = 150
-            val descriptionOffset = 29
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .height(height.dp)
-            ) {
-                AdviceDescription(
-                    advice = advice,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .requiredHeightIn((height + descriptionOffset).dp, 300.dp)
-                        .align(TopCenter)
-                        .offset(y = (-descriptionOffset + descriptionOffsetY).dp),
-                    dragAmount = descriptionOffsetY / maxDescriptionOffset,
-                )
-                HourlyDisplay(
-                    weather, hourlyAdvice, modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                )
-            }
-        }
-    }
-
-    @Composable
-    fun AdviceDescription(
-        advice: AdviceUIModel,
-        modifier: Modifier = Modifier,
-        dragAmount: Float = 1f
-    ) {
-        val titleMinSize = 20
-        val titleMaxSize = 30
-        Card(
-            shape = RoundedCornerShape(topEnd = 10.dp, topStart = 10.dp),
-            modifier = modifier,
-            backgroundColor = MaterialTheme.colors.primaryVariant,
-        ) {
-            Column {
-                Box(
-                    modifier = Modifier
-                        .offset(y = 6.dp)
-                        .clip(RoundedCornerShape(3.dp))
-                        .background(Color.Gray)
-                        .align(CenterHorizontally)
-                        .width(100.dp)
-                        .height(6.dp),
-                )
-                Text(
-                    text = "Clothing Description",
-                    color = Color.Black,
-                    modifier = Modifier
-                        .align(CenterHorizontally)
-                        .padding(top = 5.dp, bottom = 0.dp, start = 16.dp, end = 16.dp),
-                    fontSize = (titleMinSize + ((titleMaxSize - titleMinSize) * dragAmount)).sp
-                )
-                AdviceText(advice = advice)
-            }
-        }
-    }
-
-    @Composable
-    fun HourlyDisplay(
-        weather: WeatherUIModel,
-        hourlyAdvice: List<AdviceUIModel>,
-        modifier: Modifier = Modifier,
-    ) {
-        Row(
-            modifier = modifier
-                .horizontalScroll(rememberScrollState())
-                .wrapContentWidth()
-        ) {
-            for (i in 0..23) {
-                Card(
-                    border = BorderStroke(3.dp, Color.Gray),
-                    shape = RoundedCornerShape(topEnd = 5.dp, topStart = 5.dp),
-                    modifier = Modifier
-                        .width(100.dp)
-                        .height(150.dp),
-                    backgroundColor = MaterialTheme.colors.primaryVariant,
-                ) {
-                    Column(horizontalAlignment = CenterHorizontally) {
-                        Image(
-                            painter = painterResource(hourlyAdvice[i].avatar),
-                            contentDescription = "Avatar",
-                            modifier = Modifier
-                                .offset(y = 30.dp)
-                                .scale(1f),
-                        )
-                    }
-
-                    Column(horizontalAlignment = End) {
-                        val icon =
-                            if (weather.hourlyIcons.isEmpty()) R.drawable.ic_action_cloudy
-                            else weather.hourlyIcons[i]
-                        Image(
-                            painter = painterResource(id = icon),
-                            contentDescription = "Weather Icon",
-                            modifier = Modifier
-                                .offset(x = 15.dp, y = (-10).dp)
-                                .scale(0.75f)
-                                .wrapContentSize(),
-                        )
-                    }
-
-                    Column(horizontalAlignment = Alignment.Start) {
-                        Text(
-                            text = if (i == 0) "Now" else weather.hourlyWeather[i].date.hour.toString() + ":00",
-                            color = Color.Black,
-                            modifier = Modifier
-                                .padding(start = 5.dp, top = 5.dp),
-                            fontSize = 16.sp
-                        )
-                        Text(
-                            text = weather.hourlyWeather[i].temperature.toInt()
-                                .toString() + "°",
-                            color = Color.Black,
-                            modifier = Modifier
-                                .padding(start = 5.dp, top = 1.dp),
-                            fontSize = 16.sp
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    @Composable
-    fun Avatar(advice: AdviceUIModel) {
-        Image(
-            painter = painterResource(advice.avatar),
-            contentDescription = "Avatar",
-            modifier = Modifier
-                .offset(y = 100.dp)
-                .scale(1f)
-        )
-    }
-
-    @Composable
     fun BindStates(Content: @Composable () -> Unit) {
         val state by viewModel.uiState.collectAsState()
         when (val uiState = state) {
-            is UIStates.NetworkError -> ErrorState(
+            is UIStates.NetworkError -> ErrorState(viewModel,
                 errorState = uiState,
                 showRefresh = true
             )
-            is UIStates.ErrorInterface -> ErrorState(errorState = uiState)
+            is UIStates.ErrorInterface -> ErrorState(viewModel, errorState = uiState)
             UIStates.Loading -> LoadingScreen()
             UIStates.Normal -> Content()
             else -> {
@@ -798,79 +501,6 @@ class MainActivity : ComponentActivity() {
                 ).show()
             }
         }
-    }
-
-    @Composable
-    fun Loader(weather: WeatherUIModel) {
-        val composition by rememberLottieComposition(
-            LottieCompositionSpec.RawRes(
-                weather.backgroundId
-            )
-        )
-        LottieAnimation(
-            composition,
-            iterations = LottieConstants.IterateForever,
-            speed = 0.33f,
-            contentScale = ContentScale.FillBounds,
-        )
-    }
-
-    @Composable
-    fun LoadingScreen() {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier.align(Center),
-                horizontalAlignment = CenterHorizontally
-            ) {
-                val composition by rememberLottieComposition(
-                    LottieCompositionSpec.RawRes(R.raw.day_night_loading)
-                )
-                LottieAnimation(
-                    composition,
-                    iterations = LottieConstants.IterateForever,
-                )
-                Text(text = "Loading", modifier = Modifier.padding(10.dp))
-            }
-        }
-    }
-
-    @Composable
-    fun ErrorState(
-        errorState: UIStates.ErrorInterface,
-        showRefresh: Boolean = false
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier.align(Center),
-                horizontalAlignment = CenterHorizontally
-            ) {
-                Text(
-                    text = errorState.errorText,
-                    modifier = Modifier.padding(10.dp)
-                )
-                if (showRefresh) {
-                    Button(
-                        onClick = { viewModel.refresh() },
-                        modifier = Modifier
-                            .height(40.dp)
-                            .width(100.dp),
-                    ) {
-                        Text(text = "Refresh")
-                    }
-                }
-            }
-        }
-    }
-
-    @Composable
-    fun AdviceText(advice: AdviceUIModel) {
-        Text(
-            text = advice.textAdvice,
-            color = Color.Black,
-            modifier = Modifier
-                .padding(start = 10.dp, end = 10.dp, top = 10.dp, bottom = 16.dp),
-            textAlign = TextAlign.Start,
-        )
     }
 
     private fun fetchLocation() {
@@ -897,10 +527,16 @@ class MainActivity : ComponentActivity() {
             if (it != null) {
                 val geocoder = Geocoder(this, Locale.getDefault())
                 val addresses = geocoder.getFromLocation(it.latitude, it.longitude, 1)
-                val city: String = addresses[0].locality
+                val address = addresses[0]
                 viewModel.refresh(
-                    location = city,
-                    coordinates = Coordinates(it.latitude, it.longitude)
+                    location = Location(
+                        cityName = address.locality,
+                        state = address.adminArea,
+                        country = address.countryCode,
+                        lat = it.latitude,
+                        lon = it.longitude,
+                        isCurrent = true
+                    ),
                 )
             }
         }
@@ -920,7 +556,8 @@ class MainActivity : ComponentActivity() {
     @Preview(showBackground = true)
     @Composable
     fun DefaultPreview() {
-        M2Mobi_HvATheme {
+        val weather by viewModel.weather.collectAsState()
+        M2Mobi_HvATheme(weather) {
             SettingsDialog(onShownChange = {})
         }
     }

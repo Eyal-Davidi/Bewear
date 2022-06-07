@@ -7,14 +7,14 @@ import com.hva.bewear.domain.advice.GetClothingAdvice
 import com.hva.bewear.domain.advice.model.ClothingAdvice
 import com.hva.bewear.domain.avatar_type.GetAvatarType
 import com.hva.bewear.domain.avatar_type.SetTypeOfAvatar
-import com.hva.bewear.domain.location.LocationPicker
 import com.hva.bewear.domain.weather.GetWeather
 import com.hva.bewear.domain.avatar_type.model.AvatarType
-import com.hva.bewear.domain.location.Coordinates
+import com.hva.bewear.domain.location.GetRecentLocations
 import com.hva.bewear.domain.unit.GetUnit
 import com.hva.bewear.domain.unit.SetUnit
 import com.hva.bewear.domain.unit.model.MeasurementUnit
 import com.hva.bewear.domain.location.LocationRepository
+import com.hva.bewear.domain.location.model.Location
 import com.hva.bewear.domain.weather.model.Weather
 import com.hva.bewear.presentation.generic.launchOnIO
 import com.hva.bewear.presentation.main.AdviceUIMapper.uiModel
@@ -36,12 +36,12 @@ class MainViewModel(
     private val getClothingAdvice: GetClothingAdvice,
     private val getAvatarType: GetAvatarType,
     private val setTypeOfAvatar: SetTypeOfAvatar,
+    private val getRecentLocations: GetRecentLocations,
     private val setUnit: SetUnit,
     private val getUnit: GetUnit,
     private val idProvider: AvatarIdProvider,
     private val stringProvider: TextAdviceStringProvider,
     private val idWeatherIconProvider: WeatherIconProvider,
-    locationPick: LocationPicker,
     private val locationRepository: LocationRepository
 ) : ViewModel() {
 
@@ -64,13 +64,11 @@ class MainViewModel(
     )
     val advice: StateFlow<AdviceUIModel> = _advice
 
-    private val _locations: MutableStateFlow<List<String>> = MutableStateFlow(
-        locationPick.setOfLocations()
-    )
-    val locations: StateFlow<List<String>> = _locations
+    private val _locations: MutableStateFlow<List<Location>> = MutableStateFlow(emptyList())
+    val locations: StateFlow<List<Location>> = _locations
 
-    private val _currentLocation: MutableStateFlow<String> = MutableStateFlow(locations.value[0])
-    val currentLocation: StateFlow<String> = _currentLocation
+    private val _currentLocation: MutableStateFlow<Location> = MutableStateFlow(Location())
+    val currentLocation: StateFlow<Location> = _currentLocation
 
     private val _isMetric: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val isMetric: StateFlow<Boolean> = _isMetric
@@ -81,29 +79,28 @@ class MainViewModel(
     private val _uiState = MutableStateFlow<UIStates>(UIStates.Normal)
     var uiState: StateFlow<UIStates> = _uiState
 
-    fun refresh(
-        location: String = currentLocation.value,
-        coordinates: Coordinates = Coordinates(),
-    ) = fetchAllData(location, coordinates)
+    fun refresh(location: Location? = null) = fetchAllData(location)
 
-    private fun fetchAllData(location: String, coordinates: Coordinates) {
+    private fun fetchAllData(location: Location?) {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
             _uiState.value = UIStates.Loading
+            _locations.value = getRecentLocations()
             _typeOfAvatar.value = getAvatarType()
-            _currentLocation.value = location
+            _currentLocation.value = fetchSelectedLocation(location)
             _isMetric.value = getUnit() == MeasurementUnit.METRIC
-            val weather = fetchWeather(location, coordinates)
+            val weather = fetchWeather(location ?: _currentLocation.value)
             _advice.value = fetchAdvice(weather = weather)
             _hourlyAdvice.value = List(
                 size = AMOUNT_OF_HOURS_IN_HOURLY,
                 init = { fetchAdvice(isHourly = true, index = it, weather = weather) }
             )
+            _locations.value = getRecentLocations()
             _uiState.value = UIStates.Normal
         }
     }
 
-    private suspend fun fetchWeather(location: String, coordinates: Coordinates): Weather {
-        val weather = getWeather(location, coordinates)
+    private suspend fun fetchWeather(location: Location): Weather {
+        val weather = getWeather(location)
         _weather.value = weather.uiModel(idProvider = idWeatherIconProvider, getUnit = getUnit)
         return weather
     }
@@ -118,6 +115,12 @@ class MainViewModel(
             stringProvider,
             avatarType.value,
         )
+    }
+
+    private fun fetchSelectedLocation(location: Location?): Location {
+        return location ?: if (_locations.value.isEmpty()) DEFAULT_LOCATION
+        else _locations.value.first()
+//            .takeUnless { it.isCurrent } ?: fetchLocation()
     }
 
     fun updateSettings(avatarType: AvatarType, isMetric: Boolean) {
@@ -144,11 +147,12 @@ class MainViewModel(
         return list
     }
 
-    fun getLocation(text : String){
+    fun getLocation(text: String) {
         viewModelScope.launchOnIO {
-           _locations.value = locationRepository.getLocation(text)
-            if (locations.value.isEmpty()){
-                _locations.value = listOf("No Locations found, please type more accurately")
+            _locations.value = locationRepository.getLocation(text)
+            if (locations.value.isEmpty()) {
+                _locations.value =
+                    listOf(Location("No Locations found, please type more accurately"))
             }
         }
     }
@@ -173,6 +177,13 @@ class MainViewModel(
 
     companion object {
         private const val AMOUNT_OF_HOURS_IN_HOURLY = 24
+        private val DEFAULT_LOCATION = Location(
+            cityName = "Amsterdam",
+            state = "Noord-Holland",
+            country = "NL",
+            lat = 52.3676,
+            lon = 4.9041,
+        )
     }
 }
 

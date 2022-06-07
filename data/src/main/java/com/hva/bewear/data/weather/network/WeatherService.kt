@@ -3,7 +3,7 @@ package com.hva.bewear.data.weather.network
 import android.util.Log
 import com.hva.bewear.data.weather.network.response.WeatherResponse
 import com.hva.bewear.data.BuildConfig
-import com.hva.bewear.domain.weather.model.ApiCallReasons
+import com.hva.bewear.domain.location.model.Location
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
@@ -18,17 +18,19 @@ class WeatherService {
                 ignoreUnknownKeys = true
                 isLenient = true
             })
-            acceptContentTypes =
-                listOf(ContentType.Application.Json, ContentType.Application.FormUrlEncoded)
+            acceptContentTypes = listOf(
+                ContentType.Application.Json,
+                ContentType.Application.FormUrlEncoded
+            )
         }
     }
 
-    suspend fun getWeather(location:LocationData, reason: ApiCallReasons): WeatherResponse {
-        Log.e("API_CALL",
-            "writeApiDataToFile: An Api call has been made! " +
-                    "Location: ${location.cityName} because: ${reason.msg}"
+    suspend fun getWeather(location: Location): WeatherResponse {
+        Log.e(
+            API_LOG_TAG,
+            "WeatherService.kt: An Api call has been made! Location: ${location.cityName}"
         )
-        return client.get(url) {
+        return client.get(URL) {
             parameter("lat", location.lat)
             parameter("lon", location.lon)
             parameter("exclude", "minutely,current")
@@ -38,7 +40,7 @@ class WeatherService {
     }
 
     companion object {
-        private const val url =
-            "https://api.openweathermap.org/data/2.5/onecall"
+        private const val URL = "https://api.openweathermap.org/data/2.5/onecall"
+        private const val API_LOG_TAG = "API_CALL"
     }
 }

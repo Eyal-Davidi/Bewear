@@ -1,10 +1,10 @@
-package com.hva.bewear.data.weather.network.response
+package com.hva.bewear.data.weather.data.entity
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CachingResponse(
+data class CachingEntity(
     @SerialName("locations")
-    val cachedLocations: List<WeatherResponse>
+    val cachedLocations: List<WeatherEntity>
 )

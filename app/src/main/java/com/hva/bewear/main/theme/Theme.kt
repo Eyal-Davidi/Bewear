@@ -1,41 +1,65 @@
 package com.hva.bewear.main.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.hva.bewear.presentation.main.model.WeatherUIModel
+import com.hva_bewear.R
 
-private val DarkColorPalette = darkColors(
-    primary = VividSkyBlue,
-    primaryVariant = BlueGreen,
-    secondary = BlueGreen,
-    background = VividSkyBlue,
+private val SunnyColorPalette = lightColors(
+    primary = PrimarySunny,
+    primaryVariant = VariantSunny,
+    secondary = VariantSunny,
+    background = PrimarySunny,
 )
 
-private val LightColorPalette = lightColors(
-    primary = VividSkyBlue,
-    primaryVariant = BlueNCS,
-    secondary = Yellow,
-    background = VividSkyBlue,
+private val CloudyColorPalette = lightColors(
+    primary = PrimaryCloudy,
+    primaryVariant = VariantCloudy,
+    secondary = VariantCloudy,
+    background = PrimaryCloudy,
+)
 
+private val RainyColorPalette = lightColors(
+    primary = PrimaryRainy,
+    primaryVariant = VariantRainy,
+    secondary = VariantRainy,
+    background = PrimaryRainy,
+)
 
-    /* Other default colors to override
-    background = Color.White,
-    surface = Color.White,
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
-    */
+private val SnowyColorPalette = lightColors(
+    primary = PrimarySnowy,
+    primaryVariant = VariantSnowy,
+    secondary = VariantSnowy,
+    background = PrimarySnowy,
 )
 
 @Composable
-fun M2Mobi_HvATheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    val colors = if (darkTheme) {
-        DarkColorPalette
-    } else {
-        LightColorPalette
+fun M2Mobi_HvATheme(weather: WeatherUIModel, content: @Composable () -> Unit) {
+    val systemUiController = rememberSystemUiController()
+
+    val colors = when (weather.backgroundId) {
+        R.raw.sunny_weather -> {
+            systemUiController.setSystemBarsColor(PrimarySunny)
+            SunnyColorPalette
+        }
+        R.raw.cloudy_weather_alt -> {
+            systemUiController.setSystemBarsColor(PrimaryCloudy)
+            CloudyColorPalette
+        }
+        R.raw.rainy_weather -> {
+            systemUiController.setSystemBarsColor(PrimaryRainy)
+            RainyColorPalette
+        }
+        R.raw.snow_weather -> {
+            systemUiController.setSystemBarsColor(PrimarySnowy)
+            SnowyColorPalette
+        }
+        else -> {
+            systemUiController.setSystemBarsColor(PrimarySunny)
+            SunnyColorPalette
+        }
     }
 
     MaterialTheme(
