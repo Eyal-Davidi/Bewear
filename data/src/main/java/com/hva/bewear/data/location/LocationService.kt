@@ -51,7 +51,7 @@ class LocationService(val context: Context) {
 
         val token = AutocompleteSessionToken.newInstance()
         if (placesClient == null) {
-            Places.initialize(context, "***REMOVED***")
+            Places.initialize(context, BuildConfig.GOOGLEAPI_KEY)
             placesClient = Places.createClient(context)
         }
 
@@ -110,7 +110,7 @@ class LocationService(val context: Context) {
             if (it!!.getPrimaryText(StyleSpan(Typeface.BOLD)).toString() == text) {
                 return json.decodeFromString(
                     client.get(
-                        "https://maps.googleapis.com/maps/api/geocode/json?place_id=" + it.placeId + "&key=" +"***REMOVED***"
+                        "https://maps.googleapis.com/maps/api/geocode/json?place_id=" + it.placeId + "&key=" + BuildConfig.GOOGLEAPI_KEY
 
                     )
                 )
