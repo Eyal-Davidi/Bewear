@@ -69,22 +69,22 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         setContent {
-            M2Mobi_HvATheme {
+            val weather by viewModel.weather.collectAsState()
+            M2Mobi_HvATheme(weather) {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    MainScreen()
+                    MainScreen(weather)
                 }
             }
         }
     }
 
     @Composable
-    fun MainScreen() {
+    fun MainScreen(weather: WeatherUIModel) {
         val locations by viewModel.locations.collectAsState()
-        val weather by viewModel.weather.collectAsState()
         val advice by viewModel.advice.collectAsState()
         val hourlyAdvice by viewModel.hourlyAdvice.collectAsState()
 
@@ -192,7 +192,8 @@ class MainActivity : ComponentActivity() {
         Column(
             Modifier
                 .padding(start = 0.dp, top = 0.dp)
-                .width(100.dp))
+                .width(100.dp)
+        )
         {
             Image(
                 painter = painterResource(id = weather.iconId),
@@ -204,7 +205,7 @@ class MainActivity : ComponentActivity() {
 
             )
             Spacer(Modifier.height(15.dp))
-            if(icons.size > 0)
+            if (icons.size > 0)
                 Text(
                     modifier = Modifier.align(End),
                     text = "Bring:",
@@ -288,7 +289,10 @@ class MainActivity : ComponentActivity() {
                         )
                         if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
 
-                        val textFieldColors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.primary, cursorColor = MaterialTheme.colors.primaryVariant)
+                        val textFieldColors = TextFieldDefaults.textFieldColors(
+                            backgroundColor = MaterialTheme.colors.primary,
+                            cursorColor = MaterialTheme.colors.primaryVariant
+                        )
                         TextField(
                             value = text,
                             colors = textFieldColors,
@@ -318,7 +322,6 @@ class MainActivity : ComponentActivity() {
                                     expanded = true
                                 },
                             ),
-
                             modifier = Modifier
                                 .align(CenterVertically)
                                 .width(300.dp)
@@ -360,14 +363,12 @@ class MainActivity : ComponentActivity() {
             if (expanded) {
                 Card(
                     modifier = Modifier
-
                         .padding(start = 4.dp, top = 45.dp)
                         .width(400.dp)
                         .height(220.dp)
                         .verticalScroll(ScrollState(0)),
                     backgroundColor = MaterialTheme.colors.primary,
-
-                    ) {
+                ) {
                     Column {
                         Column(modifier = Modifier
                             .fillMaxWidth()
@@ -388,8 +389,6 @@ class MainActivity : ComponentActivity() {
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier
                                         .wrapContentWidth()
-
-
                                 )
                                 Image(
                                     painter = painterResource(R.drawable.ic_my_location),
@@ -398,7 +397,6 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier
                                         .size(24.dp)
                                         .offset(230.dp)
-
                                 )
                             }
                         }
@@ -418,7 +416,6 @@ class MainActivity : ComponentActivity() {
                                         MaterialTheme.colors.primary
                                     ),
                             ) {
-
                                 Text(
                                     text = location.toString(),
                                     color = Color.Black,
@@ -427,21 +424,12 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier
                                         .wrapContentWidth()
                                 )
-
-
                             }
                             Divider()
                         }
                     }
                 }
-                //here
-
-
             }
-
-
-
-
             if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
             if (showLocationPermission) LocationPermissionDialog { showLocationPermission = it }
         }
@@ -930,7 +918,8 @@ class MainActivity : ComponentActivity() {
     @Preview(showBackground = true)
     @Composable
     fun DefaultPreview() {
-        M2Mobi_HvATheme {
+        val weather by viewModel.weather.collectAsState()
+        M2Mobi_HvATheme(weather) {
             SettingsDialog(onShownChange = {})
         }
     }
