@@ -65,10 +65,7 @@ class MainViewModel(
     val advice: StateFlow<AdviceUIModel> = _advice
 
     private val _locations: MutableStateFlow<List<Location>> = MutableStateFlow(emptyList())
-    val locations: StateFlow<List<Location>> by lazy {
-        viewModelScope.launchOnIO { fetchRecentLocations() }
-        _locations
-    }
+    val locations: StateFlow<List<Location>> = _locations
 
     private val _currentLocation: MutableStateFlow<Location> = MutableStateFlow(Location())
     val currentLocation: StateFlow<Location> = _currentLocation
@@ -87,10 +84,9 @@ class MainViewModel(
     private fun fetchAllData(location: Location?) {
         viewModelScope.launchOnIO(fetchWeatherExceptionHandler) {
             _uiState.value = UIStates.Loading
-            _locations.value = fetchRecentLocations()
+            _locations.value = getRecentLocations()
             _typeOfAvatar.value = getAvatarType()
-            _currentLocation.value = location ?: if (_locations.value.isEmpty()) DEFAULT_LOCATION
-            else _locations.value.first()
+            _currentLocation.value = fetchSelectedLocation(location)
             _isMetric.value = getUnit() == MeasurementUnit.METRIC
             val weather = fetchWeather(location ?: _currentLocation.value)
             _advice.value = fetchAdvice(weather = weather)
@@ -98,7 +94,7 @@ class MainViewModel(
                 size = AMOUNT_OF_HOURS_IN_HOURLY,
                 init = { fetchAdvice(isHourly = true, index = it, weather = weather) }
             )
-            _locations.value = _locations.value.filterLocations()
+            _locations.value = getRecentLocations()
             _uiState.value = UIStates.Normal
         }
     }
@@ -121,12 +117,10 @@ class MainViewModel(
         )
     }
 
-    private suspend fun fetchRecentLocations(): List<Location> {
-        return getRecentLocations().sortedByDescending { it.lastUsed }
-    }
-
-    private fun List<Location>.filterLocations(): List<Location> {
-        return filter { it.cityName != _currentLocation.value.cityName }
+    private fun fetchSelectedLocation(location: Location?): Location {
+        return location ?: if (_locations.value.isEmpty()) DEFAULT_LOCATION
+        else _locations.value.first()
+//            .takeUnless { it.isCurrent } ?: fetchLocation()
     }
 
     fun updateSettings(avatarType: AvatarType, isMetric: Boolean) {

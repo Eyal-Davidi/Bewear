@@ -17,6 +17,8 @@ data class WeatherEntity(
     val state:String?,
     @SerialName("country")
     val country:String,
+    @SerialName("is_current")
+    var isCurrent: Boolean,
 
     @SerialName("timezone_offset")
     val timeZoneOffset: Int,

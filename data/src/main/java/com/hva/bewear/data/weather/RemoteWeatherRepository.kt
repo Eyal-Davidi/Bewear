@@ -2,7 +2,7 @@ package com.hva.bewear.data.weather
 
 import com.hva.bewear.data.generic.isBeforeCurrentHour
 import com.hva.bewear.data.weather.data.WeatherDataStore
-import com.hva.bewear.data.weather.data.mapper.WeatherDataMapper.refreshLastUsed
+import com.hva.bewear.data.weather.data.mapper.WeatherDataMapper.refreshLastUsedAndIsCurrent
 import com.hva.bewear.data.weather.data.mapper.WeatherDataMapper.toDomain
 import com.hva.bewear.data.weather.data.mapper.WeatherDataMapper.toEntity
 import com.hva.bewear.domain.location.model.Location
@@ -21,7 +21,7 @@ class RemoteWeatherRepository(
         return dataStore.getCachedWeather(location.cityName)?.takeIf {
             !it.lastUsed.isBeforeCurrentHour(ZoneOffset.ofTotalSeconds(it.timeZoneOffset))
         }?.also {
-            dataStore.cacheData(it.refreshLastUsed())
+            dataStore.cacheData(it.refreshLastUsedAndIsCurrent(location))
         }?.toDomain() ?: service.getWeather(location).also {
             dataStore.cacheData(it.toEntity(location))
         }.toDomain(location)
