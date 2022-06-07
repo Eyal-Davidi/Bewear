@@ -275,8 +275,6 @@ class MainActivity : ComponentActivity() {
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier
                                         .wrapContentWidth()
-
-
                                 )
                                 Image(
                                     painter = painterResource(R.drawable.ic_my_location),
@@ -285,7 +283,6 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier
                                         .size(24.dp)
                                         .offset(230.dp)
-
                                 )
                             }
                         }
@@ -441,7 +438,6 @@ class MainActivity : ComponentActivity() {
                                 selected = !isMetric, onClick = { isMetric = false },
                                 modifier = Modifier.align(CenterHorizontally),
                             )
-
                         }
                     }
                 }
@@ -519,8 +515,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-
 
     private fun fetchLocation() {
         val task = fusedLocationProviderClient.lastLocation
