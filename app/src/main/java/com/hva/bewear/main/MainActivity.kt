@@ -93,7 +93,7 @@ class MainActivity : ComponentActivity() {
             Avatar(advice)
 
             Column {
-                Spacer(modifier = Modifier.height(65.dp))
+                Spacer(modifier = Modifier.height(50.dp))
                 TitleDisplay()
                 Spacer(modifier = Modifier.height(1.dp))
                 Row {
