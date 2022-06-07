@@ -4,7 +4,6 @@ import com.hva.bewear.data.weather.data.WeatherDataStore
 import com.hva.bewear.data.weather.data.mapper.WeatherDataMapper.toLocation
 import com.hva.bewear.domain.location.model.Location
 import com.hva.bewear.domain.location.LocationRepository
-import java.time.Instant
 
 class RemoteLocationRepository(
     private val locationService: LocationService,
