@@ -191,7 +191,10 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun WeatherIconAndExtraAdviceIconsDisplay(weather: WeatherUIModel, advice: AdviceUIModel) {
         val icons = advice.extraAdviceIcons
-        Column(Modifier.padding(start = 0.dp, top = 0.dp) .width(100.dp))
+        Column(
+            Modifier
+                .padding(start = 0.dp, top = 0.dp)
+                .width(100.dp))
         {
             Image(
                 painter = painterResource(id = weather.iconId),
@@ -273,7 +276,8 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                         .clickable(
                             interactionSource = interactionSource,
-                            indication = null) {
+                            indication = null
+                        ) {
                             expanded = false
                         }
 
@@ -289,7 +293,7 @@ class MainActivity : ComponentActivity() {
                     .fillMaxWidth()
                     .height(40.dp)
                     .align(TopCenter),
-                backgroundColor = MaterialTheme.colors.primaryVariant,
+                backgroundColor = MaterialTheme.colors.primary,
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(
@@ -306,8 +310,10 @@ class MainActivity : ComponentActivity() {
                         )
                         if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
 
-                        OutlinedTextField(
+                        val textFieldColors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.primary, cursorColor = MaterialTheme.colors.primaryVariant)
+                        TextField(
                             value = text,
+                            colors = textFieldColors,
                             onValueChange = {
                                 text = it
                                 /*if(text.length >= 3){
@@ -319,7 +325,7 @@ class MainActivity : ComponentActivity() {
                                 Text(
                                     text = currentLocation.cityName,
                                     modifier = Modifier.fillMaxWidth(),
-                                    style = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
+                                    style = MaterialTheme.typography.body1.copy(textAlign = TextAlign.Center),
                                 )
                             },
                             keyboardOptions = KeyboardOptions(
@@ -346,7 +352,7 @@ class MainActivity : ComponentActivity() {
                                         false
                                     }
                                 },
-                            textStyle = LocalTextStyle.current.copy(
+                            textStyle = MaterialTheme.typography.body1.copy(
                                 textAlign = TextAlign.Center,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
@@ -355,29 +361,29 @@ class MainActivity : ComponentActivity() {
                             singleLine = true,
                         )
 
-                        Row {
+                        Row(modifier = Modifier.align(CenterVertically)) {
                             if (currentLocation.isCurrent) Image(
                                 painter = painterResource(R.drawable.ic_my_location),
                                 contentDescription = null,
                                 modifier = Modifier
                                     .size(24.dp)
                                     .align(CenterVertically)
-                            )
-                            Image(
-                                painter = if (expanded)
-                                    painterResource(R.drawable.expand_less)
-                                else
-                                    painterResource(R.drawable.expand_more),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(30.dp)
-                                    .align(CenterVertically)
-                                    .clickable {
-                                        expanded = !expanded
+                            )else{
+                                Image(
+                                    painter = if (expanded)
+                                        painterResource(R.drawable.expand_less)
+                                    else
+                                        painterResource(R.drawable.expand_more),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .align(CenterVertically)
+                                        .clickable {
+                                            expanded = !expanded
 
-                                    }
-
-                            )
+                                        }
+                                )
+                            }
                         }
                     }
                 }
@@ -390,7 +396,7 @@ class MainActivity : ComponentActivity() {
                         .width(400.dp)
                         .height(220.dp)
                         .verticalScroll(ScrollState(0)),
-                    backgroundColor = MaterialTheme.colors.primaryVariant,
+                    backgroundColor = MaterialTheme.colors.primary,
 
                     ) {
                     Column {
@@ -398,7 +404,7 @@ class MainActivity : ComponentActivity() {
                             .fillMaxWidth()
                             .padding(8.dp)
                             .background(
-                                MaterialTheme.colors.primaryVariant
+                                MaterialTheme.colors.primary
                             )
                             .clickable {
                                 expanded = false
@@ -440,7 +446,7 @@ class MainActivity : ComponentActivity() {
                                     .fillMaxWidth()
                                     .padding(8.dp)
                                     .background(
-                                        MaterialTheme.colors.primaryVariant
+                                        MaterialTheme.colors.primary
                                     ),
                             ) {
 
@@ -742,14 +748,14 @@ class MainActivity : ComponentActivity() {
         Card(
             shape = RoundedCornerShape(topEnd = 10.dp, topStart = 10.dp),
             modifier = modifier,
-            backgroundColor = MaterialTheme.colors.primaryVariant,
+            backgroundColor = MaterialTheme.colors.primary,
         ) {
             Column {
                 Box(
                     modifier = Modifier
                         .offset(y = 6.dp)
                         .clip(RoundedCornerShape(3.dp))
-                        .background(Color.LightGray)
+                        .background(MaterialTheme.colors.primaryVariant)
                         .align(CenterHorizontally)
                         .width(100.dp)
                         .height(6.dp),
@@ -780,12 +786,12 @@ class MainActivity : ComponentActivity() {
         ) {
             for (i in 0..23) {
                 Card(
-                    border = BorderStroke(3.dp, Color.LightGray),
+                    border = BorderStroke(3.dp, MaterialTheme.colors.primaryVariant),
                     shape = RoundedCornerShape(topEnd = 5.dp, topStart = 5.dp),
                     modifier = Modifier
                         .width(100.dp)
                         .height(150.dp),
-                    backgroundColor = MaterialTheme.colors.primaryVariant,
+                    backgroundColor = MaterialTheme.colors.primary,
                 ) {
                     Column(horizontalAlignment = CenterHorizontally) {
                         Image(
