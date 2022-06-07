@@ -502,11 +502,11 @@ class MainActivity : ComponentActivity() {
     fun BindStates(Content: @Composable () -> Unit) {
         val state by viewModel.uiState.collectAsState()
         when (val uiState = state) {
-            is UIStates.NetworkError -> ErrorState(
+            is UIStates.NetworkError -> ErrorState(viewModel,
                 errorState = uiState,
                 showRefresh = true
             )
-            is UIStates.ErrorInterface -> ErrorState(errorState = uiState)
+            is UIStates.ErrorInterface -> ErrorState(viewModel, errorState = uiState)
             UIStates.Loading -> LoadingScreen()
             UIStates.Normal -> Content()
             else -> {
@@ -520,33 +520,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @Composable
-    fun ErrorState(
-        errorState: UIStates.ErrorInterface,
-        showRefresh: Boolean = false
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier.align(Center),
-                horizontalAlignment = CenterHorizontally
-            ) {
-                Text(
-                    text = errorState.errorText,
-                    modifier = Modifier.padding(10.dp)
-                )
-                if (showRefresh) {
-                    Button(
-                        onClick = { viewModel.refresh() },
-                        modifier = Modifier
-                            .height(40.dp)
-                            .width(100.dp),
-                    ) {
-                        Text(text = "Refresh")
-                    }
-                }
-            }
-        }
-    }
+
 
     private fun fetchLocation() {
         val task = fusedLocationProviderClient.lastLocation
