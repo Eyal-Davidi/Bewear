@@ -751,7 +751,7 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier
                                 .offset(x = (-10).dp, y = (5).dp)
 //                                .scale(0.65f)
-                                .size(30.dp)
+                                .size(35.dp)
                                 .wrapContentSize(),
                         )
                     }
