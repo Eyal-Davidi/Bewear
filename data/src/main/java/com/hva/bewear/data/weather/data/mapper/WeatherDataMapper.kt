@@ -22,7 +22,7 @@ object WeatherDataMapper {
         return Weather(
             lastUsed = lastUsed,
             cityName = cityName,
-            isCurrent = false,
+            isCurrent = isCurrent,
             timeZoneOffset = timeZoneOffset,
             daily = daily.map { it.toDomain() },
             hourly = hourly.map { it.toDomain(timeZoneOffset) },
@@ -79,6 +79,7 @@ object WeatherDataMapper {
             cityName = location.cityName,
             state = location.state,
             country = location.country,
+            isCurrent = location.isCurrent,
             timeZoneOffset = timeZoneOffset,
             lat = lat,
             lon = lon,
@@ -139,11 +140,14 @@ object WeatherDataMapper {
             lat = lat,
             lon = lon,
             lastUsed = lastUsed,
-            isCurrent = false,
+            isCurrent = isCurrent,
         )
     }
 
-    fun WeatherEntity.refreshLastUsed(): WeatherEntity {
-        return this.apply { lastUsed = Instant.now() }
+    fun WeatherEntity.refreshLastUsedAndIsCurrent(location: Location): WeatherEntity {
+        return apply {
+            lastUsed = Instant.now()
+            isCurrent = location.isCurrent
+        }
     }
 }

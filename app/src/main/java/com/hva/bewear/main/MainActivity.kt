@@ -69,22 +69,22 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         setContent {
-            M2Mobi_HvATheme {
+            val weather by viewModel.weather.collectAsState()
+            M2Mobi_HvATheme(weather) {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    MainScreen()
+                    MainScreen(weather)
                 }
             }
         }
     }
 
     @Composable
-    fun MainScreen() {
+    fun MainScreen(weather: WeatherUIModel) {
         val locations by viewModel.locations.collectAsState()
-        val weather by viewModel.weather.collectAsState()
         val advice by viewModel.advice.collectAsState()
         val hourlyAdvice by viewModel.hourlyAdvice.collectAsState()
 
@@ -159,12 +159,16 @@ class MainActivity : ComponentActivity() {
                             contentDescription = null,
                             modifier = Modifier
                                 .size(27.dp)
+                                .offset(x = 4.dp)
                                 .align(CenterVertically)
                                 .clickable { showPopup = true }
                         )
                         if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
 
-                        val textFieldColors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.primary, cursorColor = MaterialTheme.colors.primaryVariant)
+                        val textFieldColors = TextFieldDefaults.textFieldColors(
+                            backgroundColor = MaterialTheme.colors.primary,
+                            cursorColor = MaterialTheme.colors.primaryVariant
+                        )
                         TextField(
                             value = text,
                             colors = textFieldColors,
@@ -194,7 +198,6 @@ class MainActivity : ComponentActivity() {
                                     expanded = true
                                 },
                             ),
-
                             modifier = Modifier
                                 .align(CenterVertically)
                                 .width(300.dp)
@@ -216,45 +219,32 @@ class MainActivity : ComponentActivity() {
                             ),
                             singleLine = true,
                         )
-
-                        Row(modifier = Modifier.align(CenterVertically)) {
-                            if (currentLocation.isCurrent) Image(
-                                painter = painterResource(R.drawable.ic_my_location),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .align(CenterVertically)
-                            )else{
-                                Image(
-                                    painter = if (expanded)
-                                        painterResource(R.drawable.expand_less)
-                                    else
-                                        painterResource(R.drawable.expand_more),
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .align(CenterVertically)
-                                        .clickable {
-                                            expanded = !expanded
-
-                                        }
-                                )
-                            }
-                        }
+                        Image(
+                            painter = if (currentLocation.isCurrent)
+                                painterResource(R.drawable.ic_my_location)
+                            else if (expanded) painterResource(R.drawable.expand_less)
+                            else painterResource(R.drawable.expand_more),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(if(currentLocation.isCurrent) 34.dp else 43.dp)
+                                .padding(end = if(currentLocation.isCurrent) 7.dp else 0.dp)
+                                .align(CenterVertically)
+                                .clickable {
+                                    expanded = !expanded
+                                }
+                        )
                     }
                 }
             }
             if (expanded) {
                 Card(
                     modifier = Modifier
-
                         .padding(start = 4.dp, top = 45.dp)
                         .width(400.dp)
                         .height(220.dp)
                         .verticalScroll(ScrollState(0)),
                     backgroundColor = MaterialTheme.colors.primary,
-
-                    ) {
+                ) {
                     Column {
                         Column(modifier = Modifier
                             .fillMaxWidth()
@@ -302,7 +292,6 @@ class MainActivity : ComponentActivity() {
                                         MaterialTheme.colors.primary
                                     ),
                             ) {
-
                                 Text(
                                     text = location.toString(),
                                     color = Color.Black,
@@ -316,7 +305,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-                //here
             }
             if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
             if (showLocationPermission) LocationPermissionDialog { showLocationPermission = it }
@@ -569,7 +557,8 @@ class MainActivity : ComponentActivity() {
     @Preview(showBackground = true)
     @Composable
     fun DefaultPreview() {
-        M2Mobi_HvATheme {
+        val weather by viewModel.weather.collectAsState()
+        M2Mobi_HvATheme(weather) {
             SettingsDialog(onShownChange = {})
         }
     }
