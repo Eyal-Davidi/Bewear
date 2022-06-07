@@ -112,7 +112,6 @@ class MainActivity : ComponentActivity() {
                 BottomDisplay(advice, weather, hourlyAdvice)
             }
             TopBar(locations)
-
         }
     }
 
@@ -191,7 +190,10 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun WeatherIconAndExtraAdviceIconsDisplay(weather: WeatherUIModel, advice: AdviceUIModel) {
         val icons = advice.extraAdviceIcons
-        Column(Modifier.padding(start = 0.dp, top = 0.dp) .width(100.dp))
+        Column(
+            Modifier
+                .padding(start = 0.dp, top = 0.dp)
+                .width(100.dp))
         {
             Image(
                 painter = painterResource(id = weather.iconId),
@@ -203,18 +205,18 @@ class MainActivity : ComponentActivity() {
 
             )
             Spacer(Modifier.height(15.dp))
-                Text(modifier = Modifier.align(End),
-                    text = "Bring:",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.Left,
-                    color = Color.Black,
-                )
+            Text(
+                modifier = Modifier.align(End),
+                text = "Bring:",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Left,
+                color = Color.Black,
+            )
 
-                Row(Modifier.align(End)){
-                    for (icon in icons) {
-                        if(icons.size>1)
-                        {
+            Row(Modifier.align(End)) {
+                for (icon in icons) {
+                    if (icons.size > 1) {
                         Image(
                             painter = painterResource(icon),
                             contentDescription = "Extra advice icon",
@@ -222,37 +224,18 @@ class MainActivity : ComponentActivity() {
                                 .offset(x = 20.dp)
                                 .size(45.dp)
                         )
-                        }
-                        else{
-                            Image(
-                                painter = painterResource(icon),
-                                contentDescription = "Extra advice icon",
-                                modifier = Modifier
-                                    .offset(x = 0.dp)
-                                    .size(45.dp),
-                            )
-                        }
+                    } else {
+                        Image(
+                            painter = painterResource(icon),
+                            contentDescription = "Extra advice icon",
+                            modifier = Modifier
+                                .offset(x = 0.dp)
+                                .size(45.dp),
+                        )
                     }
                 }
+            }
         }
-//            Row {
-//                Image(
-//                    painter = painterResource(id = R.drawable.ic_baseline_navigation_24),
-//                    contentDescription = "Wind navigation image",
-//                    modifier = Modifier
-//                        .size(22.dp)
-//                        .rotate(weather.windDegrees.toFloat())
-//                )
-//                Spacer(Modifier.width(5.dp))
-//                Text(
-//                    text = weather.windDisplay,
-//                    color = Color.Black,
-//                    fontSize = 17.sp,
-//                    fontWeight = FontWeight.SemiBold,
-//                    textAlign = TextAlign.Center,
-//                )
-//            }
-//        }
     }
 
     @Composable
@@ -273,16 +256,14 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                         .clickable(
                             interactionSource = interactionSource,
-                            indication = null) {
+                            indication = null
+                        ) {
                             expanded = false
                         }
-
                 ) {
-
                 }
             }
             Card(
-
                 modifier = Modifier
                     .padding(5.dp, 5.dp)
                     .clip(RoundedCornerShape(10.dp))
@@ -319,7 +300,9 @@ class MainActivity : ComponentActivity() {
                                 Text(
                                     text = currentLocation.cityName,
                                     modifier = Modifier.fillMaxWidth(),
-                                    style = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
+                                    style = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp
                                 )
                             },
                             keyboardOptions = KeyboardOptions(
