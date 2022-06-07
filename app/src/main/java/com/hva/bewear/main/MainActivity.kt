@@ -204,14 +204,15 @@ class MainActivity : ComponentActivity() {
 
             )
             Spacer(Modifier.height(15.dp))
-            Text(
-                modifier = Modifier.align(End),
-                text = "Bring:",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Left,
-                color = Color.Black,
-            )
+            if(icons.size > 0)
+                Text(
+                    modifier = Modifier.align(End),
+                    text = "Bring:",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Left,
+                    color = Color.Black,
+                )
             Spacer(Modifier.height(5.dp))
             Row(Modifier.align(End)) {
                 for (icon in icons) {
