@@ -17,6 +17,7 @@ import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRe
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.hva.bewear.data.BuildConfig
+import com.hva.bewear.domain.location.model.Location
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
@@ -47,7 +48,7 @@ class LocationService(val context: Context) {
 
     //lateinit var places: List<Locale_dep>
     var locs: List<AutocompletePrediction?> = emptyList()
-    suspend fun update(text: String): List<AutocompletePrediction?>? {
+     fun update(text: String): List<AutocompletePrediction?>? {
 
         val token = AutocompleteSessionToken.newInstance()
         if (placesClient == null) {
@@ -104,20 +105,16 @@ class LocationService(val context: Context) {
     }
 
 
-    suspend fun returnLocation(text: String): Locale? {
+    suspend fun returnLocation(text: Location): Location {
 
-        locs.forEach {
-            if (it!!.getPrimaryText(StyleSpan(Typeface.BOLD)).toString() == text) {
-                return json.decodeFromString(
+
+                val locale : Locale = json.decodeFromString(
                     client.get(
-                        "https://maps.googleapis.com/maps/api/geocode/json?place_id=" + it.placeId + "&key=" + BuildConfig.GOOGLEAPI_KEY
+                        "https://maps.googleapis.com/maps/api/geocode/json?place_id=" + text.placeId + "&key=" + BuildConfig.GOOGLEAPI_KEY
 
                     )
                 )
-
-            }
-        }
-        return null
+        return text.copy(lat = locale.results?.get(0)?.geometry?.location?.lat, lon = locale.results?.get(0)?.geometry?.location?.lng)
     }
 }
 

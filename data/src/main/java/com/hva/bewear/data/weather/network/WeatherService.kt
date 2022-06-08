@@ -30,12 +30,20 @@ class WeatherService {
             API_LOG_TAG,
             "WeatherService.kt: An Api call has been made! Location: ${location.cityName}"
         )
-        return client.get(URL) {
-            parameter("lat", location.lat)
-            parameter("lon", location.lon)
+        Log.e(
+            API_LOG_TAG,
+            location.toString()
+        )
+        return client.get<WeatherResponse>(URL) {
+            parameter("lat", location.lat?: 0.0)
+            parameter("lon", location.lon?: 0.0)
             parameter("exclude", "minutely,current")
             parameter("units", "metric")
             parameter("appid", BuildConfig.OPENWEATHERMAP_KEY)
+        }.also {
+            Log.e(
+                API_LOG_TAG, it.toString()
+            )
         }
     }
 

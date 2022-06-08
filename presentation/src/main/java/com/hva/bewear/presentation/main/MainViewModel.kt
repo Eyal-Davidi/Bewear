@@ -179,8 +179,7 @@ class MainViewModel(
         private const val AMOUNT_OF_HOURS_IN_HOURLY = 24
         private val DEFAULT_LOCATION = Location(
             cityName = "Amsterdam",
-            state = "Noord-Holland",
-            country = "NL",
+            fullName = "Amsterdam, Noord-Holland, The Netherlands",
             lat = 52.3676,
             lon = 4.9041,
         )

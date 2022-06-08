@@ -531,8 +531,7 @@ class MainActivity : ComponentActivity() {
                 viewModel.refresh(
                     location = Location(
                         cityName = address.locality,
-                        state = address.adminArea,
-                        country = address.countryCode,
+                        fullName=  Location.SetFullName(address.locality, address.adminArea , address.countryCode ) ,
                         lat = it.latitude,
                         lon = it.longitude,
                         isCurrent = true
