@@ -10,28 +10,28 @@ import com.hva_bewear.R
 private val SunnyColorPalette = lightColors(
     primary = PrimarySunny,
     primaryVariant = VariantSunny,
-    secondary = VariantSunny,
+    secondary = SecondarySunny,
     background = PrimarySunny,
 )
 
 private val CloudyColorPalette = lightColors(
     primary = PrimaryCloudy,
     primaryVariant = VariantCloudy,
-    secondary = VariantCloudy,
+    secondary = SecondaryCloudy,
     background = PrimaryCloudy,
 )
 
 private val RainyColorPalette = lightColors(
     primary = PrimaryRainy,
     primaryVariant = VariantRainy,
-    secondary = VariantRainy,
+    secondary = SecondaryRainy,
     background = PrimaryRainy,
 )
 
 private val SnowyColorPalette = lightColors(
     primary = PrimarySnowy,
     primaryVariant = VariantSnowy,
-    secondary = VariantSnowy,
+    secondary = SecondarySnowy,
     background = PrimarySnowy,
 )
 
