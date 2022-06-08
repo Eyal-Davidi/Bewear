@@ -321,8 +321,6 @@ class MainActivity : ComponentActivity() {
                     }
 
                 }
-
-
             }
             if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
             if (showLocationPermission) LocationPermissionDialog { showLocationPermission = it }
@@ -551,11 +549,7 @@ class MainActivity : ComponentActivity() {
                 viewModel.refresh(
                     location = Location(
                         cityName = address.locality,
-                        fullName = Location.SetFullName(
-                            address.locality,
-                            address.adminArea,
-                            address.countryCode
-                        ),
+                        fullName = "${address.locality}, ${address.countryCode}",
                         lat = it.latitude,
                         lon = it.longitude,
                         isCurrent = true

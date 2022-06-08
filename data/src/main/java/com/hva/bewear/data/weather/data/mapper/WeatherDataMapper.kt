@@ -143,9 +143,9 @@ object WeatherDataMapper {
     }
 
     fun WeatherEntity.refreshLastUsedAndIsCurrent(location: Location): WeatherEntity {
-        return apply {
-            lastUsed = Instant.now()
+        return copy(
+            lastUsed = Instant.now(),
             isCurrent = location.isCurrent
-        }
+        )
     }
 }

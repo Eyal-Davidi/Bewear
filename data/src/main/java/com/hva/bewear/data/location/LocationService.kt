@@ -3,10 +3,6 @@ package com.hva.bewear.data.location
 
 import Locale
 import android.content.Context
-import android.graphics.Typeface
-import android.text.SpannableString
-import android.text.style.CharacterStyle
-import android.text.style.StyleSpan
 import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks.await
@@ -47,9 +43,7 @@ class LocationService(val context: Context) {
     }
     private var placesClient: PlacesClient? = null
 
-    //lateinit var places: List<Locale_dep>
-    var locs: List<AutocompletePrediction?> = emptyList()
-     fun update(text: String): List<AutocompletePrediction?>? {
+    fun update(text: String): List<AutocompletePrediction?>? {
 
         val token = AutocompleteSessionToken.newInstance()
         if (placesClient == null) {
@@ -84,37 +78,23 @@ class LocationService(val context: Context) {
         }
 
         return if (results.isSuccessful) {
-            if (results.result != null) {
-                locs = results.result.autocompletePredictions
-            Log.e("Help", locs.toString())
-                locs
-            } else null
-
+            if (results.result != null) results.result.autocompletePredictions
+            else null
         } else null
-
-
-
-        /* places =
-             json.decodeFromString(
-                 client.get(
-                     "http://api.openweathermap.org/geo/1.0/direct?q=" +
-                             text + "&limit=5&appid=" +
-                             "***REMOVED***"
-
-                 )
-             )
-         return places*/
     }
 
 
-    suspend fun returnLocation(text: Location): Location {
-                val locale : Locale = json.decodeFromString(
-                    client.get(
-                        "https://maps.googleapis.com/maps/api/geocode/json?place_id=" + text.placeId + "&key=" + BuildConfig.GOOGLEAPI_KEY
-
-                    )
-                )
-        return text.copy(lat = locale.results?.get(0)?.geometry?.location?.lat, lon = locale.results?.get(0)?.geometry?.location?.lng)
+    suspend fun returnLocation(location: Location): Location {
+        val locale : Locale = json.decodeFromString(
+            client.get("https://maps.googleapis.com/maps/api/geocode/json") {
+                parameter("place_id", location.placeId)
+                parameter("key", BuildConfig.GOOGLEAPI_KEY)
+            }
+        )
+        return location.copy(
+            lat = locale.results?.get(0)?.geometry?.location?.lat,
+            lon = locale.results?.get(0)?.geometry?.location?.lng,
+        )
     }
 }
 

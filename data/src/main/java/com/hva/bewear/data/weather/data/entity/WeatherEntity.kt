@@ -10,13 +10,13 @@ import java.time.Instant
 data class WeatherEntity(
     @SerialName("dt")
     @Serializable(with = InstantAsLongSerializer::class)
-    var lastUsed: Instant,
+    val lastUsed: Instant,
     @SerialName("city_name")
     val cityName:String,
     @SerialName("full_name")
     val fullName:String,
     @SerialName("is_current")
-    var isCurrent: Boolean,
+    val isCurrent: Boolean,
 
     @SerialName("timezone_offset")
     val timeZoneOffset: Int,

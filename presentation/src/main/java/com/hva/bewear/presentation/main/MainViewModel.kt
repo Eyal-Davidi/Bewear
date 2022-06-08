@@ -67,7 +67,7 @@ class MainViewModel(
     private val _locations: MutableStateFlow<List<Location>> = MutableStateFlow(emptyList())
     val locations: StateFlow<List<Location>> = _locations
 
-    private val _currentLocation: MutableStateFlow<Location> = MutableStateFlow(Location())
+    private val _currentLocation: MutableStateFlow<Location> = MutableStateFlow(DEFAULT_LOCATION)
     val currentLocation: StateFlow<Location> = _currentLocation
 
     private val _isMetric: MutableStateFlow<Boolean> = MutableStateFlow(true)
@@ -124,7 +124,7 @@ class MainViewModel(
     }
 
     fun updateSettings(avatarType: AvatarType, isMetric: Boolean) {
-        viewModelScope.launch {
+        viewModelScope.launchOnIO() {
             setTypeOfAvatar(avatarType)
             setUnit(if (isMetric) MeasurementUnit.METRIC else MeasurementUnit.IMPERIAL)
             refresh()
@@ -150,9 +150,9 @@ class MainViewModel(
     fun getLocation(text: String) {
         viewModelScope.launchOnIO(getLocationExceptionHandler) {
             _locations.value = locationRepository.getLocation(text)
-            if (locations.value.isEmpty()) {
+            if (locations.value.isEmpty() || locations.value.first().cityName.isBlank()) {
                 _locations.value =
-                    listOf(Location("No Locations found, please type more accurately"))
+                    listOf(Location("", "No Locations found, please type more accurately"))
             }
         }
     }
@@ -187,7 +187,7 @@ class MainViewModel(
         private const val AMOUNT_OF_HOURS_IN_HOURLY = 24
         private val DEFAULT_LOCATION = Location(
             cityName = "Amsterdam",
-            fullName = "Amsterdam, Noord-Holland, The Netherlands",
+            fullName = "Amsterdam, Netherlands",
             lat = 52.3676,
             lon = 4.9041,
         )
