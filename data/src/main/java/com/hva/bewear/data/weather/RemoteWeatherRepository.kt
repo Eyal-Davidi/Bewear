@@ -1,6 +1,5 @@
 package com.hva.bewear.data.weather
 
-import android.content.Context
 import com.hva.bewear.data.generic.isBeforeCurrentHour
 import com.hva.bewear.data.location.LocationService
 import com.hva.bewear.data.weather.data.WeatherDataStore
@@ -34,45 +33,4 @@ class RemoteWeatherRepository(
             dataStore.cacheData(it.toEntity(loc))
         }.toDomain(loc)
     }
-
-/*
-    private suspend fun setCoordinates(coordinates: Coordinates, cityName: String): LocationData {
-        var location = LocationData()
-        if (coordinates.lat != 0.0 && coordinates.lon != 0.0) {
-            location.cityName = cityName
-            location.lat = coordinates.lat
-            location.lon = coordinates.lon
-        } else {
-            val loc = Locations.CityName(cityName)
-
-            if (loc != Locations.EMPTY) {
-                location = LocationData(loc.cityName, loc.lat, loc.lon)
-            } else {
-
-                locationService.locs.forEach {
-                    val primarytext = it!!.getPrimaryText(StyleSpan(Typeface.BOLD)).toString()
-                    if( primarytext == cityName){
-
-                        locationService.returnLocation(primarytext).let{ locale ->
-                            locale?.results?.forEach {
-                                location =LocationData(primarytext, it!!.geometry.location.lat, it.geometry.location.lng)
-                            }
-
-                        }
-
-
-                    }
-
-                }
-                if (location == LocationData()) {
-                    location = LocationData(
-                        Locations.AMSTERDAM.cityName,
-                        Locations.AMSTERDAM.lat,
-                        Locations.AMSTERDAM.lon
-                    )
-                }
-            }
-        }
-        return location
-    }*/
 }

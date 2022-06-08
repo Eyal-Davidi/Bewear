@@ -34,7 +34,7 @@ fun WeatherIconAndExtraAdviceIconsDisplay(weather: WeatherUIModel, advice: Advic
 
         )
         Spacer(Modifier.height(15.dp))
-        if(icons.size > 0)
+        if(icons.isNotEmpty())
             Text(
                 modifier = Modifier.align(Alignment.End),
                 text = "Bring:",
