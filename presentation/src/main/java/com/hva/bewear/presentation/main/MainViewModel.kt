@@ -148,7 +148,7 @@ class MainViewModel(
     }
 
     fun getLocation(text: String) {
-        viewModelScope.launchOnIO {
+        viewModelScope.launchOnIO(getLocationExceptionHandler) {
             _locations.value = locationRepository.getLocation(text)
             if (locations.value.isEmpty()) {
                 _locations.value =
@@ -157,6 +157,14 @@ class MainViewModel(
         }
     }
 
+    private val getLocationExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        _uiState.tryEmit(
+            when (throwable) {
+                else ->
+                    UIStates.Error("Something went wrong, error ${throwable.javaClass}")
+            }
+        )
+    }
 
     private val fetchWeatherExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         _uiState.tryEmit(

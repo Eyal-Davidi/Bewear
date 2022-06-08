@@ -13,6 +13,7 @@ import com.google.android.gms.tasks.Tasks.await
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
+import com.google.android.libraries.places.api.model.TypeFilter
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse
 import com.google.android.libraries.places.api.net.PlacesClient
@@ -62,6 +63,7 @@ class LocationService(val context: Context) {
             FindAutocompletePredictionsRequest.builder()
                 .setSessionToken(token)
                 .setQuery(text)
+                .setTypeFilter(TypeFilter.CITIES)
                 .build()
 
 
@@ -106,8 +108,6 @@ class LocationService(val context: Context) {
 
 
     suspend fun returnLocation(text: Location): Location {
-
-
                 val locale : Locale = json.decodeFromString(
                     client.get(
                         "https://maps.googleapis.com/maps/api/geocode/json?place_id=" + text.placeId + "&key=" + BuildConfig.GOOGLEAPI_KEY

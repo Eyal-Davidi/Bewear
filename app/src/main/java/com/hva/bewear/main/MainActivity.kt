@@ -21,6 +21,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -226,8 +227,8 @@ class MainActivity : ComponentActivity() {
                             else painterResource(R.drawable.expand_more),
                             contentDescription = null,
                             modifier = Modifier
-                                .size(if(currentLocation.isCurrent) 34.dp else 43.dp)
-                                .padding(end = if(currentLocation.isCurrent) 7.dp else 0.dp)
+                                .size(if (currentLocation.isCurrent) 34.dp else 43.dp)
+                                .padding(end = if (currentLocation.isCurrent) 7.dp else 0.dp)
                                 .align(CenterVertically)
                                 .clickable {
                                     expanded = !expanded
@@ -239,7 +240,7 @@ class MainActivity : ComponentActivity() {
             if (expanded) {
                 Card(
                     modifier = Modifier
-                        .padding(start = 4.dp, top = 50.dp, end = 4.dp,)
+                        .padding(start = 4.dp, top = 50.dp, end = 4.dp)
                         .width(400.dp)
                         .wrapContentHeight()
                         .verticalScroll(ScrollState(0)),
@@ -257,7 +258,10 @@ class MainActivity : ComponentActivity() {
                                 if (checkLocationPermission()) showLocationPermission = true
                                 else fetchLocation()
                             }) {
-                            Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
                                 Text(
                                     text = "Current Location",
                                     color = Color.Black,
@@ -294,7 +298,6 @@ class MainActivity : ComponentActivity() {
                                 Text(
                                     text = location.toString(),
                                     color = Color.Black,
-                                    textAlign = TextAlign.Center,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier
                                         .wrapContentWidth()
@@ -302,8 +305,24 @@ class MainActivity : ComponentActivity() {
                             }
                             Divider()
                         }
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.powered_by_google_on_non_white),
+                                contentDescription = "google, Damn it",
+                                modifier = Modifier
+                                    .width(150.dp)
+                                    .padding(start = 8.dp, top = 10.dp, bottom = 10.dp)
+                            )
+                        }
+
                     }
+
                 }
+
+
             }
             if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
             if (showLocationPermission) LocationPermissionDialog { showLocationPermission = it }
@@ -485,7 +504,8 @@ class MainActivity : ComponentActivity() {
     fun BindStates(Content: @Composable () -> Unit) {
         val state by viewModel.uiState.collectAsState()
         when (val uiState = state) {
-            is UIStates.NetworkError -> ErrorState(viewModel,
+            is UIStates.NetworkError -> ErrorState(
+                viewModel,
                 errorState = uiState,
                 showRefresh = true
             )
@@ -531,7 +551,11 @@ class MainActivity : ComponentActivity() {
                 viewModel.refresh(
                     location = Location(
                         cityName = address.locality,
-                        fullName=  Location.SetFullName(address.locality, address.adminArea , address.countryCode ) ,
+                        fullName = Location.SetFullName(
+                            address.locality,
+                            address.adminArea,
+                            address.countryCode
+                        ),
                         lat = it.latitude,
                         lon = it.longitude,
                         isCurrent = true
