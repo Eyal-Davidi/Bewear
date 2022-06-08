@@ -81,7 +81,7 @@ class MainViewModel(
 
     init {
         viewModelScope.launchOnIO {
-            searchText.debounce(750).collect {
+            searchText.debounce(250).collect {
                 if(it.isNotBlank() && it.length > 2) {
                     Log.e("TAG", it)
                     getLocation(it)

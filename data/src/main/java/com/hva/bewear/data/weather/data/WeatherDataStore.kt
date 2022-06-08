@@ -18,9 +18,11 @@ class WeatherDataStore(private val context: Context) {
 
     fun cacheData(weather: WeatherEntity) {
         val list = arrayListOf(weather)
-        val oldList = getCachedLocations().filter(weather.cityName)
-        oldList.map { it.copy(isCurrent = false) }
-        list.addAll(oldList)
+        list.addAll(
+            getCachedLocations()
+            .filter(weather.cityName)
+            .map { it.copy(isCurrent = false) }
+        )
         list.sortedByDescending { it.lastUsed }
         file.writeDataToFile(json.encodeToJsonElement(CachingEntity(list.limit())))
     }
