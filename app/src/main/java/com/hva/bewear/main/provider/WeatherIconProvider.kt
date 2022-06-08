@@ -25,14 +25,13 @@ class AppWeatherIconProvider : WeatherIconProvider {
 
     }
 
-    //TODO: fix this so there are night backgrounds as well as day backgrounds
     @DrawableRes
     override fun getWeatherBackground(type: String): Int {
         return when (type) {
             "01d", "01n" -> R.raw.sunny_weather
             "02d", "02n" -> R.raw.sunny_weather
             "03d", "03n" -> R.raw.cloudy_weather_alt
-            "04d", "04n" -> R.raw.sunny_weather
+            "04d", "04n" -> R.raw.cloudy_weather_alt
             "09d", "09n" -> R.raw.rainy_weather
             "10d", "10n" -> R.raw.rainy_weather
             "11d", "11n" -> R.raw.rainy_weather

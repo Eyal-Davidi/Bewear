@@ -9,9 +9,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,21 +17,22 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.BottomCenter
-import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Alignment.Companion.TopCenter
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusOrder
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -43,10 +42,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.hva.bewear.domain.avatar_type.model.AvatarType
@@ -54,7 +49,6 @@ import com.hva.bewear.domain.location.model.Location
 import com.hva.bewear.main.theme.M2Mobi_HvATheme
 import com.hva.bewear.main.theme.nunito
 import com.hva.bewear.presentation.main.MainViewModel
-import com.hva.bewear.presentation.main.model.AdviceUIModel
 import com.hva.bewear.presentation.main.model.UIStates
 import com.hva.bewear.presentation.main.model.WeatherUIModel
 import com.hva_bewear.R
@@ -88,12 +82,15 @@ class MainActivity : ComponentActivity() {
         val locations by viewModel.locations.collectAsState()
         val advice by viewModel.advice.collectAsState()
         val hourlyAdvice by viewModel.hourlyAdvice.collectAsState()
+        val localFocusManager = LocalFocusManager.current
 
         BindStates {
             Loader(weather)
             Avatar(advice)
 
-            Column {
+            Column(modifier = Modifier.pointerInput(Unit) {
+                detectTapGestures { localFocusManager.clearFocus() }
+            }) {
                 Spacer(modifier = Modifier.height(50.dp))
                 TitleDisplay()
                 Spacer(modifier = Modifier.height(1.dp))
@@ -106,8 +103,6 @@ class MainActivity : ComponentActivity() {
                             .fillMaxWidth(),
                     ) {
                         WeatherIconAndExtraAdviceIconsDisplay(weather, advice)
-//                        Spacer(Modifier.height(15.dp))
-//                        ExtraAdviceIcons(advice)
                     }
                 }
                 BottomDisplay(advice, weather, hourlyAdvice)
@@ -120,26 +115,24 @@ class MainActivity : ComponentActivity() {
     private fun TopBar(locations: List<Location>) {
         var expanded by remember { mutableStateOf(false) }
         var showPopup by remember { mutableStateOf(false) }
-        var text by rememberSaveable { mutableStateOf("") }
+        val searchText by viewModel.searchText.collectAsState()
         var showLocationPermission by remember { mutableStateOf(false) }
         val currentLocation by viewModel.currentLocation.collectAsState()
+        var hidePlaceholder by remember { mutableStateOf(false)}
         val interactionSource = remember { MutableInteractionSource() }
+        val localFocusManager = LocalFocusManager.current
+        val requester = FocusRequester()
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-
             if (expanded) {
                 Box(
                     Modifier
                         .fillMaxSize()
-                        .clickable(
-                            interactionSource = interactionSource,
-                            indication = null
-                        ) {
-                            expanded = false
+                        .clickable(interactionSource = interactionSource, indication = null) {
+                            localFocusManager.clearFocus()
                         }
-                ) {
-                }
+                )
             }
             Card(
                 modifier = Modifier
@@ -171,17 +164,18 @@ class MainActivity : ComponentActivity() {
                             cursorColor = MaterialTheme.colors.primaryVariant
                         )
                         TextField(
-                            value = text,
+                            value = searchText,
                             colors = textFieldColors,
                             onValueChange = {
-                                text = it
-                                /*if(text.length >= 3){
-                                    viewModel.getLocation(text)
-                                    expanded = true
-                                }*/
+                                viewModel.searchText.value = it
+                                expanded = true
+//                                if(text.length >= 3){
+//                                    viewModel.getLocation(text)
+//                                    expanded = true
+//                                }
                             },
                             placeholder = {
-                                Text(
+                                if(!hidePlaceholder) Text(
                                     text = currentLocation.cityName,
                                     modifier = Modifier.fillMaxWidth(),
                                     style = MaterialTheme.typography.body1.copy(textAlign = TextAlign.Center),
@@ -195,7 +189,7 @@ class MainActivity : ComponentActivity() {
                             ),
                             keyboardActions = KeyboardActions(
                                 onDone = {
-                                    viewModel.getLocation(text)
+                                    viewModel.getLocation(searchText)
                                     expanded = true
                                 },
                             ),
@@ -203,9 +197,18 @@ class MainActivity : ComponentActivity() {
                                 .align(CenterVertically)
                                 .width(300.dp)
                                 .requiredHeight(56.dp)
+                                .focusRequester(requester)
+                                .onFocusChanged {
+                                    if(!it.isFocused) {
+                                        viewModel.searchText.value = ""
+                                        viewModel.clearLocationSearch()
+                                    }
+                                    hidePlaceholder = it.isFocused
+                                    expanded = it.isFocused
+                                }
                                 .onKeyEvent {
                                     if ((it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_INSERT) || (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_SEARCH) || (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER)) {
-                                        viewModel.getLocation(text)
+                                        viewModel.getLocation(searchText)
                                         expanded = true
                                         true
                                     } else {
@@ -231,7 +234,8 @@ class MainActivity : ComponentActivity() {
                                 .padding(end = if (currentLocation.isCurrent) 7.dp else 0.dp)
                                 .align(CenterVertically)
                                 .clickable {
-                                    expanded = !expanded
+                                    if(expanded) localFocusManager.clearFocus()
+                                    else requester.requestFocus()
                                 }
                         )
                     }
@@ -244,14 +248,14 @@ class MainActivity : ComponentActivity() {
                         .width(400.dp)
                         .wrapContentHeight()
                         .verticalScroll(ScrollState(0)),
-                    backgroundColor = MaterialTheme.colors.primary,
+                    backgroundColor = MaterialTheme.colors.secondary,
                 ) {
                     Column {
                         Column(modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
                             .background(
-                                MaterialTheme.colors.primary
+                                MaterialTheme.colors.secondary
                             )
                             .clickable {
                                 expanded = false
@@ -284,15 +288,15 @@ class MainActivity : ComponentActivity() {
                             Column(
                                 Modifier
                                     .clickable {
-                                        if (location != currentLocation) {
-                                            expanded = false
+                                        expanded = false
+                                        if (location != currentLocation && location.cityName.isNotBlank()) {
                                             viewModel.refresh(location)
                                         }
                                     }
                                     .fillMaxWidth()
                                     .padding(8.dp)
                                     .background(
-                                        MaterialTheme.colors.primary
+                                        MaterialTheme.colors.secondary
                                     ),
                             ) {
                                 Text(

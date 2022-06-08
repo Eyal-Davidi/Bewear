@@ -27,8 +27,7 @@ import com.hva.bewear.presentation.main.provider.TextAdviceStringProvider
 import com.hva.bewear.presentation.main.provider.WeatherIconProvider
 import io.ktor.client.features.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
 import java.nio.channels.UnresolvedAddressException
 
 class MainViewModel(
@@ -64,9 +63,6 @@ class MainViewModel(
     )
     val advice: StateFlow<AdviceUIModel> = _advice
 
-    private val _locations: MutableStateFlow<List<Location>> = MutableStateFlow(emptyList())
-    val locations: StateFlow<List<Location>> = _locations
-
     private val _currentLocation: MutableStateFlow<Location> = MutableStateFlow(DEFAULT_LOCATION)
     val currentLocation: StateFlow<Location> = _currentLocation
 
@@ -76,8 +72,23 @@ class MainViewModel(
     private val _hourlyAdvice = MutableStateFlow(generateDefaultAdvice())
     val hourlyAdvice: StateFlow<List<AdviceUIModel>> = _hourlyAdvice
 
+    val searchText = MutableStateFlow("")
+    private val _locations: MutableStateFlow<List<Location>> = MutableStateFlow(emptyList())
+    val locations: StateFlow<List<Location>> = _locations
+
     private val _uiState = MutableStateFlow<UIStates>(UIStates.Normal)
     var uiState: StateFlow<UIStates> = _uiState
+
+    init {
+        viewModelScope.launchOnIO {
+            searchText.debounce(750).collect {
+                if(it.isNotBlank() && it.length > 2) {
+                    Log.e("TAG", it)
+                    getLocation(it)
+                }
+            }
+        }
+    }
 
     fun refresh(location: Location? = null) = fetchAllData(location)
 
@@ -121,6 +132,12 @@ class MainViewModel(
         return location ?: if (_locations.value.isEmpty()) DEFAULT_LOCATION
         else _locations.value.first()
 //            .takeUnless { it.isCurrent } ?: fetchLocation()
+    }
+
+    fun clearLocationSearch() {
+        viewModelScope.launchOnIO {
+            _locations.value = getRecentLocations()
+        }
     }
 
     fun updateSettings(avatarType: AvatarType, isMetric: Boolean) {
