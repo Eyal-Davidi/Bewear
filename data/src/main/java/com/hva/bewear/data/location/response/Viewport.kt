@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 For support, please feel free to contact me at https://www.linkedin.com/in/syedabsar */
 
 @Serializable
-data class Locale (
+data class Viewport (
 
-	@SerializedName("results") val results : List<Results?>?,
-	@SerializedName("status") val status : String
+	@SerializedName("northeast") val northeast : Northeast?,
+	@SerializedName("southwest") val southwest : Southwest?
 )

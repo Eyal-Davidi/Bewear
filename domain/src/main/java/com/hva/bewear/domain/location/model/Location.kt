@@ -4,15 +4,22 @@ import java.time.Instant
 
 data class Location(
     var cityName: String = "",
-    var state: String = "",
-    var country: String = "",
-    var lat : Double = 0.0,
-    var lon : Double = 0.0,
+    var fullName: String = "",
+    var placeId : String = "",
+    var lat : Double? = null,
+    var lon : Double? = null,
     var lastUsed: Instant = Instant.MIN,
     var isCurrent: Boolean = false,
 ) {
-    override fun toString(): String {
-        return if(state.isBlank() && country.isBlank()) cityName
+    object SetFullName{
+        operator fun invoke (cityName: String, state : String, country : String ) : String  {
+            return if(state.isBlank() && country.isBlank()) cityName
             else "$cityName, ${if (state.isNotBlank()) "$state," else ""} $country"
+        }
     }
+
+    override fun toString(): String {
+        return fullName
+    }
+
 }

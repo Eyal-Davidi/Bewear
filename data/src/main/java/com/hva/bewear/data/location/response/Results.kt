@@ -13,8 +13,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 For support, please feel free to contact me at https://www.linkedin.com/in/syedabsar */
 
 @Serializable
-data class Locale (
+data class Results (
 
-	@SerializedName("results") val results : List<Results?>?,
-	@SerializedName("status") val status : String
+	@SerializedName("address_components") val address_components : List<Address_components>?,
+	@SerializedName("formatted_address") val formatted_address : String?,
+	@SerializedName("geometry") val geometry : Geometry,
+	@SerializedName("place_id") val place_id : String?,
+	@SerializedName("plus_code") val plus_code : Plus_code? = Plus_code("", ""),
+	@SerializedName("types") val types : List<String>?
 )

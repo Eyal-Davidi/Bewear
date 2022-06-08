@@ -13,8 +13,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 For support, please feel free to contact me at https://www.linkedin.com/in/syedabsar */
 
 @Serializable
-data class Locale (
+data class Geometry (
 
-	@SerializedName("results") val results : List<Results?>?,
-	@SerializedName("status") val status : String
+	@SerializedName("location") val location : Location,
+	@SerializedName("location_type") val location_type : String?,
+	@SerializedName("viewport") val viewport : Viewport?
 )

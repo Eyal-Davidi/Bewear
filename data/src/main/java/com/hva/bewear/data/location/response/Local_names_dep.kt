@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Local_names (
+data class Local_names_dep (
 
 	@SerialName("ug") val ug : String? = null,
 	@SerialName("he") val he : String? = null,

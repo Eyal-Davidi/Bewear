@@ -77,8 +77,7 @@ object WeatherDataMapper {
         return WeatherEntity(
             lastUsed = Instant.now(),
             cityName = location.cityName,
-            state = location.state,
-            country = location.country,
+            fullName = location.fullName,
             isCurrent = location.isCurrent,
             timeZoneOffset = timeZoneOffset,
             lat = lat,
@@ -135,8 +134,7 @@ object WeatherDataMapper {
     fun WeatherEntity.toLocation(): Location {
         return Location(
             cityName = cityName,
-            state = state ?: "",
-            country = country,
+            fullName= fullName,
             lat = lat,
             lon = lon,
             lastUsed = lastUsed,

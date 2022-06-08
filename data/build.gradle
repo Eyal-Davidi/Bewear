@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'org.jetbrains.kotlin.plugin.serialization'
     id 'kotlin-kapt'
+
 }
 
 android {
@@ -13,6 +14,7 @@ android {
         minSdkVersion min_sdk_version
         targetSdkVersion compile_sdk_version
         buildConfigField("String", "OPENWEATHERMAP_KEY", "\"***REMOVED***\"")
+        buildConfigField("String", "GOOGLEAPI_KEY", "\"***REMOVED***\"")
     }
 
     compileOptions {
@@ -43,4 +45,6 @@ dependencies {
 
     // LiveData
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.4.1")
+    // google places
+    implementation 'com.google.android.libraries.places:places:2.6.0'
 }

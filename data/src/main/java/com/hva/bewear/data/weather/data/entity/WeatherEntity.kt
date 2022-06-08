@@ -13,10 +13,8 @@ data class WeatherEntity(
     var lastUsed: Instant,
     @SerialName("city_name")
     val cityName:String,
-    @SerialName("state")
-    val state:String?,
-    @SerialName("country")
-    val country:String,
+    @SerialName("full_name")
+    val fullName:String,
     @SerialName("is_current")
     var isCurrent: Boolean,
 

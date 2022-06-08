@@ -16,7 +16,7 @@ import org.koin.dsl.module
 val dataModule = module {
     // Repositories
     single<AvatarTypeRepository> { RemoteAvatarTypeRepository(get()) }
-    single<WeatherRepository> { RemoteWeatherRepository(get(), get()) }
+    single<WeatherRepository> { RemoteWeatherRepository(get(), get(), get()) }
     single<UnitRepository> { RemoteUnitRepository(get()) }
     single<LocationRepository>{ RemoteLocationRepository(get(), get()) }
 
@@ -24,6 +24,9 @@ val dataModule = module {
     single { WeatherDataStore(get()) }
 
     // Services
+
+
+
     single { WeatherService() }
-    single {LocationService()}
+    single {LocationService(get())}
 }

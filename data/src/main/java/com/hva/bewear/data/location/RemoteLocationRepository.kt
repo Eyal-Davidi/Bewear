@@ -1,5 +1,9 @@
 package com.hva.bewear.data.location
 
+import android.graphics.Typeface
+import android.text.SpannableString
+import android.text.style.CharacterStyle
+import android.text.style.StyleSpan
 import com.hva.bewear.data.weather.data.WeatherDataStore
 import com.hva.bewear.data.weather.data.mapper.WeatherDataMapper.toLocation
 import com.hva.bewear.domain.location.model.Location
@@ -12,17 +16,16 @@ class RemoteLocationRepository(
     override suspend fun getLocation(text: String): List<Location> {
         val location = ArrayList<Location>()
 
-        locationService.update(text).forEach {
+        locationService.update(text)?.forEach {
             location.add(
                 Location(
-                    cityName = it.name,
-                    state = it.state ?: "",
-                    country = it.country,
-                    lat = it.lat,
-                    lon = it.lon,
+                    cityName = it!!.getPrimaryText(StyleSpan(Typeface.BOLD)).toString(),
+                    fullName = it.getFullText(StyleSpan(Typeface.BOLD)).toString(),
+                    placeId = it.placeId
                 )
             )
         }
+
         return location
     }
 
@@ -30,3 +33,4 @@ class RemoteLocationRepository(
         return dataStore.getCachedLocations().map { it.toLocation() }
     }
 }
+
