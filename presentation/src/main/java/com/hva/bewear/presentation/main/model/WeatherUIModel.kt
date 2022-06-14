@@ -1,8 +1,6 @@
 package com.hva.bewear.presentation.main.model
 
-import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import com.hva.bewear.domain.weather.model.HourlyWeather
 
 data class WeatherUIModel(

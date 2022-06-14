@@ -3,7 +3,7 @@ package com.hva.bewear.domain.weather.model
 import java.time.LocalDateTime
 
 data class HourlyWeather(
-    val date : LocalDateTime = LocalDateTime.now(),
+    val date : LocalDateTime = LocalDateTime.MIN,
     val temperature : Double = 0.0,
     val feelsLike : Double = 0.0,
     val uvIndex : Double = 0.0,

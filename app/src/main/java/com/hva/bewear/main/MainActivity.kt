@@ -83,23 +83,24 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        val settingIntentSnackbar = com.google.android.material.snackbar.Snackbar
+            .make(
+                findRootView(this),
+                "Go to settings to allow location permission for Bewear!",5_000
+            ).setAction("Settings") {
+                startActivity(
+                    Intent(
+                        ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.fromParts("package", packageName, null)
+                    )
+                )
+            }
 
         requestPermissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
                 Log.e("TAG", "onCreate: $isGranted")
                 if (isGranted) fetchLocation()
-                else com.google.android.material.snackbar.Snackbar
-                    .make(
-                        findRootView(this),
-                        "Go to settings to allow location permission for Bewear!",5_000
-                    ).setAction("Settings") {
-                        startActivity(
-                            Intent(
-                                ACTION_APPLICATION_DETAILS_SETTINGS,
-                                Uri.fromParts("package", packageName, null)
-                            )
-                        )
-                    }.show()
+                else settingIntentSnackbar.show()
             }
     }
 
@@ -166,7 +167,11 @@ class MainActivity : ComponentActivity() {
                     .clip(RoundedCornerShape(10.dp))
                     .fillMaxWidth()
                     .height(40.dp)
-                    .align(TopCenter),
+                    .align(TopCenter)
+                    .clickable {
+                        if (expanded) localFocusManager.clearFocus()
+                        else requester.requestFocus()
+                    },
                 backgroundColor = MaterialTheme.colors.primary,
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
@@ -183,8 +188,6 @@ class MainActivity : ComponentActivity() {
                                 .align(CenterVertically)
                                 .clickable { showPopup = true }
                         )
-                        if (showPopup) SettingsDialog(onShownChange = { showPopup = it })
-
                         val textFieldColors = TextFieldDefaults.textFieldColors(
                             backgroundColor = MaterialTheme.colors.primary,
                             cursorColor = MaterialTheme.colors.primaryVariant
@@ -342,15 +345,13 @@ class MainActivity : ComponentActivity() {
                         ) {
                             Image(
                                 painter = painterResource(R.drawable.powered_by_google_on_non_white),
-                                contentDescription = "google, Damn it",
+                                contentDescription = "powered by Google",
                                 modifier = Modifier
                                     .width(150.dp)
                                     .padding(start = 8.dp, top = 10.dp, bottom = 10.dp)
                             )
                         }
-
                     }
-
                 }
             }
             if (showPopup) SettingsDialog(onShownChange = { showPopup = it })

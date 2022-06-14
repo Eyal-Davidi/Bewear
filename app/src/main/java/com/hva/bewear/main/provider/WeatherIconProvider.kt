@@ -20,7 +20,7 @@ class AppWeatherIconProvider : WeatherIconProvider {
             "11d", "11n" -> R.drawable.ic_action_thunder_storm
             "13d", "13n" -> R.drawable.ic_action_snow
             "50d", "50n" -> R.drawable.ic_action_mist
-            else -> R.drawable.default_placeholder
+            else -> R.drawable.blank_icon
         }
 
     }

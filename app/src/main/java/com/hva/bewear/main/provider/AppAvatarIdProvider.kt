@@ -21,14 +21,14 @@ class AppAvatarIdProvider : AvatarIdProvider {
             ClothingAdvice.LONG_SHIRT_LONG_PANTS -> R.drawable.ava_m_long_sleeve
             ClothingAdvice.SHORT_SHIRT_LONG_PANTS -> R.drawable.ava_m_short_sleeve_long_pants
             ClothingAdvice.SHORT_SHIRT_SHORT_PANTS -> R.drawable.ava_m_short_sleeve_short_pants
-            else -> R.drawable.default_placeholder
+            else -> R.drawable.blank_avatar
         } else when (type) {
             ClothingAdvice.WINTER_JACKET_LONG_PANTS -> R.drawable.ava_f_winter_coat
             ClothingAdvice.SWEATER_LONG_PANTS -> R.drawable.ava_f_sweater
             ClothingAdvice.LONG_SHIRT_LONG_PANTS -> R.drawable.ava_f_long_sleeve
             ClothingAdvice.SHORT_SHIRT_LONG_PANTS -> R.drawable.ava_f_short_sleeve_long_pants
             ClothingAdvice.SHORT_SHIRT_SHORT_PANTS -> R.drawable.ava_f_short_sleeve_short_pants
-            else -> R.drawable.default_placeholder
+            else -> R.drawable.blank_avatar
         }
     }
 

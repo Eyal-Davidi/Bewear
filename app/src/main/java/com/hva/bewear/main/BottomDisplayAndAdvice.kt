@@ -139,7 +139,7 @@ fun HourlyDisplay(
 
                 Column(horizontalAlignment = Alignment.End) {
                     val icon =
-                        if (weather.hourlyIcons.isEmpty()) R.drawable.ic_action_cloudy
+                        if (weather.hourlyIcons.isEmpty()) R.drawable.blank_icon
                         else weather.hourlyIcons[i]
                     Image(
                         painter = painterResource(id = icon),
