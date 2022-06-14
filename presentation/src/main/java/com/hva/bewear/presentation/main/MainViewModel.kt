@@ -200,6 +200,9 @@ class MainViewModel(
         Log.e("AppERR", throwable.stackTraceToString())
     }
 
+    fun setLoading() = _uiState.tryEmit(UIStates.Loading)
+    fun setNormal() = _uiState.tryEmit(UIStates.Normal)
+
     companion object {
         private const val AMOUNT_OF_HOURS_IN_HOURLY = 24
         private val DEFAULT_LOCATION = Location(

@@ -1,13 +1,19 @@
 package com.hva.bewear.main
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+import android.util.Log
 import android.view.KeyEvent
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -22,11 +28,9 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Alignment.Companion.TopCenter
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusOrder
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -42,8 +46,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
+import by.kirich1409.viewbindingdelegate.internal.findRootView
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest.*
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.hva.bewear.domain.avatar_type.model.AvatarType
 import com.hva.bewear.domain.location.model.Location
 import com.hva.bewear.main.theme.M2Mobi_HvATheme
@@ -59,6 +66,7 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModel()
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,6 +83,24 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        requestPermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+                Log.e("TAG", "onCreate: $isGranted")
+                if (isGranted) fetchLocation()
+                else com.google.android.material.snackbar.Snackbar
+                    .make(
+                        findRootView(this),
+                        "Go to settings to allow location permission for Bewear!",5_000
+                    ).setAction("Settings") {
+                        startActivity(
+                            Intent(
+                                ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.fromParts("package", packageName, null)
+                            )
+                        )
+                    }.show()
+            }
     }
 
     @Composable
@@ -118,7 +144,7 @@ class MainActivity : ComponentActivity() {
         val searchText by viewModel.searchText.collectAsState()
         var showLocationPermission by remember { mutableStateOf(false) }
         val currentLocation by viewModel.currentLocation.collectAsState()
-        var hidePlaceholder by remember { mutableStateOf(false)}
+        var hidePlaceholder by remember { mutableStateOf(false) }
         val interactionSource = remember { MutableInteractionSource() }
         val localFocusManager = LocalFocusManager.current
         val requester = FocusRequester()
@@ -175,7 +201,7 @@ class MainActivity : ComponentActivity() {
 //                                }
                             },
                             placeholder = {
-                                if(!hidePlaceholder) Text(
+                                if (!hidePlaceholder) Text(
                                     text = currentLocation.cityName,
                                     modifier = Modifier.fillMaxWidth(),
                                     style = MaterialTheme.typography.body1.copy(textAlign = TextAlign.Center),
@@ -199,7 +225,7 @@ class MainActivity : ComponentActivity() {
                                 .requiredHeight(56.dp)
                                 .focusRequester(requester)
                                 .onFocusChanged {
-                                    if(!it.isFocused) {
+                                    if (!it.isFocused) {
                                         viewModel.searchText.value = ""
                                         viewModel.clearLocationSearch()
                                     }
@@ -234,7 +260,7 @@ class MainActivity : ComponentActivity() {
                                 .padding(end = if (currentLocation.isCurrent) 7.dp else 0.dp)
                                 .align(CenterVertically)
                                 .clickable {
-                                    if(expanded) localFocusManager.clearFocus()
+                                    if (expanded) localFocusManager.clearFocus()
                                     else requester.requestFocus()
                                 }
                         )
@@ -253,12 +279,13 @@ class MainActivity : ComponentActivity() {
                     Column {
                         Column(modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp)
+                            .padding(12.dp)
                             .background(
                                 MaterialTheme.colors.secondary
                             )
                             .clickable {
                                 expanded = false
+                                localFocusManager.clearFocus()
                                 if (checkLocationPermission()) showLocationPermission = true
                                 else fetchLocation()
                             }) {
@@ -294,7 +321,7 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                                     .fillMaxWidth()
-                                    .padding(8.dp)
+                                    .padding(12.dp)
                                     .background(
                                         MaterialTheme.colors.secondary
                                     ),
@@ -526,30 +553,19 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun fetchLocation() {
-        val task = fusedLocationProviderClient.lastLocation
+        val cancellationTokenSource = CancellationTokenSource()
 
         if (checkLocationPermission()) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ),
-                101
-            )
-        }
+            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        } else viewModel.setLoading()
 
-//        task.addOnCanceledListener {
-//            val cancelled = "hi"
-//        }
-//        task.addOnFailureListener {
-//            val exception = it
-//        }
-        task.addOnSuccessListener {
+        fusedLocationProviderClient.getCurrentLocation(
+            PRIORITY_LOW_POWER,
+            cancellationTokenSource.token
+        ).addOnSuccessListener {
             if (it != null) {
                 val geocoder = Geocoder(this, Locale.getDefault())
-                val addresses = geocoder.getFromLocation(it.latitude, it.longitude, 1)
-                val address = addresses[0]
+                val address = geocoder.getFromLocation(it.latitude, it.longitude, 1)[0]
                 viewModel.refresh(
                     location = Location(
                         cityName = address.locality,
@@ -559,8 +575,11 @@ class MainActivity : ComponentActivity() {
                         isCurrent = true
                     ),
                 )
-            }
-        }
+            } else viewModel.setNormal()
+        }.addOnFailureListener { exception ->
+            Log.d("Location", "Oops location failed with exception: $exception")
+            viewModel.setNormal()
+        }.addOnCanceledListener { viewModel.setNormal() }
     }
 
     private fun checkLocationPermission(): Boolean {
