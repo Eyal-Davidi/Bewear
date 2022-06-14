@@ -19,12 +19,17 @@ class WeatherDataStore(private val context: Context) {
     fun cacheData(weather: WeatherEntity) {
         val list = arrayListOf(weather)
         list.addAll(
-            getCachedLocations()
-            .filter(weather.cityName)
-            .map { it.copy(isCurrent = false) }
+            getCachedLocations().filter(weather.cityName)
         )
-        list.sortedByDescending { it.lastUsed }
-        file.writeDataToFile(json.encodeToJsonElement(CachingEntity(list.limit())))
+        file.writeDataToFile(
+            json.encodeToJsonElement(
+                CachingEntity(
+                    list.sortedByDescending { it.lastUsed }
+                        .map { it.copy(isCurrent = false) }
+                        .limit()
+                )
+            )
+        )
     }
 
     fun getCachedWeather(cityName: String): WeatherEntity? {
@@ -35,7 +40,7 @@ class WeatherDataStore(private val context: Context) {
         return try {
             json.decodeFromString<CachingEntity>(file.readText()).cachedLocations
         } catch (e: Exception) {
-            Log.e("EmptyCache", "There are no locations cached!", )
+            Log.e("EmptyCache", "There are no locations cached!")
             emptyList()
         }
     }
@@ -45,7 +50,7 @@ class WeatherDataStore(private val context: Context) {
     }
 
     private fun List<WeatherEntity>.limit(): List<WeatherEntity> {
-        return subList(0, (if(size < MAX_CACHED) size else MAX_CACHED))
+        return subList(0, (if (size < MAX_CACHED) size else MAX_CACHED))
     }
 
     private fun File.writeDataToFile(json: JsonElement): Boolean {
