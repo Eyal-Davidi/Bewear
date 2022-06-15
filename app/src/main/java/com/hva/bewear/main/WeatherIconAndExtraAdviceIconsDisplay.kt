@@ -31,7 +31,6 @@ fun WeatherIconAndExtraAdviceIconsDisplay(weather: WeatherUIModel, advice: Advic
                 .scale(1.4f)
                 .wrapContentSize()
                 .align(Alignment.End)
-
         )
         Spacer(Modifier.height(15.dp))
         if(icons.isNotEmpty())

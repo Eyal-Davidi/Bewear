@@ -22,7 +22,6 @@ class AppWeatherIconProvider : WeatherIconProvider {
             "50d", "50n" -> R.drawable.ic_action_mist
             else -> R.drawable.blank_icon
         }
-
     }
 
     @DrawableRes
@@ -39,6 +38,5 @@ class AppWeatherIconProvider : WeatherIconProvider {
             "50d", "50n" -> R.raw.cloudy_weather_alt
             else -> R.drawable.default_placeholder
         }
-
     }
 }
