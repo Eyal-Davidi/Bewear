@@ -26,7 +26,7 @@ class RemoteWeatherRepository(
         }
 
         return dataStore.getCachedWeather(loc.cityName)?.takeIf {
-            !it.lastUsed.isBeforeCurrentHour(ZoneOffset.ofTotalSeconds(it.timeZoneOffset))
+            !it.hourly[0].date.isBeforeCurrentHour(ZoneOffset.ofTotalSeconds(it.timeZoneOffset))
         }?.also {
             dataStore.cacheData(it.refreshLastUsedAndIsCurrent(loc))
         }?.toDomain() ?: service.getWeather(loc).also {
