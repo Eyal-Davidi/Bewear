@@ -118,7 +118,7 @@ fun HourlyDisplay(
             .horizontalScroll(rememberScrollState())
             .wrapContentWidth()
     ) {
-        for (i in 0..23) {
+        for (hour in 0..23) {
             Card(
                 border = BorderStroke(3.dp, MaterialTheme.colors.primaryVariant),
                 shape = RoundedCornerShape(topEnd = 5.dp, topStart = 5.dp),
@@ -129,7 +129,7 @@ fun HourlyDisplay(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Image(
-                        painter = painterResource(hourlyAdvice[i].avatar),
+                        painter = painterResource(hourlyAdvice[hour].avatar),
                         contentDescription = "Avatar",
                         modifier = Modifier
                             .offset(y = 30.dp)
@@ -139,8 +139,9 @@ fun HourlyDisplay(
 
                 Column(horizontalAlignment = Alignment.End) {
                     val icon =
-                        if (weather.hourlyIcons.isEmpty()) R.drawable.blank_icon
-                        else weather.hourlyIcons[i]
+//                        if (weather.hourlyIcons.isEmpty()) R.drawable.blank_icon
+//                        else weather.hourlyIcons[hour]
+                        weather.hourlyIcons[hour]
                     Image(
                         painter = painterResource(id = icon),
                         contentDescription = "Weather Icon",
@@ -154,14 +155,14 @@ fun HourlyDisplay(
 
                 Column(horizontalAlignment = Alignment.Start) {
                     Text(
-                        text = if (i == 0) "Now" else weather.hourlyWeather[i].date.hour.toString() + ":00",
+                        text = if (hour == 0) "Now" else weather.hourlyWeather[hour].date.hour.toString() + ":00",
                         color = Color.Black,
                         modifier = Modifier
                             .padding(start = 5.dp, top = 5.dp),
                         fontSize = 16.sp
                     )
                     Text(
-                        text = weather.hourlyWeather[i].temperature.toInt()
+                        text = weather.hourlyWeather[hour].temperature.toInt()
                             .toString() + "°",
                         color = Color.Black,
                         modifier = Modifier
