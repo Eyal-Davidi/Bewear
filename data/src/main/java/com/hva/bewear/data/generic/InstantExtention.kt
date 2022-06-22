@@ -13,13 +13,12 @@ fun Instant.toDateTime(timezoneOffset: Int = 0): LocalDateTime {
         .toLocalDateTime()
 }
 
-fun Instant.isBeforeCurrentDate(): Boolean {
-    val date = LocalDate.ofEpochDay(epochSecond)
+fun Instant.isBeforeCurrentDate(offset: ZoneOffset): Boolean {
+    val date = atOffset(offset).toLocalDate()
     return date.isBefore(LocalDate.now())
 }
 
 fun Instant.isBeforeCurrentHour(offset: ZoneOffset): Boolean {
-    val dateTime = LocalDateTime.ofInstant(this, offset)
-    val now = LocalDateTime.now(ZoneId.ofOffset(ZONE_PREFIX, offset))
-    return isBeforeCurrentDate() || dateTime.hour < now.hour
+    val dateTime = atOffset(offset).toLocalDateTime()
+    return isBeforeCurrentDate(offset) || dateTime.hour < LocalDateTime.now().hour
 }

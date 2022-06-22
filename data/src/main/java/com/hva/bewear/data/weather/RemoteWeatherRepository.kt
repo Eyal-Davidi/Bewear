@@ -21,7 +21,7 @@ class RemoteWeatherRepository(
 
     override suspend fun getWeather(location: Location): Weather {
         var loc = location
-        if(location.lat == null|| location.lon == null){
+        if(location.lat == null || location.lon == null){
              loc = locationService.returnLocation(location)
         }
 

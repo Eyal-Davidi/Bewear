@@ -59,6 +59,7 @@ import com.hva.bewear.presentation.main.MainViewModel
 import com.hva.bewear.presentation.main.model.UIStates
 import com.hva.bewear.presentation.main.model.WeatherUIModel
 import com.hva_bewear.R
+import okhttp3.internal.wait
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.*
 
@@ -287,7 +288,6 @@ class MainActivity : ComponentActivity() {
                                 MaterialTheme.colors.secondary
                             )
                             .clickable {
-                                expanded = false
                                 localFocusManager.clearFocus()
                                 if (checkLocationPermission()) showLocationPermission = true
                                 else fetchLocation()
@@ -318,7 +318,7 @@ class MainActivity : ComponentActivity() {
                             Column(
                                 Modifier
                                     .clickable {
-                                        expanded = false
+                                        localFocusManager.clearFocus()
                                         if (location != currentLocation && location.cityName.isNotBlank()) {
                                             viewModel.refresh(location)
                                         }
