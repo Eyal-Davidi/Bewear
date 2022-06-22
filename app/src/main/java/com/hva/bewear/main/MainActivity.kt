@@ -3,6 +3,7 @@ package com.hva.bewear.main
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Address
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Bundle
@@ -566,11 +567,12 @@ class MainActivity : ComponentActivity() {
         ).addOnSuccessListener {
             if (it != null) {
                 val geocoder = Geocoder(this, Locale.getDefault())
-                val address = geocoder.getFromLocation(it.latitude, it.longitude, 1)[0]
+                val addresses = geocoder.getFromLocation(it.latitude, it.longitude, 1)
+                val address = if(addresses.isNotEmpty()) addresses[0] else Address(Locale.getDefault())
                 viewModel.refresh(
                     location = Location(
-                        cityName = address.locality,
-                        fullName = "${address.locality}, ${address.countryCode}",
+                        cityName = address.locality ?: "Unknown City",
+                        fullName = "${address.locality ?: "Unknown City"}, ${address.countryCode ?: "Unknown Country"}",
                         lat = it.latitude,
                         lon = it.longitude,
                         isCurrent = true
