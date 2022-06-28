@@ -1,10 +1,12 @@
 package com.hva.bewear.main
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
+import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
@@ -60,9 +62,9 @@ import com.hva.bewear.presentation.main.MainViewModel
 import com.hva.bewear.presentation.main.model.UIStates
 import com.hva.bewear.presentation.main.model.WeatherUIModel
 import com.hva_bewear.R
-import okhttp3.internal.wait
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.*
+
 
 class MainActivity : ComponentActivity() {
 
@@ -540,6 +542,12 @@ class MainActivity : ComponentActivity() {
                 errorState = uiState,
                 showRefresh = true
             )
+            is UIStates.CurrentLocationNetworkError -> ErrorState(
+                viewModel,
+                errorState = uiState,
+                showRefresh = true,
+                refreshFunction = {fetchLocation()}
+            )
             is UIStates.ErrorInterface -> ErrorState(viewModel, errorState = uiState)
             UIStates.Loading -> LoadingScreen()
             UIStates.Normal -> Content()
@@ -565,7 +573,8 @@ class MainActivity : ComponentActivity() {
             PRIORITY_LOW_POWER,
             cancellationTokenSource.token
         ).addOnSuccessListener {
-            if (it != null) {
+            val isNetworkAvailable = isNetworkAvailable()
+            if (it != null && isNetworkAvailable) {
                 val geocoder = Geocoder(this, Locale.getDefault())
                 val addresses = geocoder.getFromLocation(it.latitude, it.longitude, 1)
                 val address = if(addresses.isNotEmpty()) addresses[0] else Address(Locale.getDefault())
@@ -578,7 +587,8 @@ class MainActivity : ComponentActivity() {
                         isCurrent = true
                     ),
                 )
-            } else viewModel.setNormal()
+            } else if (!isNetworkAvailable) viewModel.setError(UIStates.CurrentLocationNetworkError("No connection!"))
+            else viewModel.setNormal()
         }.addOnFailureListener { exception ->
             Log.d("Location", "Oops location failed with exception: $exception")
             viewModel.setNormal()
@@ -594,6 +604,13 @@ class MainActivity : ComponentActivity() {
                     this,
                     Manifest.permission.ACCESS_FINE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetworkInfo = connectivityManager.activeNetworkInfo
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected
     }
 
     @Preview(showBackground = true)

@@ -202,6 +202,7 @@ class MainViewModel(
 
     fun setLoading() = _uiState.tryEmit(UIStates.Loading)
     fun setNormal() = _uiState.tryEmit(UIStates.Normal)
+    fun setError(errorState: UIStates.ErrorInterface) = _uiState.tryEmit(errorState)
 
     companion object {
         private const val AMOUNT_OF_HOURS_IN_HOURLY = 24
