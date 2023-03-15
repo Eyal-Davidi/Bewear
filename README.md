@@ -1,21 +1,33 @@
 # Bewear
-# Goal
+
+## Table of contents
+* [Goal](#goal)
+* [Introduction](#introduction)
+* [Way of Work](#way-of-work)
+* [Technologies Used](#technologies-used)
+* [Getting Started](#getting-started)
+
+<a id="goal"></a>
+## 🎯 Goal
 This Android app got developed by our group as part of the mobile development project course for Amsterdam University of Applied Sciences in collaboration with the mobile development company M2Mobi.
 
-# Introduction
+<a id="introduction"></a>
+## 📝 Introduction
 Bewear is a weather app that speeds up the morning routine of deciding what to wear for the day. The app gives the user a quick and visual idea of what clothes and accessories he will need throughout the day. 
 
-# Way of Work
-The user can allow permission to his current location or type location with auto-complete assistance and see the weather information accordingly. The app gets the weather information from the OpenWeather API, displays an avatar wearing clothes based on the weather’s forecast for the day, and umbrella and sunscreen information when needed. On top of this visual way of the weather advice, the user can pull up to read the clothing advice in a textual manner. The app gives additional information regarding whether you need an umbrella or sunscreen for the day.
+<a id="way-of-work"></a>
+## 🤖 Way of Work
+The user can allow permission to his current location or type location with auto-complete assistance and see the weather information accordingly. The app gets the weather information from the OpenWeather API, displays an avatar wearing clothes based on the weather’s forecast for the day, and umbrella and sunscreen information when needed. On top of this visual way of the weather advice, the user can pull up to read the clothing advice in a textual manner.
 
-# Technologies
+<a id="technologies-used"></a>
+## 🛠 Technologies Used
 Kotlin and Jetpack Compose
 
-# Getting Started
+<a id="getting-started"></a>
+## ▶ Getting Started
 1. Clone the repository
 2. Generate API_KEYs from OpenWeather API and Google Autocomplete API and place them in the code. 
 3. Run on an android phone or emulator.
-
 <br> <br/>
 
 <p>
